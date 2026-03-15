@@ -20,16 +20,17 @@
   <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
   <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
 
-  <meta name="description" content="Windows + PowerShell 从零搭建 Hexo 博客工作流程技术栈 Node.js  Git  Hexo  GitHub  GitHub Pages    一、安装基础环境并配置镜像源1 安装 Node.js下载 LTS 版本： https:&#x2F;&#x2F;nodejs.org 安装完成后在 PowerShell 验证： 123node -vnpm -v  如果能输出版本号说明安装成功。 在使用">
+  <meta name="description" content="Windows + PowerShell 从零搭建 Hexo 博客">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从零开始的个人Blog搭建">
 <meta property="og:url" content="http://example.com/2026/03/15/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E4%B8%AA%E4%BA%BABlog%E6%90%AD%E5%BB%BA/index.html">
 <meta property="og:site_name" content="Zes is me.">
-<meta property="og:description" content="Windows + PowerShell 从零搭建 Hexo 博客工作流程技术栈 Node.js  Git  Hexo  GitHub  GitHub Pages    一、安装基础环境并配置镜像源1 安装 Node.js下载 LTS 版本： https:&#x2F;&#x2F;nodejs.org 安装完成后在 PowerShell 验证： 123node -vnpm -v  如果能输出版本号说明安装成功。 在使用">
+<meta property="og:description" content="Windows + PowerShell 从零搭建 Hexo 博客">
 <meta property="og:locale">
 <meta property="article:published_time" content="2026-03-15T06:18:05.000Z">
-<meta property="article:modified_time" content="2026-03-15T06:18:28.072Z">
+<meta property="article:modified_time" content="2026-03-15T07:39:56.410Z">
 <meta property="article:author" content="Zes">
+<meta property="article:tag" content="Web">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="Zes is me." type="application/atom+xml">
@@ -135,6 +136,8 @@
           <a class="link-btn" href="/images/wechat-qr.jpg" title="Weixin"><i class="fa-brands fa-weixin"></i></a>
         
           <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/Zes-Z" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        
+          <a class="link-btn" href="/images/photos" title="Photos"><i class="fa-regular fa-camera"></i></a>
          
       </div>  
     </div>
@@ -142,14 +145,93 @@
 </div>
 
   
+    
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">Recent Posts</h3>
+      <ul>
+        
+          <a class="recent-link" href="/2026/03/15/About-Golang/" title="About Golang" >
+            <div class="recent-link-text">
+              About Golang
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2026/03/15/%E5%85%B3%E4%BA%8E%E6%97%A5%E6%9C%AC%E8%AF%AD/" title="关于日本语" >
+            <div class="recent-link-text">
+              关于日本语
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2026/03/15/About-Math/" title="About Math" >
+            <div class="recent-link-text">
+              About Math
+            </div>
+          </a>
+        
+      </ul>
+    </div>
+  </div>
+
+  
   <div class="sticky">
     
       
 
 
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">Categories</h3>
+      <div class="category-box">
+            <a class="category-link" href="/categories/Coding/">
+                Coding
+                <div class="category-count">2</div>
+            </a>
+        
+            <a class="category-link" href="/categories/Math/">
+                Math
+                <div class="category-count">1</div>
+            </a>
+        
+            <a class="category-link" href="/categories/Linguistics/">
+                Linguistics
+                <div class="category-count">1</div>
+            </a>
+        </div>
+    </div>
+  </div>
+
 
     
       
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">Tags</h3>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Golang/" rel="tag">Golang</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Hello-world/" rel="tag">Hello,world!</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Thought/" rel="tag">Thought</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%97%A5%E6%9C%AC%E8%AA%9E/" rel="tag">日本語</a></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">Archives</h3>
+      
+      
+        <a class="archive-link" href="/archives/2026/03 ">
+          March 2026 
+          <div class="archive-count">4 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2026/01 ">
+          January 2026 
+          <div class="archive-count">3 </div>
+        </a>
+      
+    </div>
+  </div>
+
 
     
   </div>
@@ -185,16 +267,18 @@
           <div class="need-seperator meta-info">
             <div class="meta-cate-flex">
   
-    未分類 
+  <a class="meta-cate-link" href="/categories/Coding/">Coding</a>
    
 </div>
   
           </div>
           <div class="wordcount need-seperator meta-info">
-            1.5k 詞 
+            1.4k words 
           </div>
         </div>
         
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li></ul>
+
       </header>
       <div class="e-content article-entry" itemprop="articleBody">
         
@@ -251,27 +335,7 @@
 <p>此时目录结构大致如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ZesBlog</span><br><span class="line">│</span><br><span class="line">├─ _config.yml</span><br><span class="line">├─ package.json</span><br><span class="line">├─ source</span><br><span class="line">├─ themes</span><br><span class="line">└─ scaffolds</span><br></pre></td></tr></table></figure>
 
-<p>目录说明：</p>
-<p>|<br>目录</p>
-<p> | </p>
-<p>作用</p>
-<p> |<br>| — | — |<br>| </p>
-<p>source</p>
-<p> | </p>
-<p>博客文章和页面</p>
-<p> |<br>| </p>
-<p>themes</p>
-<p> | </p>
-<p>博客主题</p>
-<p> |<br>| </p>
-<p>_config.yml</p>
-<p> | </p>
-<p>博客主配置</p>
-<p> |<br>| </p>
-<p>package.json</p>
-<p> | </p>
-<p>Node依赖配置</p>
-<p> |</p>
+
 <hr>
 <h1 id="四、本地启动博客"><a href="#四、本地启动博客" class="headerlink" title="四、本地启动博客"></a>四、本地启动博客</h1><h2 id="1-生成静态页面"><a href="#1-生成静态页面" class="headerlink" title="1 生成静态页面"></a>1 生成静态页面</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g</span><br></pre></td></tr></table></figure>
 
@@ -368,10 +432,15 @@
   
     
 <nav id="article-nav">
-  <a class="article-nav-btn left  disabled "
+  <a class="article-nav-btn left "
+    
+      href="/2026/03/15/About-Math/"
+      title="About Math"
      >
     <i class="fa-solid fa-angle-left"></i>
     <p class="title-text">
+      
+        About Math
         
     </p>
   </a>
