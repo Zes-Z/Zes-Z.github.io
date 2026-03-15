@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <author>
+    <name>Zes</name>
+  </author>
+  <generator uri="https://hexo.io/">Hexo</generator>
+  <id>http://example.com/</id>
+  <link href="http://example.com/" rel="alternate"/>
+  <link href="http://example.com/atom.xml" rel="self"/>
+  <rights>All rights reserved 2026, Zes</rights>
+  <title>Zes is me.</title>
+  <updated>2026-01-16T08:05:47.265Z</updated>
+  <entry>
+    <author>
+      <name>Zes</name>
+    </author>
+    <id>http://example.com/2026/01/16/%E4%B8%89%E5%88%86%E3%81%AE%E4%BA%8C/</id>
+    <link href="http://example.com/2026/01/16/%E4%B8%89%E5%88%86%E3%81%AE%E4%BA%8C/"/>
+    <published>2026-01-16T08:05:47.000Z</published>
+    <title>三分の二</title>
+    <updated>2026-01-16T08:05:47.265Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Zes</name>
+    </author>
+    <id>http://example.com/2026/01/16/%E4%B8%89%E5%88%86%E3%81%AE%E4%B8%80/</id>
+    <link href="http://example.com/2026/01/16/%E4%B8%89%E5%88%86%E3%81%AE%E4%B8%80/"/>
+    <published>2026-01-16T07:56:36.000Z</published>
+    <title>三分の一</title>
+    <updated>2026-01-16T08:10:30.872Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Zes</name>
+    </author>
+    <content>
+      <![CDATA[<h2 id="你找到了我"><a href="#你找到了我" class="headerlink" title="你找到了我"></a>你找到了我</h2><h2 id="同时我也找到了你"><a href="#同时我也找到了你" class="headerlink" title="同时我也找到了你"></a>同时我也找到了你</h2>]]>
+    </content>
+    <id>http://example.com/2026/01/12/Zes%20is%20me/</id>
+    <link href="http://example.com/2026/01/12/Zes%20is%20me/"/>
+    <published>2026-01-12T14:05:57.000Z</published>
+    <summary>
+      <![CDATA[<h2 id="你找到了我"><a href="#你找到了我" class="headerlink" title="你找到了我"></a>你找到了我</h2><h2 id="同时我也找到了你"><a href="#同时我也找到了你" class="headerlink" titl]]>
+    </summary>
+    <title>Hello,Zes is me.</title>
+    <updated>2026-01-16T08:10:54.245Z</updated>
+  </entry>
+</feed>
