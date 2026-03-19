@@ -2,15 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://example.com/2026/03/19/d/</loc>
-    
-    <lastmod>2026-03-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://example.com/2026/03/04/%E5%85%B3%E4%BA%8E%E6%97%A5%E6%9C%AC%E8%AF%AD/</loc>
     
     <lastmod>2026-03-19</lastmod>
@@ -92,14 +83,14 @@
 
   
   <url>
-    <loc>http://example.com/tags/Hello-world/</loc>
+    <loc>http://example.com/tags/Golang/</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/tags/Golang/</loc>
+    <loc>http://example.com/tags/Hello-world/</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -113,14 +104,14 @@
   </url>
   
   <url>
-    <loc>http://example.com/tags/Web/</loc>
+    <loc>http://example.com/tags/%E6%97%A5%E6%9C%AC%E8%AA%9E/</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/tags/%E6%97%A5%E6%9C%AC%E8%AA%9E/</loc>
+    <loc>http://example.com/tags/Web/</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -136,14 +127,14 @@
   </url>
   
   <url>
-    <loc>http://example.com/categories/Linguistics/</loc>
+    <loc>http://example.com/categories/Coding/</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/categories/Coding/</loc>
+    <loc>http://example.com/categories/Linguistics/</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
