@@ -83,13 +83,6 @@
 
   
   <url>
-    <loc>http://example.com/tags/Hello-world/</loc>
-    <lastmod>2026-03-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>http://example.com/tags/Golang/</loc>
     <lastmod>2026-03-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -98,6 +91,13 @@
   
   <url>
     <loc>http://example.com/tags/Markdown/</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/tags/Hello-world/</loc>
     <lastmod>2026-03-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -127,14 +127,14 @@
   </url>
   
   <url>
-    <loc>http://example.com/categories/Linguistics/</loc>
+    <loc>http://example.com/categories/Math/</loc>
     <lastmod>2026-03-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/categories/Math/</loc>
+    <loc>http://example.com/categories/Linguistics/</loc>
     <lastmod>2026-03-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
