@@ -10,8 +10,8 @@ http://example.com/
 http://example.com/tags/Golang/
 http://example.com/tags/Markdown/
 http://example.com/tags/Hello-world/
-http://example.com/tags/Web/
 http://example.com/tags/%E6%97%A5%E6%9C%AC%E8%AA%9E/
+http://example.com/tags/Web/
 http://example.com/categories/Coding/
 http://example.com/categories/Math/
 http://example.com/categories/Linguistics/
