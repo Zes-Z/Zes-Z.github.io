@@ -14,18 +14,23 @@
   
 
   
-  <title>Category: Linguistics | Zes is me.</title>
+  <title>词向量 | Zes is me.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
   <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Zes is me.">
-<meta property="og:url" content="http://example.com/categories/Linguistics/index.html">
+  <meta name="description" content="词向量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="词向量">
+<meta property="og:url" content="http://example.com/2026/03/24/%E8%AF%8D%E5%90%91%E9%87%8F/index.html">
 <meta property="og:site_name" content="Zes is me.">
+<meta property="og:description" content="词向量">
 <meta property="og:locale">
+<meta property="article:published_time" content="2026-03-24T10:00:30.000Z">
+<meta property="article:modified_time" content="2026-03-24T10:05:27.862Z">
 <meta property="article:author" content="Zes">
+<meta property="article:tag" content="词向量">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="Zes is me." type="application/atom+xml">
@@ -252,44 +257,156 @@
     <div id="content-body">
        
 
-<div class="archive-main-card">
-    <div class="archive-top">
-      <div class="main-title-bar">
-        <div class="main-title-dot"></div>
-        <h1 class="article-title">Archives</h1>
-      </div>    
+
+<article id="post-词向量" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+    
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 class="p-name article-title" itemprop="headline name">
+        词向量
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2026-03-24T10:00:30.000Z" itemprop="datePublished">2026-03-24</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+    Uncategorized 
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            1.5k words 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%8D%E5%90%91%E9%87%8F/" rel="tag">词向量</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <h1 id="词向量"><a href="#词向量" class="headerlink" title="词向量"></a>词向量</h1><h2 id="词向量–what-and-why"><a href="#词向量–what-and-why" class="headerlink" title="词向量–what and why ?"></a>词向量–what and why ?</h2><blockquote>
+<p><code>词向量</code>即词蕴含的信息的<code>数字向量表示</code></p>
+<p>如: [0.03418,-1.3432,0.7289,…],通常一个词的向量表示有300维度</p>
+</blockquote>
+<blockquote>
+<p>有时,词汇的<strong>语义信息</strong>无法用<strong>文本</strong>准确,直观的表现出来,更不必说进行客观的研究</p>
+<p>如果有一种工具能在最大程度保留词汇语义信息的前提下,将其转换为数字,一切将会变得清晰直白,有迹可循</p>
+</blockquote>
+<hr>
+<h2 id="词向量从何而来"><a href="#词向量从何而来" class="headerlink" title="词向量从何而来"></a>词向量从何而来</h2><blockquote>
+<p>如何无损地将文本信息转换成数字,这是许多计算机科学专家研究的一大课题</p>
+</blockquote>
+<blockquote>
+<h2 id="Distributional-Hypothesis-1990s–2012"><a href="#Distributional-Hypothesis-1990s–2012" class="headerlink" title="Distributional Hypothesis (1990s–2012)"></a>Distributional Hypothesis (1990s–2012)</h2><p>You shall know a word by the company it keeps. — J.R. Firth</p>
+<p>在分布语义假说的指导下,有人想到:可以把所有词汇的所有维度都用0和1表示出来</p>
+<p>比如:<code>リンゴ</code>：[0,0,0,1,0,…]    <code>本</code>：[1,0,0,0,…]  ,这种词向量模型被称为<code>独热模型(one-hot)</code></p>
+<p>但是这样很快就出现了一个问题 : 冗余太高,效率太低</p>
+</blockquote>
+<hr>
+<h2 id="后来的词向量模型"><a href="#后来的词向量模型" class="headerlink" title="后来的词向量模型"></a>后来的词向量模型</h2><blockquote>
+<p>在2013年左右, Mikolov 等人发布了<code>Word2Vec模型</code>（2013, Google）</p>
+<p>其中的CBOW（Continuous Bag of Words）<code>类似于完型填空</code></p>
+<p>和Skip-Gram  <code>类似于关键字造句</code></p>
+<p>极大地影响了后来的词向量模型,</p>
+<p>最著名的一个推论：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">king - man + woman ≈ queen</span><br></pre></td></tr></table></figure>
+
+<p>但这一模型也有缺点,即无法处理<code>子词</code>信息,如英语中的词缀,<code>Word2Vec模型</code>只能束手无策,</p>
+<p>对于日语中的接头接尾词的处理也是无能为力</p>
+</blockquote>
+<blockquote>
+<p>后来在2016年,</p>
+<p>T. Mikolov, E. Grave, P. Bojanowski, C. Puhrsch, A. Joulin. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1712.09405"><em>Advances in Pre-Training Distributed Word Representations</em> </a>论文的发布改变了词向量模型的历史</p>
+<p>计算机在大量的矩阵计算和文本学习后,逐渐掌握了词汇的语义信息,</p>
+<p>正真实现了使用极少的计算资源,将词汇的语义载体由<code>文本</code>转变为<code>数字</code>,</p>
+<p><code>FastText模型</code>应运而生（2016, Facebook）</p>
+<p>从而有了文章开头所示的:[0.03418,-1.3432,0.7289,…]这一串串数字</p>
+<p>其进步之处在于提出了:<strong>词 &#x3D; 字符 n-gram 的向量和</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">playing = &lt;pla, play, lay, ayi, yin, ing&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然而FastText模型也不完美,</p>
+<p>由于是<code>静态词向量模型</code>,词的语义的向量表示完全取决于训练中使用的文本和训练参数,一旦生成,无法更改,</p>
+<p>这使得将其用于多义词,多音词的语言研究成为不可能事件;</p>
+<p>其对语序的忽略也是一大弱点</p>
+</blockquote>
+<blockquote>
+<p>2017年,可谓是大语言模型的萌芽之年</p>
+<p>谷歌旗下研究团队发布重磅论文<code>Attention is all you need</code></p>
+<p>2018年,基于<code>Attention is all you need</code>的<code>transformer</code>架构的<code>BERT模型</code>横空出世,几乎碾压了一切前辈</p>
+<p><code> &quot;在短语、句子、篇章中,学习词的语义,以及各个词之间的关联,语法结构&quot;</code></p>
+<p><code>&quot;既从向前后看,又从后向前看&quot;</code></p>
+<p><code>&quot;动态词向量&quot;</code></p>
+<p><code>&quot;...&quot;</code></p>
+<p><code>BERT模型</code>的诸多优点使其成为同时期<code>NLP</code>以及<code>语言学</code>研究者手中的香饽饽…</p>
+</blockquote>
+<h2 id="词向量与大语言模型"><a href="#词向量与大语言模型" class="headerlink" title="词向量与大语言模型"></a>词向量与大语言模型</h2><blockquote>
+<p>在与<code>BERT模型</code>平行的另一条时间线上,一家名为Open AI的公司敏锐地发现了这类模型的潜力,</p>
+<p>但Open AI选择了一条不同的发展道路,最终发布了广为人知的<code>GPT</code></p>
+<p>…</p>
+<p>在<code>BERT模型</code>的基础上,经过数次迭代,也最终衍生出了类似于<code>GPT</code>的生成式模型,</p>
+<p>即谷歌发布的<code>Gemini模型</code></p>
+</blockquote>
+<br>
+
+<p>End</p>
+
+        
+      </div>
+
+         
     </div>
     
-    
-      
-      
-        
-        <div class="year-line">
-            <div class="year-num">2026</div>
-            <div class="dot-wrapper">
-                <div class="dot"></div>
-            </div>
-            <div class="article-count">1 article</div>
-        </div>
-      
-      <a class="archive-article-link" href="/2026/03/04/%E5%85%B3%E4%BA%8E%E6%97%A5%E8%AF%AD%E8%AF%AD%E8%A8%80%E5%AD%A6/" title="关于日语语言学">
-        <div class="date">03-04</div>
-        <div class="line">
-            <div class="dot"></div>
-        </div>
-        <div class="title">
-            <div class="title-inner">
-                
-                    关于日语语言学
-                
-            </div>
-        </div>
-        <div class="tags">
-            #日本語
-        </div>
-      </a>
-    
+     
   </div>
+  
+    
+<nav id="article-nav">
+  <a class="article-nav-btn left  disabled "
+     >
+    <i class="fa-solid fa-angle-left"></i>
+    <p class="title-text">
+        
+    </p>
+  </a>
+  <a class="article-nav-btn right "
+    
+      href="/2026/03/19/Markdown%E8%AF%AD%E6%B3%95/"
+      title="Markdown语法"
+     >
+
+    <p class="title-text">
+      
+        Markdown语法
+        
+    </p>
+    <i class="fa-solid fa-angle-right"></i>
+  </a>
+</nav>
+
+
+  
+</article>
+
+
+
+
+
+
     </div>
     <div id="footer-wrapper">
       <footer id="footer">
