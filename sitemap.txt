@@ -8,13 +8,13 @@ http://example.com/2026/03/04/About-Math/
 http://example.com/2026/03/04/About-Golang/
 http://example.com/
 http://example.com/tags/Golang/
-http://example.com/tags/Markdown/
-http://example.com/tags/Hello-world/
 http://example.com/tags/Web/
 http://example.com/tags/%E6%97%A5%E6%9C%AC%E8%AA%9E/
+http://example.com/tags/Markdown/
+http://example.com/tags/%E8%AF%8D%E5%90%91%E9%87%8F/
 http://example.com/tags/%E5%BE%AE%E7%A7%AF%E5%88%86/
 http://example.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/
-http://example.com/tags/%E8%AF%8D%E5%90%91%E9%87%8F/
+http://example.com/tags/Hello-world/
 http://example.com/categories/Coding/
 http://example.com/categories/Math/
 http://example.com/categories/Linguistics/
