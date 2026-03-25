@@ -9,7 +9,24 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   <rights>All rights reserved 2026, Zes</rights>
   <title>Zes is me.</title>
-  <updated>2026-03-24T10:05:27.862Z</updated>
+  <updated>2026-03-25T08:14:21.661Z</updated>
+  <entry>
+    <author>
+      <name>Zes</name>
+    </author>
+    <category term="Math" scheme="http://example.com/categories/Math/"/>
+    <category term="微积分" scheme="http://example.com/tags/%E5%BE%AE%E7%A7%AF%E5%88%86/"/>
+    <category term="学习笔记" scheme="http://example.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <content>
+      <![CDATA[<!-- 以上参数在"D:\ZesBlog\scaffolds\post.md"中修改,此行为注释,忽略之 --><h1 id="微积分笔记"><a href="#微积分笔记" class="headerlink" title="微积分笔记"></a>微积分笔记</h1><h2 id="一、函数与极限"><a href="#一、函数与极限" class="headerlink" title="一、函数与极限"></a>一、函数与极限</h2><hr><h2 id="二、导数与微分"><a href="#二、导数与微分" class="headerlink" title="二、导数与微分"></a>二、导数与微分</h2><hr><h2 id="三、微分中值定理与导数应用"><a href="#三、微分中值定理与导数应用" class="headerlink" title="三、微分中值定理与导数应用"></a>三、微分中值定理与导数应用</h2><h3 id="微分中值定理"><a href="#微分中值定理" class="headerlink" title="微分中值定理"></a>微分中值定理</h3><p><code>|sinx-siny|&lt;=|x-y|</code><br><code>sinx&lt;x&lt;tanx</code><br><code>当x&gt;0时,x/(x+1)&lt;ln(x+1)&lt;x</code></p><hr><h2 id="四、不定积分"><a href="#四、不定积分" class="headerlink" title="四、不定积分"></a>四、不定积分</h2><hr><h2 id="五、定积分"><a href="#五、定积分" class="headerlink" title="五、定积分"></a>五、定积分</h2><hr><h2 id="六、定积分"><a href="#六、定积分" class="headerlink" title="六、定积分"></a>六、定积分</h2><hr><h2 id="七、微分方程"><a href="#七、微分方程" class="headerlink" title="七、微分方程"></a>七、微分方程</h2><hr><h2 id="八、多元函数微分法及其应用"><a href="#八、多元函数微分法及其应用" class="headerlink" title="八、多元函数微分法及其应用"></a>八、多元函数微分法及其应用</h2><h3 id="全微分"><a href="#全微分" class="headerlink" title="全微分"></a>全微分</h3><h3 id="多元复合函数微分法"><a href="#多元复合函数微分法" class="headerlink" title="多元复合函数微分法"></a>多元复合函数微分法</h3><hr><h2 id="九、多重积分"><a href="#九、多重积分" class="headerlink" title="九、多重积分"></a>九、多重积分</h2><h3 id="二重积分及计算"><a href="#二重积分及计算" class="headerlink" title="二重积分及计算"></a>二重积分及计算</h3><h3 id="三重积分"><a href="#三重积分" class="headerlink" title="三重积分"></a>三重积分</h3><hr><h2 id="十、线面积分"><a href="#十、线面积分" class="headerlink" title="十、线面积分"></a>十、线面积分</h2><hr><h2 id="十一、无穷级数"><a href="#十一、无穷级数" class="headerlink" title="*十一、无穷级数"></a>*十一、无穷级数</h2>]]>
+    </content>
+    <id>http://example.com/2026/03/25/%E5%BE%AE%E7%A7%AF%E5%88%86%E7%AC%94%E8%AE%B0/</id>
+    <link href="http://example.com/2026/03/25/%E5%BE%AE%E7%A7%AF%E5%88%86%E7%AC%94%E8%AE%B0/"/>
+    <published>2026-03-25T07:58:13.000Z</published>
+    <summary>微积分学习笔记</summary>
+    <title>微积分笔记</title>
+    <updated>2026-03-25T08:14:21.661Z</updated>
+  </entry>
   <entry>
     <author>
       <name>Zes</name>
