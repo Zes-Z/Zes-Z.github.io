@@ -105,6 +105,8 @@ print("成功嵌套并换行")
 ```
 ### 这一行作结尾，哈哈已经结束了!
 ---
+
+**公式**
 [//]: # (![example image]&#40;./demo-banner.png "An exemplary image"&#41;)
 
 Inline math equations go in like so: $\omega = d\phi / dt$. Display
@@ -123,6 +125,23 @@ $$
 
 And note that you can backslash-escape any punctuation characters
 which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
+
+---
+**插入视频**
+```md
+---
+title: Markdown基础语法
+published: 2026-03-04
+tags: [Markdown,web]
+category: Coding
+description: Markdown 基础语法参考指北
+draft: false
+---
+正文...
+<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
+```
+<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 
 ---
 ## 一些提示
