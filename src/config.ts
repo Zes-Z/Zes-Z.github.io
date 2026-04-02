@@ -99,7 +99,8 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	theme: "github-dark", // 代码高亮主题配置
 };
 
-// 侧边栏的"分类"和"标签"折叠阈值,在"D:\fyblog\src\components\widget\Categories|Tags.astro"中设置;
-// about页面信息,在"D:\fyblog\src\content\spec\about.md"中修改;
+
+
 // 主页单页显示文章数量､黑白模式､横幅长宽等,在"D:\fyblog\src\constants\constants.ts"中自定义;
-// 
+// about页面信息,在"D:\fyblog\src\content\spec\about.md"中修改;
+// 侧边栏的"分类"和"标签"折叠阈值,在"D:\fyblog\src\components\widget\Categories|Tags.astro"中设置;

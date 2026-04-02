@@ -4,7 +4,7 @@ published: 2026-04-02
 description: '关于日语分词器MeCab的3种使用方式'
 image: ''
 tags: [mecab,分词,wiondows,python]
-category: ''
+category: 'Ling.'
 draft: false 
 lang: ''
 ---
