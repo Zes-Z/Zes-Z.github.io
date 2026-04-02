@@ -60,7 +60,7 @@ draft: false
 
 + [ ] 编写Python脚本 `+ [ ] 编写Python自动化脚本`  
 
-- [x] 导出为 PDF `- [ ] 导出为 PDF`
+- [x] 导出为 PDF `- [x] 导出为 PDF`
 
 ---
 
@@ -71,7 +71,6 @@ draft: false
 > 语言是思维的边界。 `> 语言是思维的边界。`
 >> —— 维特根斯坦 `>> —— 维特根斯坦`
 
-<br> 
     
 ### 分割线
 使用三个或更多的 `---` 或 `***`，效果如下。
@@ -87,26 +86,27 @@ draft: false
 ### 围栏代码块 (Code Fencing)
 使用```` ``` ````指定编程语言以获得语法高亮，例如:
 
-> \```python
-\# 使用 Ginza/spaCy 进行日语依存句法分析
-import spacy
-nlp = spacy.load("ja_ginza")
-print("成功嵌套并换行")
-\```
+> \```python  
+\# 使用 Ginza/spaCy 包  
+import spacy  
+nlp = spacy.load("ja_ginza")  
+print("成功嵌套并换行")  
+\```  
 \### 这一行作结尾，哈哈已经结束了!
 
 代码块末尾输入```` ``` ````以结束，整体效果如下:
 
 ```python
-# 使用 Ginza/spaCy 进行日语依存句法分析
+# 使用 Ginza/spaCy 包
 import spacy
 nlp = spacy.load("ja_ginza")
 print("成功嵌套并换行")
 ```
 ### 这一行作结尾，哈哈已经结束了!
 ---
-
-**公式**
+---
+# 注:以下内容来自fuwari演示文档
+## 公式
 [//]: # (![example image]&#40;./demo-banner.png "An exemplary image"&#41;)
 
 Inline math equations go in like so: $\omega = d\phi / dt$. Display
@@ -127,7 +127,7 @@ And note that you can backslash-escape any punctuation characters
 which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
 
 ---
-**插入视频**
+## .md文件中插入视频
 ```md
 ---
 title: Markdown基础语法
@@ -144,7 +144,95 @@ draft: false
 <iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 
 ---
-## 一些提示
+
+
+## GitHub Repository Cards
+You can add dynamic cards that link to GitHub repositories, on page load, the repository information is pulled from the GitHub API. 
+
+::github{repo="Fabrizz/MMM-OnSpotify"}
+
+Create a GitHub repository card with the code `::github{repo="<owner>/<repo>"}`.
+
+```markdown
+::github{repo="saicaca/fuwari"}
+```
+
+## Admonitions
+
+Following types of admonitions are supported: `note` `tip` `important` `warning` `caution`
+
+:::note
+Highlights information that users should take into account, even when skimming.
+:::
+
+:::tip
+Optional information to help a user be more successful.
+:::
+
+:::important
+Crucial information necessary for users to succeed.
+:::
+
+:::warning
+Critical content demanding immediate user attention due to potential risks.
+:::
+
+:::caution
+Negative potential consequences of an action.
+:::
+
+### Basic Syntax
+
+```markdown
+:::note
+Highlights information that users should take into account, even when skimming.
+:::
+
+:::tip
+Optional information to help a user be more successful.
+:::
+```
+
+### Custom Titles
+
+The title of the admonition can be customized.
+
+:::note[MY CUSTOM TITLE]
+This is a note with a custom title.
+:::
+
+```markdown
+:::note[MY CUSTOM TITLE]
+This is a note with a custom title.
+:::
+```
+
+### GitHub Syntax
+
+> [!TIP]
+> [The GitHub syntax](https://github.com/orgs/community/discussions/16925) is also supported.
+
+```
+> [!NOTE]
+> The GitHub syntax is also supported.
+
+> [!TIP]
+> The GitHub syntax is also supported.
+```
+
+### Spoiler
+
+You can add spoilers to your text. The text also supports **Markdown** syntax.
+
+The content :spoiler[is hidden **ayyy**]!
+
+```markdown
+The content :spoiler[is hidden **ayyy**]!
+
+```
+
+---
+**一些提示**
 * > Markdown语法兼容HTML，可以在使用Markdown难以达到理想效果时尝试HTML语句
 例如:在行与行或块与块之间使用 `<br>` 强制换行
 * > 对于使用`` ` ` ``进行文本高亮，如果遇到冲突或语法歧义，可使用反斜线 \ 充当转义符，让紧跟再\后的一个或一串符号失去语法效果；或者使用更多数量的```` `` ````来包围较少数量的`` `占位字符串` ``，例如:``` `` `占位字符串` `` ```，这样就能使多层级中的`` ` ` ``失去语法效果,从而实现`` `占位字符串` ``的效果

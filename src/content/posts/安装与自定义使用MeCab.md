@@ -78,33 +78,51 @@ lang: ''
 * [ ] 在`PowerShell`中的命令行输入:`pip install mecab-python3`以安装`MeCab包`
 
 * [ ] 打开编辑器,配置好`Python环境`(不会的可以搜一下教程,b站上有很多~)  
+
 ---
 **现在已经万事具备,让我们开始吧~**  
-1. 在编辑页面中输入以下代码以`初始化`MeCab
-
-```Python
+1. 输入以下代码,以导入`MeCab包`到`python`中
+```python
 import MeCab
 # 使用MeCab分词前,需要指定使用的字典;然后初始化分MeCab词器
 # 自定义使用的字典unidic-cwj-202512,unidic_path为自定义字典的地址
 unidic_path = r"D:\unidic-cwj-202512" 
+```
 
-
+2. 输入以下代码以`初始化MeCab`
+```python
 # 输入 tagger = MeCab.Tagger() 初始化分词器,括号中为自定义参数
 # ()中-r "{mecabrc}"用于指定空文件,-d "{unidic_path}"用于指向自定义词典地址
 tagger = MeCab.Tagger(f'-r nul -d "{unidic_path}"')  # 默认输出详细分词信息
+```
 
-
-# 注:如果自定义字典后仍需使用简洁分词,如: 勉強 は 大好き だ 。格式;
-# 需在自定义字典的dicrc中添加 -Owakati 参数 
-tagger = MeCab.Tagger(f'-r nul -d "{unidic_path}" -Owakati')
-text = "-日本橋はいいところですね。"
+3. 分词文本或文件并打印结果
+```python
+text = "勉強は大好きだ。"
 result = tagger.parse(text)
 print(result)
 ```
+---
+# 自定义分词模式
+ 由于MeCab指定分词模式的具体操作在powershell和python中一样,以下以python为例
+```python
+# 注:所有自定义的分词模式需在字典的dicrc文件中增加对应字段!dicrc自带的模式则可直接使用.
+# 如自带的简洁模式 wakati ,句子「勉強は大好きだ。」分完词如右所示: 勉強 は 大好き だ 。
 
-2. 
+# 具体操作为:初始化MeCab时在语句最后添加: -Owakati 
+# 即横杠-后加大写字母O再加分词模式即可,如下所示:
+tagger = MeCab.Tagger(f'-r nul -d "{unidic_path}" -Owakati')
+text = "勉強は大好きだ。"  # 这个是想要分词的文本
+result = tagger.parse(text)
+print(result)
+
+# 其它自定义分词模式同理,输入以下代码,以在指定字典的同时自定义分词模式:
+tagger = MeCab.Tagger(f'-r nul -d "{unidic_path}" -O某自定义分词模式')
+
+```
+
+
 
 ---
 
 
-**自定义分词**

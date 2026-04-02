@@ -33,13 +33,13 @@ export const siteConfig: SiteConfig = {
 		// Leave this array empty to use the default favicon
 		{
 		  src: '/favicon/favicon-32x32.png',    // Path of the favicon, relative to the /public directory
-		  theme: 'dark',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
-		  sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
+		  theme: 'dark',       // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
+		  sizes: '32x32',      // (Optional) Size of the favicon, set only if you have favicons of different sizes
     },
     {
 		  src: '/favicon/greenbook-32x32.png',    // Path of the favicon, relative to the /public directory
-		  theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
-		  sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
+		  theme: 'light',      // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
+		  sizes: '32x32',      // (Optional) Size of the favicon, set only if you have favicons of different sizes
 		},
 	],
 };
@@ -60,8 +60,13 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
 	avatar: "/portrait.jpg", // 头像 Relative to the /src directory. Relative to the /public directory if it starts with '/'  
 	name: "Zes",
-	bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-	links: [
+  bio: "Ephemeral life, love forever.　　別の道は別の花。",  // 头像下方的个签
+  links: [
+    {
+			name: "GitHub",
+			icon: "fa6-brands:github",
+			url: "https://github.com/Zes-Z",
+		},
     {
       name: "Weixin",
       icon: "fa6-brands:weixin",
@@ -79,11 +84,6 @@ export const profileConfig: ProfileConfig = {
        url: "https://www.alipan.com/s/yDjEWfa7yv8",
        // url: /images/wechat-qrcode.jpg
     },
-		{
-			name: "GitHub",
-			icon: "fa6-brands:github",
-			url: "https://github.com/Zes-Z",
-		},
 	],
 };
 
