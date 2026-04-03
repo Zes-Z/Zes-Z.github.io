@@ -70,8 +70,8 @@ export const profileConfig: ProfileConfig = {
     {
       name: "Weixin",
       icon: "fa6-brands:weixin",
-      url: "/images/WeixinID:Zes234-INTJ.jpg",
-      // url: /images/wechat-qrcode.jpg
+      // url: "/images/WeixinID:Zes234-INTJ.jpg",
+      url: "/QRcode-zes.jpg",
     },
 		{
 			name: "Email",
