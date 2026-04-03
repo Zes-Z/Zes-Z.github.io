@@ -52,6 +52,10 @@ image: ""
 draft: false 
 lang: ""
 ---
+
+
+
+---
 `
 
 fs.writeFileSync(path.join(targetDir, fileName), content)
