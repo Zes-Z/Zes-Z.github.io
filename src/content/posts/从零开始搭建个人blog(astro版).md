@@ -60,7 +60,7 @@ git config --global --get https.proxy
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
-* [ ] git走代理：
+* [ ] git指定代理端口：
 ```PowerShell
 git config --global http.proxy http://127.0.0.1:7897
 git config --global https.proxy http://127.0.0.1:7897
