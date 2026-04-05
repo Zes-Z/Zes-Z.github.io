@@ -46,14 +46,22 @@ const content = `---
 title: ${args[0]}
 published: ${getDate()}
 description: ""
-category: Coding
+category: Ling.
 tags: []
 image: ""
 draft: false 
 lang: ""
 ---
 
+##
 
+---
+##
+
+---
+##
+
+---
 
 ---
 `

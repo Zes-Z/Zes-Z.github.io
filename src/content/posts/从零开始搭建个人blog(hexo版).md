@@ -7,19 +7,13 @@ category: Coding
 draft: false
 ---
 
-# Windows + PowerShell 从零搭建 Hexo 博客工作流程
-
-## 技术栈
+## 需要的工具
 
 - Node.js
     
 - Git
     
-- Hexo
-    
-- GitHub
-    
-- GitHub Pages
+- GitHub账号
     
 
 * * *
@@ -28,13 +22,11 @@ draft: false
 
 ## 1 安装 Node.js
 
-下载 LTS 版本：
-
-[https://nodejs.org](https://nodejs.org/)
+下载 Node.js ：[https://nodejs.org](https://nodejs.org/)
 
 安装完成后在 PowerShell 验证：
 
-```
+```powershell
 node -v
 
 npm -v
@@ -44,7 +36,7 @@ npm -v
 
 在使用npm下载各种包之前，需先配置镜像源:
 
-```
+```powershell
 npm config set registry https://registry.npmmirror.com
 ```
 
@@ -58,7 +50,7 @@ npm config set registry https://registry.npmmirror.com
 
 安装完成后验证：
 
-```
+```powershell
 git --version
 ```
 
@@ -70,13 +62,13 @@ Hexo CLI 是 Hexo 的命令行工具。
 
 在 PowerShell 中执行：
 
-```
+```powershell
 npm install -g hexo-cli
 ```
 
 验证安装：
 
-```
+```powershell
 hexo -v
 ```
 
@@ -88,25 +80,25 @@ hexo -v
 
 选择一个工作目录，例如：
 
-```
+```powershell
 cd D:\
 ```
 
 创建 Hexo 博客：
 
-```
+```powershell
 hexo init ZesBlog
 ```
 
 进入博客目录：
 
-```
+```powershell
 cd ZesBlog
 ```
 
 安装依赖：
 
-```
+```powershell
 npm install
 ```
 
@@ -129,7 +121,7 @@ ZesBlog
 
 ## 1 生成静态页面
 
-```
+```powershell
 hexo g
 ```
 
@@ -139,13 +131,13 @@ hexo g
 
 ## 2 启动本地服务器
 
-```
+```powershell
 hexo s
 ```
 
 浏览器访问：
 
-```
+```powershell
 http://localhost:4000
 ```
 
@@ -157,13 +149,13 @@ http://localhost:4000
 
 新建文章：
 
-```
+```powershell
 hexo new "first post"
 ```
 
 Hexo 会自动生成文件：
 
-```
+```powershell
 source/_posts/first-post.md
 ```
 
@@ -177,7 +169,7 @@ tags:
 ---
 ```
 
-`文章内容写在这里。`
+**文章内容写在这个.md文件里。**
 
 * * *
 
@@ -185,17 +177,9 @@ tags:
 
 登录 GitHub，没有账号现建一个。
 
-创建一个仓库：
+创建一个仓库：`username.github.io`
 
-```
-username.github.io
-```
-
-例如：
-
-```
-zeszheng.github.io
-```
+例如：`zeszheng.github.io`
 
 这个仓库将用于托管博客。
 SSH 链接复制下来,一会要用
@@ -208,7 +192,7 @@ Hexo 需要部署插件才能发布到 GitHub Pages。
 
 安装：
 
-```
+```powershell
 npm install hexo-deployer-git --save
 ```
 
@@ -216,13 +200,14 @@ npm install hexo-deployer-git --save
 
 # 八、配置部署
 
-编辑博客根目录：
+* 编辑博客根目录：
 
 ```
 _config.yml
 ```
+**这个文件用于个性化网站**
 
-添加部署配置：
+* 添加部署配置：
 
 ```
 deploy:
@@ -237,17 +222,17 @@ branch: main
 
 # 九、部署博客
 
-执行：
+* [ ] 执行：
 
+```powershell
+hexo clean  # 清除hexo缓存
+
+hexo g      # 生成配置文件
+
+hexo d      # 部署到远端github仓库
 ```
-hexo clean
 
-hexo g
-
-hexo d
-```
-
-部署完成后访问：
+* [ ] 部署完成后访问：
 
 ```
 https://username.github.io
@@ -263,7 +248,7 @@ https://username.github.io
 
 ## 1 创建文章
 
-```
+```powershell
 hexo new "post title"
 ```
 
@@ -271,7 +256,9 @@ hexo new "post title"
 
 ## 2 本地预览
 
-```
+```powershell
+hexo g
+
 hexo s
 ```
 
@@ -279,7 +266,7 @@ hexo s
 
 ## 3 发布博客
 
-```
+```powershell
 hexo clean
 
 hexo g
@@ -310,12 +297,14 @@ hexo d
 
 之后日常写作只需：
 
-```
+```powershell
 hexo new
 
-hexo s
+hexo g
 
-hexo d
+hexo s  # ctrl+c退出本地预览后，才可 hexo d 推送到远端
+
+hexo d  # 推送到github
 ```
 
 即可完成写作、预览和发布。

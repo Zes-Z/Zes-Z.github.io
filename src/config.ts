@@ -17,12 +17,12 @@ export const siteConfig: SiteConfig = {
 	},
 	banner: {
 		enable: true,
-		src: "assets/images/天空风景.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+		src: "assets/images/蓝色大海.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 		position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
 		credit: {
 			enable: true, // Display the credit text of the banner image  是否展示横幅图片信息
 			text: "by ...", // Credit text to be displayed   横幅图片文字说明
-			url: "", // (Optional) URL link to the original artwork or artist's page  图片链接版权作者
+			url: "", // (Optional) URL link to the original artwork or artist's page  图片作者版权链接
 		},
 	},
 	toc: {
@@ -59,7 +59,7 @@ export const navBarConfig: NavBarConfig = {
 
 export const profileConfig: ProfileConfig = {
 	avatar: "/portrait.jpg", // 头像 Relative to the /src directory. Relative to the /public directory if it starts with '/'  
-	name: "Zes",
+	name: "在时",   // 头像下方的名称
   bio: "Ephemeral life, love forever.　　別の道は別の花。",  // 头像下方的个签
   links: [
     {

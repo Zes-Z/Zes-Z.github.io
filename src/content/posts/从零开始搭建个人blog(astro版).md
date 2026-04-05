@@ -51,17 +51,17 @@ lang: ''
 
 ## git推送失败
 * [ ] 查看当前配置：
-```PowerShell
+```powershell
 git config --global --get http.proxy
 git config --global --get https.proxy
 ```
 * [ ] 取消代理配置：
-```PowerShell
+```powershell
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
 * [ ] git指定代理端口：
-```PowerShell
+```powershell
 git config --global http.proxy http://127.0.0.1:7897
 git config --global https.proxy http://127.0.0.1:7897
 ```
