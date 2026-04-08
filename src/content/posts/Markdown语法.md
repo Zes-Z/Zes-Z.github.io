@@ -1,7 +1,7 @@
 ---
 title: Markdown基础语法参考指北
 published: 2026-03-04
-tags: [Markdown,web]
+tags: [markdown,web]
 category: Coding
 description: Markdown 基础语法参考指北
 draft: false
