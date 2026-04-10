@@ -3,7 +3,7 @@ title: Markdown基础语法参考指北
 published: 2026-03-04
 tags: [markdown,web]
 category: Coding
-description: Markdown 基础语法参考指北
+description: Markdown基础语法参考指北
 draft: false
 ---
 
@@ -69,35 +69,7 @@ draft: false
 
 ---
 
-## 5. 代码块 (Code Blocks)
-
-### 行内代码
-使用单个反引号组合，例如\`import spacy\` ，效果如右`import spacy`。
-<br> 
-
-### 围栏代码块 (Code Fencing)
-使用```` ``` ````指定编程语言以获得语法高亮，例如:
-
-> \```python  
-\# 使用 Ginza/spaCy 包  
-import spacy  
-nlp = spacy.load("ja_ginza")  
-print("成功嵌套并换行")  
-\```  
-\### 这一行作结尾，哈哈已经结束了!
-
-代码块末尾输入```` ``` ````以结束，整体效果如下:
-
-```python
-# 使用 Ginza/spaCy 包
-import spacy
-nlp = spacy.load("ja_ginza")
-print("成功嵌套并换行")
-```
-### 这一行作结尾，哈哈已经结束了!
----
-    
-## 6. 线条与表格
+## 5. 线条与表格
 **分割线:** 使用三个或更多的 ` - ` 或 ` * `，效果如下。
 
 ---
@@ -150,7 +122,32 @@ blog-root
 **以上居中对齐、右对齐与本博客主题中表格的对齐方式存在冲突,可在其它markdown软件中渲染*
 
 ---
-## 7. 脚注
+## 6. 超链接
+```
+[方括号里输入链接说明](圆括号里填入对应链接)
+示例：[欢迎来到bilibili!](https://www.bilibili.com/)
+```
+效果：[欢迎来到bilibili!](https://www.bilibili.com/)
+
+---
+## 7. 图片与视频
+* 图片插入的实现方式与超链接相似，但需要在最前方加一个`!`
+```
+![方括号里输入图片](圆括号里填入对应链接)
+
+示例：![落日余晖](./落日余晖.jpg)  
+# ./落日余晖.jpg 表示这张图片与本文同级别，名为"落日余晖"，格式为".jpg"
+```
+效果：![落日余晖](./落日余晖.jpg)
+
+* 视频插入
+```
+<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+```
+<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
+---
+## 8. 脚注
 
 ```
 这是一段用于测试的正文文本，其中需要补充说明[^1]。这是另一条演示脚注[^2]
@@ -161,6 +158,36 @@ blog-root
 这是一段用于测试的正文文本，其中需要补充说明[^1]。这是另一条演示脚注[^2]
 [^1]: 这是脚注的详细解释，自动呈现在文末，它不会打断主流程的阅读。
 [^2]: 在编写时，你可以把脚注文本写在正文文本后，就像这样。
+
+
+---
+## 9. 代码块 (Code Blocks)
+
+### 行内代码
+使用单个反引号组合，例如\`import spacy\` ，效果如右`import spacy`。
+<br> 
+
+### 围栏代码块 (Code Fencing)
+使用```` ``` ````指定编程语言以获得语法高亮，例如:
+
+> \```python  
+\# 使用 Ginza/spaCy 包  
+import spacy  
+nlp = spacy.load("ja_ginza")  
+print("成功嵌套并换行")  
+\```  
+\### 这一行作结尾，哈哈已经结束了!
+
+代码块末尾输入```` ``` ````以结束，整体效果如下:
+
+```python
+# 使用 Ginza/spaCy 包
+import spacy
+nlp = spacy.load("ja_ginza")
+print("成功嵌套并换行")
+```
+### 这一行作结尾，哈哈已经结束了!
+
 
 ---
 
@@ -204,10 +231,6 @@ description: Markdown 基础语法参考指北
 draft: false
 ---
 正文...
-<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
-
-```
-<iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 
 ---
 

@@ -53,7 +53,7 @@ lang: ''
 `$OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = [System.Text.Encoding]::UTF8`  
 强制使用UTF8编码,以避免显示乱码.
 
-3. 在`命令行`输入指令`mecab`,会自动进入`mecab`程序,以等待待分词的`文本`或`文件`输入
+3. 在`命令行`输入指令`mecab`,会自动进入`mecab`程序,以等待待分词的**文本**或**文件**输入
 > **以下分别介绍手动和文件两种方式进行输入输出**
 >> 手动输入比较简单,直接复制想要分词的文本,粘贴到`命令行`中,  
 按`回车`后,屏幕会自动展示分词结果,结果可直接复制
