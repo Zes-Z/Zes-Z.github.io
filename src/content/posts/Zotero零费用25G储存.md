@@ -1,7 +1,7 @@
 ---
 title: Zotero免费25G储存
 published: 2026-04-03
-description: "使用网盘webdav功能,零费将zotero同步空间容量扩展到25G"
+description: "使用网盘webdav功能，零费将zotero同步空间容量扩展到25G"
 category: Coding
 tags: [zotero,webdav]
 image: ""

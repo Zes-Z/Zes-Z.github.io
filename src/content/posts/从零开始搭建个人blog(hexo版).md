@@ -7,7 +7,7 @@ category: Coding
 draft: false
 ---
 
-## 需要的工具
+**需要的工具**
 
 - Node.js
     
@@ -125,7 +125,7 @@ ZesBlog
 hexo g
 ```
 
-该命令会把 Markdown 内容生成静态 HTML。
+该命令会根据 Markdown 内容生成静态 HTML。
 
 * * *
 
@@ -141,13 +141,14 @@ hexo s
 http://localhost:4000
 ```
 
-即可看到博客页面。
+即可看到博客页面，这时展现的是默认主题，自定义方法见文末。
 
 * * *
 
 # 五、创建文章
 
-新建文章：
+在上一步预览完成后，命令行内输入`Ctrl+C`退出预览  
+输入以下命令以新建文章：
 
 ```powershell
 hexo new "first post"
@@ -169,7 +170,7 @@ tags:
 ---
 ```
 
-**文章内容写在这个.md文件里。**
+**文章内容写在这个.md文件里，可以使用记事本打开并编辑。**
 
 * * *
 
@@ -298,6 +299,9 @@ hexo d
 之后日常写作只需：
 
 ```powershell
+# 博客的操作都是在这个根目录下进行的，首先在powershell中输入下行命令，进入这个文件夹
+cd Myblog  
+
 hexo new
 
 hexo g
@@ -308,5 +312,11 @@ hexo d  # 推送到github
 ```
 
 即可完成写作、预览和发布。
+
+---
+# 自定义Hexo主题
+* [ ] 进入[Hexo](https://hexo.io/themes/)官网Themes页面并挑选
+* [ ] 点击**Visit preview site**预览主题
+* [ ] 点击**主题名**链接，进入`github`，根据主题教程克隆并使用此主题
 
 ---
