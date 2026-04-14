@@ -78,15 +78,19 @@ TED [Ideas change everything](https://www.ted.com/talks)
 
 
 
-
-
 ---
 ## 数学与编程
-数学绘图与可视化计算器：[GeoGebra](https://www.geogebra.org/calculator)
+1. 数学绘图与可视化计算器：[GeoGebra](https://www.geogebra.org/calculator)
 
-[Python for Data Analysis, 3E](https://wesmckinney.com/book/)
+2. [immersive linear algebra](https://immersivemath.com/ila/index.html)
 
-[一份（不太）简短的 LATEX2ε 介绍](</一份（不太）简短的LATEX2ε 介绍.pdf>)  
+3. [The Simon Initiative](https://www.cmu.edu/simon/open-simon/toolkit/techniques/index.html)
+
+4. [The Feynman Lectures on Physics](https://www.feynmanlectures.caltech.edu/)
+
+5. [Python for Data Analysis, 3E](https://wesmckinney.com/book/)
+
+6. [一份（不太）简短的 LATEX2ε 介绍](</一份（不太）简短的LATEX2ε 介绍.pdf>)  
 英文作者：Tobias Oetiker  
 Hubert Partl, Irene Hyna and Elisabeth Schlegl  
 中文翻译：CTEX开发小组
@@ -100,9 +104,11 @@ Zlibrary [To build up a library is to create a life. It’s never just a random 
 
 [SauceNAO Reverse Image Search](https://saucenao.com/)
 
-彼岸图网 [高清4k壁纸](https://pic.netbian.com/4k/index_61.html)
-
 500px [热门摄影作品](https://500px.com.cn/community/discover)
+
+pexels [才华横溢的摄影作者在这里免费分享最精彩的素材图片和视频。](https://www.pexels.com/zh-cn/)
+
+彼岸图网 [高清4k壁纸](https://pic.netbian.com/4k/index_61.html)
 
 [PPT模板 - 微软officePLUS](https://www.officeplus.cn/)
 
