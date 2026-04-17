@@ -5,7 +5,7 @@ description: "简单介绍如何将词向量模型引入日语语言学研究，
 category: Ling.
 tags: [词向量,fasttext,语义合成,日本語,复合动词,复合名词]
 image: ""
-draft: false 
+draft: true 
 lang: ""
 ---
 
