@@ -50,8 +50,8 @@ lang: ""
 
 
 ---
-## 外语相关
-国家标准：[国家标准检索 - 全国标准信息公共服务平台](https://std.samr.gov.cn/search/std?q=%E8%AE%BA%E6%96%87)
+## 语言相关
+国家标准检索 - 全国标准信息公共服务平台：[中华人民共和国国家标准 信息与文献](https://std.samr.gov.cn/search/std?tid=&q=%E4%BF%A1%E6%81%AF%E4%B8%8E%E6%96%87%E7%8C%AE)
 
 日语分词：[Web茶まめ](https://chamame.ninjal.ac.jp/)
 
