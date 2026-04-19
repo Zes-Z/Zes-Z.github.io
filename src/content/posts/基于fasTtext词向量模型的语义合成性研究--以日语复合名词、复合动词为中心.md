@@ -3,7 +3,7 @@ title: 基于fastText词向量模型的语义合成性研究--以日语复合名
 published: 2026-04-07
 description: "简单介绍如何将词向量模型引入日语语言学研究，以及一些实践..."
 category: Ling.
-tags: [词向量,fasttext,语义合成,日本語,复合动词,复合名词]
+tags: [词向量,fasttext,日语]
 image: ""
 draft: true 
 lang: ""

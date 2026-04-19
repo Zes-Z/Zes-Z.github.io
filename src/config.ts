@@ -21,7 +21,7 @@ export const siteConfig: SiteConfig = {
 		position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
 		credit: {
 			enable: true, // Display the credit text of the banner image  是否展示横幅图片信息
-			text: "by ...", // Credit text to be displayed   横幅图片文字说明
+			text: "by Zes", // Credit text to be displayed   横幅图片文字说明
 			url: "", // (Optional) URL link to the original artwork or artist's page  图片作者版权链接
 		},
 	},
@@ -46,11 +46,16 @@ export const siteConfig: SiteConfig = {
 
 export const navBarConfig: NavBarConfig = {
 	links: [
-		LinkPreset.Home,
+		// LinkPreset.Home,
 		LinkPreset.Archive,
 		LinkPreset.About,
-		{
-			name: "GitHub",
+		// {
+		// 	name: "GitHub",
+		// 	url: "https://github.com/Zes-Z", // Internal links should not include the base path, as it is automatically added
+		// 	external: true, // Show an external link icon and will open in a new tab
+  //   },
+    {
+			name: "友链",
 			url: "https://github.com/Zes-Z", // Internal links should not include the base path, as it is automatically added
 			external: true, // Show an external link icon and will open in a new tab
 		},

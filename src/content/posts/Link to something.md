@@ -1,7 +1,7 @@
 ---
 title: Link to something
 published: 2026-04-11
-description: "资源收集中...减少检索时间就是在延长生命。"
+description: "减少检索时间就是在延长生命。资源整合中..."
 category: Source
 tags: []
 image: ""
