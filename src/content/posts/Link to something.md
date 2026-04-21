@@ -23,13 +23,13 @@ lang: ""
 * 熊本大学  
 [入試案内 大学院入試情報](https://www.kumamoto-u.ac.jp/nyuushi/daigakuinnyushi)  
 [情報電気工学科 教職員紹介](https://www.eng.kumamoto-u.ac.jp/department/dept3/dept3-5/)
-
 * 九州大学  
 [大学院入試 募集要項](https://www.kyushu-u.ac.jp/ja/admission/entrance/requirements/)   
 [システム情報科学府 修士課程入試](https://www.isee.kyushu-u.ac.jp/admissions_master.html)
 
 ### 四国
-
+* 徳島大学  
+[大学院入試　創成科学研究科理工学専攻博士前期課程入学試験](https://www.tokushima-u.ac.jp/st/admission/graduate_school/sousei.html)
 
 ### 中国
 
@@ -38,7 +38,8 @@ lang: ""
 
 
 ### 中部
-
+* 名古屋大学  
+[大学院情報学研究科 入学試験総合案内](https://www.i.nagoya-u.ac.jp/gs/entranceexamination/)
 
 ### 关东
 
@@ -53,7 +54,7 @@ lang: ""
 ## 语言相关
 国家标准检索 - 全国标准信息公共服务平台：[中华人民共和国国家标准 信息与文献](https://std.samr.gov.cn/search/std?tid=&q=%E4%BF%A1%E6%81%AF%E4%B8%8E%E6%96%87%E7%8C%AE)
 
-日语分词：[Web茶まめ](https://chamame.ninjal.ac.jp/)
+日语分词网页版：[Web茶まめ](https://chamame.ninjal.ac.jp/)
 
 TED [Ideas change everything](https://www.ted.com/talks)
 
