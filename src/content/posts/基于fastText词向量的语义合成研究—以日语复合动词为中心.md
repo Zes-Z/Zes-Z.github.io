@@ -5,7 +5,7 @@ description: "简单介绍如何将词向量模型引入日语语言学研究，
 category: Ling.
 tags: [词向量,fasttext,日语]
 image: ""
-draft: true 
+draft: false 
 lang: ""
 ---
 
