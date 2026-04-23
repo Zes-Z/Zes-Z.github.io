@@ -3,7 +3,7 @@ title: 从零开始搭建个人blog(astro版)
 published: 2026-04-02
 description: 使用PowerShell + Astro框架 + Git 搭建个人博客网站
 category: 'Coding'
-tags: [blog,web,astro,fuwari]
+tags: [blog,astro]
 image: ''
 draft: false 
 lang: ''

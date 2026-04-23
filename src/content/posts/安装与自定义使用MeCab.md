@@ -3,7 +3,7 @@ title: 安装与自定义使用MeCab
 published: 2026-04-02
 description: '关于日语分词器MeCab的3种使用方式'
 image: ''
-tags: [mecab,分词,windows,python]
+tags: [mecab,分词]
 category: 'Ling.'
 draft: false 
 lang: ''

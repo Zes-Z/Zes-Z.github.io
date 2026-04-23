@@ -4,7 +4,7 @@ published: 2026-04-11
 description: "减少检索时间就是在延长生命。资源整合中..."
 category: Source
 tags: []
-image: ""
+image: "./海上火车.jpg"
 draft: false 
 lang: ""
 ---
@@ -76,6 +76,23 @@ TED [Ideas change everything](https://www.ted.com/talks)
 
 
 
+---
+## 媒体资源
+Zlibrary [To build up a library is to create a life. It’s never just a random collection of books.](https://z-library.sk/)
+
+[SauceNAO Reverse Image Search](https://saucenao.com/)
+
+500px [热门摄影作品](https://500px.com.cn/community/discover)
+
+pexels [才华横溢的摄影作者在这里免费分享最精彩的素材图片和视频。](https://www.pexels.com/zh-cn/)
+
+彼岸图网 [高清4k壁纸](https://pic.netbian.com/4k/index_61.html)
+
+[PPT模板 - 微软officePLUS](https://www.officeplus.cn/)
+
+[Canva可画 学术汇报模板](https://www.canva.cn/templates/?query=%E5%AD%A6%E6%9C%AF%E6%B1%87%E6%8A%A5)
+
+MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 
 
@@ -95,27 +112,6 @@ TED [Ideas change everything](https://www.ted.com/talks)
 英文作者：Tobias Oetiker  
 Hubert Partl, Irene Hyna and Elisabeth Schlegl  
 中文翻译：CTEX开发小组
-
-
-
-
----
-## 媒体资源
-Zlibrary [To build up a library is to create a life. It’s never just a random collection of books.](https://z-library.sk/)
-
-[SauceNAO Reverse Image Search](https://saucenao.com/)
-
-500px [热门摄影作品](https://500px.com.cn/community/discover)
-
-pexels [才华横溢的摄影作者在这里免费分享最精彩的素材图片和视频。](https://www.pexels.com/zh-cn/)
-
-彼岸图网 [高清4k壁纸](https://pic.netbian.com/4k/index_61.html)
-
-[PPT模板 - 微软officePLUS](https://www.officeplus.cn/)
-
-[Canva可画 学术汇报模板](https://www.canva.cn/templates/?query=%E5%AD%A6%E6%9C%AF%E6%B1%87%E6%8A%A5)
-
-MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 
 
