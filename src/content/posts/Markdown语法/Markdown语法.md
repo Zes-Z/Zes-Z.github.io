@@ -2,7 +2,7 @@
 title: Markdown基础语法参考指北
 published: 2026-03-04
 tags: [markdown]
-category: Coding
+category: Math & Coding
 description: Markdown基础语法参考指北
 image: ""
 draft: false

@@ -3,7 +3,7 @@ title: 从零开始搭建个人blog(hexo版)
 published: 2026-03-15 14:18:05
 description: 使用Windows PowerShell + Node.js + Git 搭建 Hexo 博客
 tags: [blog,hexo]
-category: Coding
+category: Math & Coding
 draft: false
 ---
 

@@ -3,7 +3,7 @@ title: TOEIC単語リスト
 published: 2026-04-19
 description: "Some words extracted from TOEIC L&R OFFICIAL VOCABULARY BOOK"
 category: Ling.
-tags: [toeic,英语,单词]
+tags: [toeic,英语]
 image: ""
 draft: false  
 lang: ""

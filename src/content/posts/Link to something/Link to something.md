@@ -2,7 +2,7 @@
 title: Link to something
 published: 2026-04-11
 description: "减少检索时间就是在延长生命。资源整合中..."
-category: Source
+category: Omnium
 tags: []
 image: "./海上火车.jpg"
 draft: false 
@@ -94,7 +94,7 @@ pexels [才华横溢的摄影作者在这里免费分享最精彩的素材图片
 
 MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
-
+[黑猫动漫](https://www.bmmdm.com/)
 
 ---
 ## 数学与编程
@@ -113,6 +113,8 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 Hubert Partl, Irene Hyna and Elisabeth Schlegl  
 中文翻译：CTEX开发小组
 
+7. [fastText](https://fasttext.cc/docs/en/crawl-vectors.html)
 
+8. [SPSS 入門: 値の比較 by 星野 祐司 (立命館大学総合心理学部)](https://www.psy.ritsumei.ac.jp/hoshino/spss/)
 
 ---
