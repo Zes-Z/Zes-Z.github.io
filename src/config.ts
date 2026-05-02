@@ -65,7 +65,7 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
 	avatar: "/portrait.jpg", // 头像 Relative to the /src directory. Relative to the /public directory if it starts with '/'  
 	name: "在时",   // 头像下方的名称
-  bio: "Ephemeral life, love forever.　　別の道は別の花。",  // 头像下方的个签
+  bio: "別の道は別の花。",  // 头像下方的个签 Ephemeral life, love forever.
   links: [
     {
 			name: "GitHub",
