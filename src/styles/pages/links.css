@@ -1,0 +1,32 @@
+.links-section {
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.link-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.link-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.link-card a {
+  text-decoration: none;
+}
+
+.link-card p {
+  margin: 0;
+  color: var(--label-secondary);
+  line-height: 1.7;
+}

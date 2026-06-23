@@ -1,0 +1,61 @@
+---
+import '../styles/pages/about.css';
+import '../styles/pages/links.css';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const links = [
+  {
+    name: 'cyou daii',
+    url: 'https://davis-blog.vercel.app/',
+    description: '感谢他的协作.',
+  },
+  {
+    name: 'kosame',
+    url: '',
+    description: '感谢她的倾听.',
+  },
+  {
+    name: 'cyou shiyu',
+    url: '',
+    description: '感谢她的同理心.',
+  },
+];
+---
+
+<BaseLayout title="友链" description="">
+  <main id="main-content" class="about-main">
+    <section class="about-hero" aria-labelledby="links-title">
+      <div class="about-intro">
+        <h1 id="links-title" class="about-title">
+          友链
+        </h1>
+
+        <p class="about-lead">
+          这里是我的朋友们。
+        </p>
+      </div>
+    </section>
+
+    <section class="links-section">
+  <div class="links-grid">
+    {
+      links.map((link) => (
+        <article class="link-card">
+          <h3>
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.name}
+            </a>
+          </h3>
+
+          <p>{link.description}</p>
+        </article>
+      ))
+    }
+  </div>
+</section>
+  </main>
+</BaseLayout>
