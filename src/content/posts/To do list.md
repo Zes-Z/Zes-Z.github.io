@@ -11,7 +11,7 @@ homeFeatured: false   # 用于指定在首页 Read 区优先大图片展示
 draft: false
 ---
 
-* [ ] 统计书
+* [ ] 统计书 (进行中)
 * [ ] blog网站
 
 # 修士论文
