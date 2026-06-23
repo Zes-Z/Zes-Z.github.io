@@ -85,8 +85,8 @@ pnpm install
 ---
 ## 初始化 git, 关联仓库
 4. 初始化 git, 并重新定义 main  
-```powershell
 * [ ] 复制以下命令,回车
+```powershell
 Remove-Item -Recurse -Force .git  
 git init  
 git add .  
