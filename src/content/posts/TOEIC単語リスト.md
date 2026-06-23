@@ -2,7 +2,7 @@
 title: TOEIC単語リスト
 pubDate: "2026-04-19"
 description: "Some words extracted from TOEIC L&R OFFICIAL VOCABULARY BOOK"
-category: Ling.
+category: Omnium
 
 heroImage: ""
 homeFeatured: false   # 用于指定在首页 Read 区优先大图片展示

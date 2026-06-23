@@ -2,7 +2,7 @@
 title: "Link to something"
 description: ""
 pubDate: "2026-04-11"
-category: "Omnium"
+category: "Source"
 heroImage: ""
 homeFeatured: false   # 用于指定在首页 Read 区优先大图片展示
 homeHeroOrder: 1     # 用于指定首页个签下方置顶文章顺序,在 MyBlogsrcpagesindex.astro 第27行增加置顶篇章

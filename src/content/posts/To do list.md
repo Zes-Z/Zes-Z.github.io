@@ -2,7 +2,7 @@
 title: "To do list"
 description: ""
 pubDate: "2026-05-10"
-category: "Math & Coding"
+category: "Omnium"
 # updatedDate: "2026-06-23"
 heroImage: ""
 # homeHeroOrder:      # 用于指定首页个签下方置顶文章顺序,在 srcpagesindex.astro 第27行增加置顶篇章数
@@ -13,6 +13,10 @@ draft: false
 
 * [ ] 统计书 (进行中)
 * [ ] blog网站
+* [ ] 拼豆
+* [ ] $2^{10} $
+
+
 
 # 修士论文
 * [x] 2026.6.2 标题 + 框架 完成

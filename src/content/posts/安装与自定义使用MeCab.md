@@ -2,7 +2,7 @@
 title: "安装与自定义使用MeCab"
 description: "日语分词器MeCab的3种使用方式"
 pubDate: "2026-04-02"
-category: "Ling."
+category: "Source"
 # updatedDate: "2026-06-22"
 heroImage: ""
 # homeHeroOrder:      # 用于指定首页个签下方置顶文章顺序,在 srcpagesindex.astro 第27行增加置顶篇章数

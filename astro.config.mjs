@@ -1,5 +1,8 @@
 // @ts-check
 
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import expressiveCode from 'astro-expressive-code';
@@ -40,16 +43,28 @@ export default defineConfig({
   },
 
   markdown: {
-    rehypePlugins: [
-      rehypeSlug,
-      [
-        rehypeAutolinkHeadings,
-        {
-          behavior: 'append',
-          properties: { ariaHidden: true, tabIndex: -1, class: 'heading-anchor' },
-          content: { type: 'text', value: '#' },
+  remarkPlugins: [remarkMath],
+
+  rehypePlugins: [
+    rehypeKatex,
+
+    rehypeSlug,
+
+    [
+      rehypeAutolinkHeadings,
+      {
+        behavior: 'append',
+        properties: {
+          ariaHidden: true,
+          tabIndex: -1,
+          class: 'heading-anchor',
         },
-      ],
+        content: {
+          type: 'text',
+          value: '#',
+        },
+      },
     ],
-  },
+  ],
+},
 });
