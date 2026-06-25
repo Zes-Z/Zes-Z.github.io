@@ -122,8 +122,8 @@ const config = {
     statementLabel: '基本信息',
     statementTitle: 'INFP -> INFJ -> INTJ',
     statement:[
-      '',
-      ''
+      '長い時間をかけて、今日の私となった。',  
+    
     ],
 
 
