@@ -83,7 +83,7 @@ Semantic Abstractness↔H(C∣V)
 * [ ] 
 * [ ] 行列式
 * [ ] 矩阵分解
-> 今井秀树
+> 今井秀树 
 
 
 ---
