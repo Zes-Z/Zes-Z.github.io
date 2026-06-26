@@ -13,12 +13,12 @@ const posts = (await getCollection('posts'))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<BaseLayout title={tr.postsTitle} description={SITE_DESCRIPTION}>
+<BaseLayout title={tr.postsEyebrow} description={SITE_DESCRIPTION}>
   <main id="main-content" class="posts-main">
     <div class="posts-header">
       <div>
-        <p class="posts-label eyebrow-accent">{tr.postsEyebrow}</p>
-        <h1 class="posts-title">{tr.postsTitle}</h1>
+        <p class="posts-label eyebrow-accent">{"数学与编程，亦或是漫游与你."}</p>
+        
       </div>
     </div>
 

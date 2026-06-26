@@ -30,37 +30,37 @@ const config = {
   // The logo already links to `/`. Add items here if you want visible header links.
   // Example: [{ label: 'Posts', href: '/posts' }, { label: 'About', href: '/about' }]
   nav: [ 
-  { label: '主页', href: '/' },
-  { label: '归档', href: '/posts' },
-  { label: '关于', href: '/about' },
-  { label: '友链', href: '/links' },
+  { label: 'Home', href: '/' },
+  { label: 'Archive', href: '/posts' },
+  { label: 'About', href: '/about' },
+  { label: 'とも', href: '/links' },
   { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
-  { label: '检索', href: '/search' },
+  { label: 'search', href: '/search' },
   
 ] as NavItem[],
 
   // Footer links stay visible by default so readers have a stable way to move around.
   footerNav: [
-    { label: '主页', href: '/' },
-    { label: '关于', href: '/about' },
-    { label: '检索', href: '/search' },
+    { label: 'Home', href: '/' },
+    { label: 'about', href: '/about' },
+    { label: 'search', href: '/search' },
   ] as NavItem[],
 
 
-// MyBlog\src\ui.ts 用于更改各导航栏页面的左上角题头
-// MyBlog\src\styles\pages\home.css 在这里更改字体大小
+// src\ui.ts 用于更改各导航栏页面的左上角题头
+// src\styles\pages\home.css 在这里更改字体大小
 
-// MyBlog\src\components\Footer.astro的 const footerLinks = config.footerNav
+// src\components\Footer.astro的 const footerLinks = config.footerNav
 // .filter((item) => item.href !== '/');用于过滤底部导航栏的"主页"
 
-// MyBlog\src\styles\tokens.css 的 line44
+// src\styles\tokens.css 的 line44
 //  --text-caption-1: 1.2rem; 用于控制顶部导航栏大小
 
-// MyBlog\src\styles\pages\about.css的 line35
+// src\styles\pages\about.css的 line35
 // font-size: clamp(1.2rem, 5vw, 2.4rem); 用于控制 about 和 友链 页面左上角题头大小
 
 // Links页面为自建, 在下方文件中更改
-// MyBlog\src\pages\links.astro
+// src\pages\links.astro
 
 
 

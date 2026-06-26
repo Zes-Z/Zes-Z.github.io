@@ -23,7 +23,8 @@
   color: var(--color-blue);
   font-size: var(--text-caption-1);
   font-weight: var(--weight-accent-label);
-  letter-spacing: 0.1em;
+  /* 用于更改"基本信息"等蓝字间隔 */
+  letter-spacing: 0.1em; 
   line-height: var(--leading-relaxed);
   text-transform: uppercase;
 }
