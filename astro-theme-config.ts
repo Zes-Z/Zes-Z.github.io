@@ -32,10 +32,10 @@ const config = {
   nav: [ 
   { label: 'Home', href: '/' },
   { label: 'Archive', href: '/posts' },
+  { label: 'search', href: '/search' },
+  { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
   { label: 'About', href: '/about' },
   { label: 'とも', href: '/links' },
-  { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
-  { label: 'search', href: '/search' },
   
 ] as NavItem[],
 
