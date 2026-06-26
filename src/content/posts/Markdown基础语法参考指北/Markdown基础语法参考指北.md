@@ -6,7 +6,7 @@ category: "Math & Coding"
 heroImage: "./IMG_0662.JPG"
 
 homeHeroOrder: 2     # 用于指定首页个签下方置顶文章顺序,在 src\pages\index.astro 第27行增加置顶篇章数
-homeOrder: 3
+homeOrder: 3         # 用于指定首页下方 All Posts顺序
 draft: false
 ---
 
