@@ -72,7 +72,7 @@ Semantic Abstractness↔H(C∣V)
 
 ---
 # 微积分 
-* [ ] 微积分
+* [ ] 极限
 * [ ] 
 * [ ] 
 
@@ -81,8 +81,8 @@ Semantic Abstractness↔H(C∣V)
 ---
 # 线性代数 
 * [ ] 
-* [ ] 
-* [ ] 
+* [ ] 行列式
+* [ ] 矩阵分解
 
 
 
