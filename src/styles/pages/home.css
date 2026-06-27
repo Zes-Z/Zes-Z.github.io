@@ -149,7 +149,7 @@
 
 /* ── Featured (text-led split) ────────────── */
 .featured-section {
-  margin-top: var(--space-20);
+  margin-top: var(--space-12);
   padding-bottom: var(--space-16);
   border-bottom: 1px solid var(--separator);
 }

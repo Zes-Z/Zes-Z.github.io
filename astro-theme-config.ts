@@ -32,7 +32,7 @@ const config = {
   nav: [ 
   { label: 'Home', href: '/' },
   { label: 'Archive', href: '/posts' },
-  { label: 'search', href: '/search' },
+  { label: 'Search', href: '/search' },
   { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
   { label: 'About', href: '/about' },
   { label: 'とも', href: '/links' },
@@ -111,7 +111,7 @@ const config = {
 
   about: {
     /** Profile image URL. Leave empty to use the text-only About layout. */
-    profileImage: '',
+    profileImage: './public/portrait.jpg',
     name: '在时',
     // role: 'Study Maths, Linguistics ing.',
     location: 'Somewhere',

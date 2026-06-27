@@ -291,7 +291,7 @@
    Usage: <div class="img-grid"> two images </div> */
 .prose .img-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 0.8fr;
   gap: var(--space-3);
   margin: var(--space-6) 0;
 }

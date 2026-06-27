@@ -37,7 +37,7 @@
     "format": "prettier --write \"src/**/*.{astro,ts,css,md,mdx}\"",
     "lint": "eslint \"src/**/*.{js,ts,astro}\" \"*.mjs\"",
     "lint:css": "stylelint \"src/**/*.{css,astro}\"",
-    "new-post": "tsx scripts/new-post.ts"
+    "np": "tsx scripts/new-post.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.3",
