@@ -6,8 +6,8 @@
 
 .posts-header {
   max-width: var(--max-width-content);
-  padding-bottom: var(--space-10);
-  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-3);
 }
 
 .posts-main .post-feed {
@@ -15,6 +15,7 @@
 }
 
 .posts-label.eyebrow-accent {
+  font-size: 1.2rem;
   margin: 0 0 var(--space-2);
   font-weight: var(--weight-accent-label);
 }
@@ -24,7 +25,7 @@
   font-weight: 650;
   letter-spacing: -0.016em;
   margin: 0;
-  line-height: 1.04;
+  line-height: 3;
 }
 
 @media (max-width: 600px) {
