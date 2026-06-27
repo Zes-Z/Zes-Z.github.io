@@ -111,7 +111,7 @@ const config = {
 
   about: {
     /** Profile image URL. Leave empty to use the text-only About layout. */
-    profileImage: './src/assets/portrait.jpg',
+    profileImage: './public/portrait.jpg',
     name: '在时',
     // role: 'Study Maths, Linguistics ing.',
     location: 'Somewhere',
