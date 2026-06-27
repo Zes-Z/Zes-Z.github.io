@@ -70,7 +70,7 @@
   text-align: center;      /* 居中 */
   color: var(--label-secondary);
 
-  font-size: 1.2rem;      /* ← 调这里 */
+  font-size: 1rem;      /* ← 调这里 */
   font-weight: 500;
   line-height: 0;
   letter-spacing: 0.03em;
@@ -164,9 +164,9 @@
   align-self: start;
   margin: 0;
   color: var(--color-blue);
-  font-size: var(--text-caption-1);
+  font-size: var(--text-caption-3);
   font-weight: var(--weight-accent-label);
-  letter-spacing: .1em;
+  letter-spacing: .03em;
   text-transform: uppercase;
 }
 
