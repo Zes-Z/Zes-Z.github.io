@@ -110,6 +110,20 @@ const featuredPlaceholderStyle = featuredPlaceholder
     </section>
 
     {
+      gridPosts.length > 0 && (
+        <section class="posts-section">
+          <div class="posts-header">
+            <a href={withBase('/posts')} class="view-all">
+              {tr.viewAll}
+            </a>
+          </div>
+          <FeaturedPostGrid posts={gridPosts} />
+        </section>
+      )
+    }
+
+
+    {
       featured && (
         <section class="featured-section">
           <a href={withBase(`/posts/${featured.id}/`)} class="featured-card">
@@ -143,17 +157,6 @@ const featuredPlaceholderStyle = featuredPlaceholder
       )
     }
 
-    {
-      gridPosts.length > 0 && (
-        <section class="posts-section">
-          <div class="posts-header">
-            <a href={withBase('/posts')} class="view-all">
-              {tr.viewAll}
-            </a>
-          </div>
-          <FeaturedPostGrid posts={gridPosts} />
-        </section>
-      )
-    }
+    
   </main>
 </BaseLayout>
