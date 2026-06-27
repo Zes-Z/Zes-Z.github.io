@@ -158,7 +158,7 @@
 
 .featured-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  grid-template-columns: 0.8fr 1.2fr; minmax(0, 480px);
   gap: var(--space-12);
   align-items: stretch;
   text-decoration: none;
@@ -217,7 +217,7 @@
 .featured-thumb-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 6 / 7;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   border-radius: var(--radius-xl);
   background:
