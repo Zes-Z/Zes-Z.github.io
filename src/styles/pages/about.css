@@ -188,14 +188,14 @@
 .about-statement p:not(.section-label),
 .career-item p {
   max-width: 42rem;
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
   color: var(--label-secondary);
-  line-height: 1.8;
+  line-height: 0.9;
 }
 
 .career-list {
   display: grid;
-  gap: var(--space-10);
+  gap: var(--space-6);
 }
 
 .career-item {
