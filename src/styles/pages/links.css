@@ -1,13 +1,13 @@
 .links-section {
-  margin-top: 0rem;
-  padding-top: 0.9rem;
+  margin-top: -1rem;
+  padding-top: 0rem;
   border-top: 1px solid var(--border-subtle);
 }
 
 .links-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+  gap: 2.4rem;
 }
 
 .link-card {
@@ -16,8 +16,8 @@
 }
 
 .link-card h3 {
-  margin: 0 0 0.75rem;
-  font-size: 1.5rem;
+  margin: 0 0 0.6rem;
+  font-size: 1.8rem;
   font-weight: 600;
 }
 

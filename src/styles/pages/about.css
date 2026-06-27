@@ -83,7 +83,7 @@
 .about-title {
   margin: 0;
   color: var(--label-primary);
-  font-size: clamp(2.6rem, 5vw, 3.8rem);
+  font-size: clamp(1.2rem, 5vw, 1.8rem);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-tight);
   line-height: .95;
