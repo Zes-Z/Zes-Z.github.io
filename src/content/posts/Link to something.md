@@ -48,6 +48,8 @@ draft: false
 
 
 ### 东北
+* 东北大学
+[情报科学研究科 研究室一览](https://www.is.tohoku.ac.jp/jp/laboratory/list_dept/)
 
 
 ### 北海道
@@ -117,7 +119,7 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 > **物理学讲义**
 * [The Feynman Lectures on Physics](https://www.feynmanlectures.caltech.edu/)
 
-> [The Simon Initiative](https://www.cmu.edu/simon/open-simon/toolkit/techniques/index.html)
+* [The Simon Initiative](https://www.cmu.edu/simon/open-simon/toolkit/techniques/index.html)
 
 > **使用Python进行数据分析**
 * 感谢 Wes McKinney 开源：[Python for Data Analysis, 3E](https://wesmckinney.com/book/)  
