@@ -47,12 +47,10 @@ draft: false
 ### 关东
 
 
-### 东北
+### 东北 & 北海道
 * 东北大学
 [情报科学研究科 研究室一览](https://www.is.tohoku.ac.jp/jp/laboratory/list_dept/)
 
-
-### 北海道
 
 
 
