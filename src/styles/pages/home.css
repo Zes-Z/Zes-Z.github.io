@@ -10,7 +10,7 @@
 .featured-section,
 .posts-section {
   max-width: var(--max-width-content);
-  padding-top: var(--space-12);
+  padding-top: var(--space-16);
   border-top: 1px solid var(--separator);
 }
 
@@ -151,8 +151,8 @@
 
 /* ── Featured (text-led split) ────────────── */
 .featured-section {
-  margin-top: var(--space-24);
-  padding-bottom: var(--space-12);
+  margin-top: var(--space-16);
+  padding-bottom: var(--space-16);
   border-bottom: 1px solid var(--separator);
 }
 
@@ -189,8 +189,8 @@
 }
 
 .featured-title {
-  font-size: clamp(1.68rem, 3.1vw, 2.65rem);
-  font-weight: 650;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.12;
   margin: 0 0 var(--space-5);

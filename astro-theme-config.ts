@@ -42,8 +42,8 @@ const config = {
   // Footer links stay visible by default so readers have a stable way to move around.
   footerNav: [
     { label: 'Home', href: '/' },
-    { label: 'about', href: '/about' },
-    { label: 'search', href: '/search' },
+    { label: 'Search', href: '/search' },
+    { label: 'About', href: '/about' },
   ] as NavItem[],
 
 
