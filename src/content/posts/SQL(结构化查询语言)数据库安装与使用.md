@@ -434,7 +434,6 @@ LEFT JOIN orders ON users.id = orders.user_id;
 
 > 记忆口诀：**INNER** = 交集，**LEFT** = 左表全要，右边没有补 NULL -->
 
----
 
 ## 给列和表起别名：AS
 
@@ -455,7 +454,7 @@ JOIN orders AS o ON u.id = o.user_id;
 
 ---
 
-# 本章练习
+## 本章练习
 
 用以下两张表完成练习：
 
@@ -481,7 +480,7 @@ INSERT INTO orders (user_id, product, amount) VALUES
 
 ---
 
-# 本章知识结构
+## 本章知识结构
 
 ```
 T+1 SQL基础
@@ -504,7 +503,7 @@ T+1 SQL基础
 
 
 ---
-<!-- # 在Python 中使用 PostgreSQL
+<!-- ## 在Python 中使用 PostgreSQL
 ## 1. 安装依赖
 * 要在python操纵数据库，需首先安装`psycopg2`包
 ```powershell
@@ -538,4 +537,5 @@ conn.commit()
 cur.close()
 conn.close()
 ``` -->
+
 ---
