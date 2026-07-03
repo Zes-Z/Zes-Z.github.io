@@ -11,9 +11,11 @@ homeFeatured: false   # 用于指定在首页 Read 区优先大图片展示
 draft: false
 ---
 
+* [ ] 项目 *Anything*
+
 * [ ] 统计书 (进行中)
-* [ ] blog网站
-* [ ] 拼豆
+* [ ] 彩云站
+* [ ] 豆
 * [ ] $2^{10} $
 
 
