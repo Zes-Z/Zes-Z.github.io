@@ -33,7 +33,7 @@
 
 /* ── Post header ────────────────────────── */
 .post-header {
-  padding-bottom: var(--space-8);
+  padding-bottom: var(--space-6);
 }
 
 /* Blue accent bar above title */
@@ -66,11 +66,11 @@
 }
 
 .post-title {
-  font-size: 2.5rem;
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   line-height: 1.12;
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-3);
   color: var(--label-primary);
   /* Subtle weight contrast via text-shadow trick */
   text-shadow: 0 0 0 transparent;
@@ -82,9 +82,9 @@
   font-weight: 400;
   line-height: 1.64;
   margin: 0;
-  max-width: 520px;
+  max-width: 720px;
   border-left: 2px solid var(--separator);
-  padding-left: var(--space-4);
+  padding-left: var(--space-3);
 }
 
 /* ── Divider ────────────────────────────── */
@@ -147,12 +147,12 @@
   --toc-rail-duration-fast: var(--duration-fast);
   --toc-rail-ease-out: var(--ease-out);
   --toc-rail-left: calc(
-    50vw - var(--max-width-wide) / 2 + var(--space-6) + var(--max-width-content) + var(--space-8) +
-      var(--space-4)
+    50vw - var(--max-width-wide) / 2 + var(--space-6) + var(--max-width-content) + var(--space-6) +
+      var(--space-3)
   );
   --toc-rail-right: auto;
   --toc-rail-top: max(calc(var(--nav-height, 52px) + var(--space-16)), 24vh);
-  --toc-rail-width: 160px;
+  --toc-rail-width: 240px;
 }
 
 [data-theme='dark'] .toc-rail,

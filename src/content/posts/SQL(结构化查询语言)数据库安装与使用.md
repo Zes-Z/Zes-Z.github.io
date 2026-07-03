@@ -13,7 +13,9 @@ draft: false
 ---
 首先推荐一个不错的SQL语句指导和练习网站：[SQLZoo](https://sqlzoo.net/wiki/SQL_Tutorial)
 
-# PostgreSQL 数据库安装
+---
+
+## PostgreSQL 数据库安装
 [PostgreSQL: The World's Most Advanced Open Source Relational Database](https://www.postgresql.org/)
 > PostgreSQL 是一个开源关系型数据库管理系统（Relational Database Management System, RDBMS）  
 > 以稳定性、标准兼容性和丰富的数据类型支持而闻名, 被广泛应用于 Web 开发、数据分析以及企业级应用。  
@@ -29,10 +31,11 @@ psql --version
 
 ---
 
-# 初识 表、数据库、SQL
-## 表的基础结构
+## 初识 表、数据库、SQL
+### 表的基础结构
 
-表（Table）是数据库中存储数据的基本单位，可以理解为一个横纵方向的二维表格。
+* 表（Table）是数据库中存储数据的基本单位
+* 可以理解为一个横纵方向的二维表格。  
 
 例如用户信息表：
 
@@ -48,7 +51,7 @@ psql --version
 * 每张表通常会有主键（Primary Key）用于唯一标识记录
 
 ---
-## 数据库的基础结构
+### 数据库的基础结构
 数据库（Database）是多个表的集合，用于组织和管理数据。
 
 一个简单的网站数据库可能包含多个表：
@@ -69,7 +72,7 @@ mydb
 数据库负责维护这些表之间的关系，并保证数据的一致性与安全性。
 
 ---
-## SQL 基础概念
+### SQL 基础概念
 SQL（Structured Query Language，结构化查询语言）是操作关系型数据库的标准语言。
 
 通过 SQL 可以完成：
@@ -88,9 +91,9 @@ SELECT * FROM users;
 SQL 是学习 PostgreSQL、MySQL、SQLite 等关系型数据库的基础工具。
 
 ---
-# PostgreSQL 基础操作
+## PostgreSQL 基础操作
 
-## 1. 创建数据库与表
+### 1. 创建数据库与表
 
 ```sql
 -- 创建数据库
@@ -111,7 +114,7 @@ CREATE TABLE users (
 * 注意：列的格式为：`字段名` `数据类型[(长度)]` `[约束/修饰符]`。
 ---
 
-## 2. 删除数据库与表，或清空表
+### 2. 删除数据库与表，或清空表
 
 ```sql
 -- 删除数据库（不能删除当前连接的数据库）
@@ -125,7 +128,7 @@ TRUNCATE TABLE exTable;--
 ```
 ---
 
-## 3. 表添加新列，修改数据类型
+### 3. 表添加新列，修改数据类型
 ```sql
 -- 添加新列:
 ALTER TABLE exTable ADD COLUMN age INT;
@@ -135,7 +138,7 @@ ALTER TABLE exTable ALTER COLUMN email TYPE VARCHAR(255);
 ```
 ---
 
-## 4. 查增改删数据
+### 4. 查增改删数据
 * [x] **查**
 ```sql
 -- 查询所有数据
@@ -186,7 +189,7 @@ WHERE username = 'charlie';
 ```
 
 ---
-# PostgreSQL 进阶基础（T+1）
+## PostgreSQL 进阶基础（T+1）
 
 > 前置：已掌握建表、增删改查基础操作  
 > 本章目标：写出更精准的查询，理解数据约束，初步接触多表关联
@@ -194,7 +197,7 @@ WHERE username = 'charlie';
 ---
 
 
-## 多条件组合查询：AND / OR / NOT
+### 多条件组合查询：AND / OR / NOT
 
 ```sql
 -- AND：同时满足
@@ -210,7 +213,7 @@ SELECT * FROM users
 WHERE NOT age < 18;
 ```
 
-## 范围与列表：BETWEEN / IN
+### 范围与列表：BETWEEN / IN
 
 ```sql
 -- BETWEEN（含两端）
@@ -226,7 +229,7 @@ SELECT * FROM users
 WHERE username NOT IN ('alice', 'bob');
 ```
 
-## 空值判断：IS NULL / IS NOT NULL
+### 空值判断：IS NULL / IS NOT NULL
 
 ```sql
 -- 查找没有填写年龄的用户（注意：不能用 = NULL）
@@ -242,7 +245,7 @@ WHERE age IS NOT NULL;
 
 ---
 
-##  聚合函数：对一组数据做统计
+###  聚合函数：对一组数据做统计
 
 | 函数 | 作用 |
 |:---:|:---:|
@@ -268,7 +271,7 @@ SELECT COUNT(*), COUNT(age) FROM users;
 
 ---
 
-## GROUP BY：分组统计
+### GROUP BY：分组统计
 
 > 把数据按某列分组，再对每组做聚合计算
 
@@ -330,11 +333,12 @@ FROM orders
 WHERE product != 'pen'       -- 先排除买笔的记录
 GROUP BY username
 HAVING SUM(amount) > 100;    -- 再筛选总额
-``` -->
+``` 
 
 ---
+-->
 
-## 查询执行顺序（重要！）
+### 查询执行顺序（重要！）
 
 很多初学者写出报错 SQL，往往是因为搞错了执行顺序：
 
@@ -365,7 +369,7 @@ HAVING SUM(amount) > 100;
 
 ---
 
-## 外键（Foreign Key）：表之间的纽带
+### 外键（Foreign Key）：表之间的纽带
 
 > 外键用于约束两张表之间的关系，防止出现"孤儿数据"
 
@@ -435,7 +439,7 @@ LEFT JOIN orders ON users.id = orders.user_id;
 > 记忆口诀：**INNER** = 交集，**LEFT** = 左表全要，右边没有补 NULL -->
 
 
-## 给列和表起别名：AS
+### 给列和表起别名：AS
 
 ```sql
 -- 列别名（让输出更易读）
@@ -454,7 +458,7 @@ JOIN orders AS o ON u.id = o.user_id;
 
 ---
 
-## 本章练习
+### 本章练习
 
 用以下两张表完成练习：
 
@@ -480,7 +484,7 @@ INSERT INTO orders (user_id, product, amount) VALUES
 
 ---
 
-## 本章知识结构
+### 本章知识结构
 
 ```
 T+1 SQL基础
@@ -503,14 +507,225 @@ T+1 SQL基础
 
 
 ---
-<!-- ## 在Python 中使用 PostgreSQL
-## 1. 安装依赖
+## 在Python 中使用 PostgreSQL
+### 1. 安装依赖
 * 要在python操纵数据库，需首先安装`psycopg2`包
 ```powershell
 pip install psycopg2-binary
 ```
 
-## 2. 在Python中链接SQL数据库并执行操作
+### 2. 在Python中执行SQL操作
+```python
+import psycopg2
+
+# 建立连接
+conn = psycopg2.connect(
+    dbname="mydb",
+    user="your_user",
+    password="your_password",
+    host="localhost",
+    port="5432"
+)
+```
+
+各参数说明：
+
+| 参数 | 说明 |
+|------|------|
+| dbname | 数据库名称 |
+| user | PostgreSQL 用户名 |
+| password | 用户密码 |
+| host | 数据库服务器地址（本地一般为 localhost） |
+| port | PostgreSQL 默认端口为 5432 |
+
+连接成功后，`conn` 就代表一个数据库连接对象。
+
+---
+
+### 3. 创建 Cursor（游标）
+
+在py中，所有 SQL 语句都不是直接由连接对象执行，而是通过 **Cursor（游标）**。
+
+```python
+cur = conn.cursor()
+```
+其中：
+- Connection（连接）负责连接数据库
+- Cursor（游标）负责执行 SQL
+
+可以把 Cursor 理解成：
+
+> Python 与数据库之间的"操作窗口"。
+> 使用cur.execute("具体sql语句")以执行操作
+
+之后所有 SQL 语句都由它负责执行。一个 Connection 可以创建多个 Cursor。
+
+---
+
+### 4. 插入数据（INSERT）
+
+例如，我们有如下数据表：
+
+```sql
+CREATE TABLE exTable (
+    id SERIAL PRIMARY KEY,
+    username TEXT,
+    email TEXT
+);
+```
+
+对于插入数据，推荐使用参数化查询：
+
+```python
+cur.execute("用于插入数据的sql语句", parameters)
+```
+
+psycopg2 会自动完成：
+
+- 参数转义（Escape）
+- 类型转换
+- 防止 SQL 注入
+
+因此更加安全。
+
+* 具体如下：
+```python
+cur.execute(
+    """
+    INSERT INTO exTable (username, email)
+    VALUES (%s, %s)
+    """,
+    ("david", "david@example.com")
+)
+```
+
+
+这里有两个参数：
+
+```python
+"""
+INSERT INTO exTable (username, email)
+VALUES (%s, %s)
+"""
+```
+表示 SQL 模板。
+
+
+```python
+("david", "david@example.com")
+```
+表示要填充进去的数据。
+
+psycopg2 会自动把
+
+```
+%s
+```
+
+替换成真正的数据。
+
+最终发送给 PostgreSQL 的实际上类似于：
+
+```sql
+INSERT INTO exTable(username,email)
+VALUES('david','david@example.com');
+```
+但是整个替换过程由驱动程序完成，因此更加安全。
+
+---
+
+### 5. SQL 注入（SQL Injection）
+```python
+假设需要插入的数据来自用户输入或脚本
+例如：  
+username = input("用户名：")  
+email = input("邮箱：")
+```
+
+需要执行的程序代码如下：
+```python
+sql = f"""
+INSERT INTO exTable(username,email)
+VALUES('{username}','{email}')
+"""
+
+cur.execute(sql)
+```
+
+> 假设用户输入
+```
+David
+```
+生成的 SQL
+```sql
+INSERT INTO exTable(username,email)
+VALUES('David','xxx@example.com');
+```
+没有问题。
+
+> 但是如果有人故意输入
+```python
+David'); DROP TABLE exTable; --
+```
+那么生成的 SQL 就会变成
+```sql
+INSERT INTO exTable(username,email)
+VALUES('David');
+DROP TABLE exTable;
+--','xxx@example.com');
+```
+如果数据库允许执行多条 SQL，那么第二句
+```sql
+DROP TABLE exTable;
+```
+就真的会把表 exTable 删掉。  
+这就是著名的 SQL 注入
+
+
+---
+
+### 6. 提交事务（Commit）与关闭连接
+
+PostgreSQL 默认开启事务。
+
+执行 INSERT、UPDATE、DELETE 后，并不会立即写入数据库。
+
+需要执行：
+
+```python
+conn.commit()
+```
+
+否则：
+
+```python
+cur.execute(...)
+```
+即使执行成功，关闭程序之后数据仍然不会保存。
+
+
+> 数据库资源使用完毕后，应及时释放：
+
+```python
+cur.close()
+conn.close()
+```
+
+完整流程如下：
+
+```python
+conn.commit()
+
+cur.close()
+conn.close()
+```
+
+这样可以避免连接长期占用数据库资源。
+
+---
+
+### 完整示例
+
 ```python
 import psycopg2
 
@@ -528,14 +743,201 @@ cur = conn.cursor()
 
 # 插入数据
 cur.execute(
-    "INSERT INTO exTable (username, email) VALUES (%s, %s)",
+    """
+    INSERT INTO exTable (username, email)
+    VALUES (%s, %s)
+    """,
     ("david", "david@example.com")
 )
 
-# 执行完数据库操作后，提交事务并关闭连接
+# 提交事务
 conn.commit()
+
+# 关闭资源
 cur.close()
 conn.close()
-``` -->
+```
+
+---
+
+### 7. 查改(增)删
+#### 查询数据（SELECT）
+查询数据库时，仍然使用 `execute()`。
+例如查询所有用户：
+
+```python
+cur.execute("SELECT * FROM exTable")
+```
+
+查询结果需要通过 `fetch` 系列函数获取。
+
+* fetchone()  
+返回第一条结果。
+
+```python
+row = cur.fetchone()
+
+print(row)
+```
+
+输出：
+
+```
+(1, 'david', 'david@example.com')
+```
+
+* fetchall()  
+返回全部结果。
+
+```python
+rows = cur.fetchall()
+
+for row in rows:
+    print(row)
+```
+
+输出示例：
+
+```
+(1, 'david', 'david@example.com')
+(2, 'alice', 'alice@example.com')
+(3, 'tom', 'tom@example.com')
+```
+
+* fetchmany()  
+一次读取指定数量的数据。
+
+```python
+rows = cur.fetchmany(5)
+```
+
+适用于大量数据的分页读取。
+
+---
+
+#### 更新数据（UPDATE）
+
+修改已有记录：
+
+```python
+cur.execute(
+    """
+    UPDATE exTable
+    SET email=%s
+    WHERE username=%s
+    """,
+    (
+        "new_email@example.com",
+        "david"
+    )
+)
+
+conn.commit()
+```
+
+---
+
+#### 删除数据（DELETE）
+
+删除记录：
+
+```python
+cur.execute(
+    """
+    DELETE FROM exTable
+    WHERE username=%s
+    """,
+    ("david",)
+)
+
+conn.commit()
+```
+
+注意：
+
+只有一个参数时，需要写成：
+
+```python
+("david",)
+```
+
+而不是：
+
+```python
+("david")
+```
+
+因为后者只是字符串，并不是 tuple。
+
+---
+
+### 8. 使用 Context Manager（推荐）
+
+Python 推荐使用 `with` 自动管理资源。
+
+例如：
+
+```python
+import psycopg2
+
+with psycopg2.connect(
+    dbname="mydb",
+    user="your_user",
+    password="your_password",
+    host="localhost",
+    port="5432"
+) as conn:
+
+    with conn.cursor() as cur:
+
+        cur.execute(
+            """
+            INSERT INTO exTable(username, email)
+            VALUES(%s, %s)
+            """,
+            ("alice", "alice@example.com")
+        )
+
+    conn.commit()
+```
+
+这样即使程序发生异常，也能自动关闭 Cursor 与 Connection。  
+代码更加安全，也更加 Pythonic。
+
+---
+
+### 9. 小结
+
+使用 psycopg2 操作 PostgreSQL 的基本流程如下：
+
+1. 导入 psycopg2
+2. 建立数据库连接（connect）
+3. 创建 Cursor（cursor）
+4. 执行 SQL（execute）
+5. 获取结果（fetch）
+6. 提交事务（commit）
+7. 关闭 Cursor 和 Connection（close）
+
+整个流程可以简单概括为：
+
+```text
+Connect
+    ↓
+Cursor
+    ↓
+Execute SQL
+    ↓
+Fetch Result（可选）
+    ↓
+Commit
+    ↓
+Close
+```
+
+---
+
+<!-- ## SQL 再进阶
+ -->
+
 
 ---

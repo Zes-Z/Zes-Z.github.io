@@ -87,25 +87,25 @@
 
 .prose h2 {
   font-size: var(--text-title-2);
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.24;
-  letter-spacing: 0;
-  margin-block-start: var(--space-12);
+  letter-spacing: 3;
+  margin-block-start: var(--space-6);
 }
 
 .prose h3 {
   font-size: var(--text-title-3);
   font-weight: 600;
   line-height: 1.24;
-  letter-spacing: 0;
-  margin-block-start: var(--space-8);
+  letter-spacing: 2;
+  margin-block-start: var(--space-6);
 }
 
 .prose h4 {
   font-size: var(--text-headline);
   font-weight: 600;
   line-height: 1.28;
-  letter-spacing: 0;
+  letter-spacing: 1;
   margin-block-start: var(--space-6);
 }
 
@@ -132,7 +132,7 @@
 .prose h4 + *,
 .prose h5 + *,
 .prose h6 + * {
-  margin-block-start: var(--space-3);
+  margin-block-start: var(--space-6);
 }
 
 .prose h1 + h2,
@@ -140,7 +140,7 @@
 .prose h3 + h4,
 .prose h4 + h5,
 .prose h5 + h6 {
-  margin-block-start: var(--space-2);
+  margin-block-start: var(--space-6);
 }
 
 .prose ul,
@@ -201,7 +201,9 @@
 .prose hr {
   border: none;
   border-top: 1px solid var(--prose-rule);
-  margin-block: var(--space-12);
+
+  margin-top: 3rem;
+  margin-bottom: 2.4rem;
 }
 
 .prose img {

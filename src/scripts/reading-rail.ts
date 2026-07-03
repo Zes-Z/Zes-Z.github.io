@@ -14,7 +14,7 @@ export function initReadingRail() {
 
   rail = mountTocRail({
     content: prose,
-    headings: '#prose-content h2[id], #prose-content h3[id]',
+    headings: '#prose-content :is( h2, h3)[id]',
     title: false,
     ariaLabel: 'Post outline',
     progressMode: 'content',
@@ -24,8 +24,8 @@ export function initReadingRail() {
       afterBoundary: 'viewport-end',
       afterOffset: 120,
     },
-    minWidth: 1220,
-    topOffset: 52,
+    minWidth: 1200,
+    topOffset: 3,
   });
 }
 
