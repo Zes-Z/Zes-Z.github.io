@@ -1,6 +1,7 @@
 ---
-title: "Obsidian 入门指南：构建你的第二大脑"
+title: "Introduction of Obsidian"
 category: Omnium
+description: ""
 pubDate: "2026-06-11"
 heroImage: ""
 homeFeatured: false   # 用于指定在首页 Read 区优先大图片展示
@@ -10,9 +11,9 @@ draft: false
 
 ---
 
-# Obsidian 入门指南：构建你的第二大脑
 
-Obsidian 是一款强大、本地优先的知识库与笔记软件，它直接运行在本地的 Markdown 纯文本文件之上。它的核心设计理念是帮助你整理思绪、构建个人知识网络，并打造一个数字化的“第二大脑”。
+> Obsidian 是一款强大、本地优先的知识库与笔记软件，基于 Markdown，直接运行在本地。
+它的核心设计理念是帮助你整理思绪、构建个人知识网络，并打造一个数字化的“第二大脑”。
 
 ---
 

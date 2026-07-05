@@ -654,7 +654,7 @@ cur.execute(sql)
 
 > 假设用户输入
 ```
-David
+David 
 ```
 生成的 SQL
 ```sql
