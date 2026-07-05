@@ -3,7 +3,7 @@ title: "从零开始搭建个人blog(hexo & asto)"
 description: ""
 pubDate: "2026-03-15"
 category: "Math & Coding"
-heroImage: "./IMG_1194_1.JPG"
+heroImage: "../../assets/wallpapers/IMG_1194_1.JPG"
 homeFeatured: false
 # homeHeroOrder:      # 用于指定首页个签下方置顶文章顺序,在 MyBlogsrcpagesindex.astro 第27行增加置顶篇章
 homeOrder:  2        # 用于指定首页下方 All Posts顺序

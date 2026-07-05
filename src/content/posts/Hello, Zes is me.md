@@ -5,7 +5,7 @@ pubDate: "2026-01-12"
 
 category: "Omnium"
 
-heroImage: "./IMG_0630_1.JPG"
+heroImage: "../../assets/wallpapers/IMG_0630_1.JPG"
 homeFeatured: true
 # homeHeroOrder: 1
 # homeOrder: 1

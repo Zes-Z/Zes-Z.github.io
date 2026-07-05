@@ -158,7 +158,7 @@
 
 .featured-card {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr; minmax(0, 480px);
+  grid-template-columns: 0.9fr 1.1fr; minmax(0, 480px);
   gap: var(--space-12);
   align-items: stretch;
   text-decoration: none;
