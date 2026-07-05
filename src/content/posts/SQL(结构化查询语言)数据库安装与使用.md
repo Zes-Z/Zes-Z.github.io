@@ -369,75 +369,6 @@ HAVING SUM(amount) > 100;
 
 ---
 
-### 外键（Foreign Key）：表之间的纽带
-
-> 外键用于约束两张表之间的关系，防止出现"孤儿数据"
-
-```sql
--- 重建 users 表（如果已存在先删除）
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS users;
-
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(60) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL
-);
-
--- orders 表的 user_id 指向 users 表的 id
-CREATE TABLE orders (
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id),  -- 外键
-    product VARCHAR(60),
-    amount INT
-);
-```
-
-外键的保护效果：
-
-```sql
-INSERT INTO users (username, email) VALUES ('alice', 'alice@example.com');
-
--- ✅ alice 的 id 是 1，可以正常插入
-INSERT INTO orders (user_id, product, amount) VALUES (1, 'book', 120);
-
--- ❌ 报错：user_id=999 在 users 表里不存在
-INSERT INTO orders (user_id, product, amount) VALUES (999, 'pen', 30);
-```
-
----
-
-<!-- ## JOIN：多表联查入门
-
-> 外键建好后，可以用 JOIN 把两张表的数据合并查询  
-
-* NNER JOIN（内连接）：只返回两边都能匹配的行
-
-```sql
--- 查询每条订单，同时显示用户名
-SELECT orders.id, users.username, orders.product, orders.amount
-FROM orders
-INNER JOIN users ON orders.user_id = users.id;
-```
-
-输出示例：
-
-| id | username | product | amount |
-|:---:|:---:|:---:|:---:|
-| 1 | alice | book | 120 |
-
-
-* LEFT JOIN（左连接）：左表全保留，右表没有则显示 NULL
-
-```sql
--- 查询所有用户，包括没有下过订单的（右边没数据就显示 NULL）
-SELECT users.username, orders.product, orders.amount
-FROM users
-LEFT JOIN orders ON users.id = orders.user_id;
-```
-
-> 记忆口诀：**INNER** = 交集，**LEFT** = 左表全要，右边没有补 NULL -->
-
 
 ### 给列和表起别名：AS
 
@@ -936,8 +867,444 @@ Close
 
 ---
 
-<!-- ## SQL 再进阶
- -->
+## SQL 再进阶
+### 准备示例数据
+* 创建学生表
 
+```sql
+CREATE TABLE student (
+    sid SERIAL PRIMARY KEY,
+    name VARCHAR(20),
+    gender VARCHAR(10)
+);
+```
+
+插入数据：
+
+```sql
+INSERT INTO student(name, gender) VALUES
+('张三', '男'),
+('李四', '男'),
+('王五', '女');
+```
+
+
+* 创建课程表
+
+```sql
+CREATE TABLE course (
+    cid SERIAL PRIMARY KEY,
+    cname VARCHAR(30)
+);
+```
+
+插入数据：
+
+```sql
+INSERT INTO course(cname) VALUES
+('Python'),
+('数据库'),
+('人工智能');
+```
+
+* 创建成绩表
+
+```sql
+CREATE TABLE score (
+    sid INTEGER,
+    cid INTEGER,
+    score INTEGER
+);
+```
+
+插入数据：
+
+```sql
+INSERT INTO score VALUES
+(1,1,90),
+(1,2,85),
+(2,2,95),
+(2,3,88),
+(3,1,76);
+```
+
+### 联结表与跨表查询
+现实中的数据库通常不会把所有信息保存在同一张数据表中，而是按照不同的数据类型分别建立数据表。
+
+例如：
+
+- 学生信息保存在 **student** 表。
+- 课程信息保存在 **course** 表。
+- 成绩信息保存在 **score** 表。
+
+那么数据库如何知道：
+
+* 成绩 90 是张三的 Python 成绩？
+
+答案就是：  
+这些数据表之间通过**相同字段**建立联系。
+
+例如：
+
+student
+
+```text
+sid
+```
+
+与
+
+score
+
+```text
+sid
+```
+
+表示同一个学生。
+
+course
+
+```text
+cid
+```
+
+与
+
+score
+
+```text
+cid
+```
+
+表示同一门课程。
+
+这种通过共同字段建立联系的方法称为**联结（Relation）**。
+
+
+#### 外键（Foreign Key）：表之间的纽带
+
+> 外键用于约束两张表之间的关系，防止出现"孤儿数据"
+
+```sql
+-- 重建 score 表（如果已存在先删除）
+DROP TABLE IF EXISTS score;
+
+-- score 表的 sid 和 cid 列分别指向 student 和 course 表
+CREATE TABLE score (
+    sid INT REFERENCES student(sid),
+    cid INT REFERENCES course(cid),
+    score INT
+);
+```
+这里，`sid` 和 `cid` 都是**外键（Foreign Key）**。
+
+- `sid` 引用 `student` 表中的 `sid`。
+- `cid` 引用 `course` 表中的 `cid`。
+
+外键的作用是**建立数据表之间的关联，并保证数据的一致性**。  
+例如，如果 `student` 表中不存在 `sid=100` 的学生，那么下面的语句将无法执行：
+
+```sql
+INSERT INTO score VALUES (100, 1, 90);
+```
+
+数据库会提示错误，因为外键要求 `score.sid` 的值必须来自 `student` 表中已经存在的 `sid`。  
+同样，如果 `course` 表中不存在对应的课程编号，也无法插入成绩记录。  
+因此，外键能够防止引用不存在的数据，保证数据库中各个数据表之间的数据始终保持一致。
+
+---
+
+#### JOIN：多表联查入门
+
+> 外键建立了数据表之间的关联，而 **JOIN** 则利用这些关联，将多个数据表中的数据组合到一起进行查询。
+
+例如：
+
+- `student` 表保存学生信息；
+- `course` 表保存课程信息；
+- `score` 表保存成绩信息。
+
+如果想查询"学生姓名、课程名称以及成绩"，由于这些信息分别保存在不同的数据表中，因此需要使用 **JOIN** 进行跨表查询。
+
+本节主要介绍最常用的 **INNER JOIN（内连接）**。
+
+---
+
+* INNER JOIN（内连接）
+
+**INNER JOIN** 只返回两张表中能够成功匹配的数据。
+
+基本语法如下：
+
+```sql
+SELECT 字段列表
+FROM 表1
+INNER JOIN 表2
+ON 表1.字段 = 表2.字段;
+```
+
+其中：
+
+- `INNER JOIN`：表示联结另一张数据表。
+- `ON`：指定两张表之间的联结条件。
+
+---
+
+* 两表联结
+
+查询每位学生的姓名和成绩：
+
+```sql
+SELECT
+    student.name,
+    score.score
+FROM student
+INNER JOIN score
+ON student.sid = score.sid;
+```
+
+运行结果：
+
+| name | score |
+|------|------:|
+| 张三 | 90 |
+| 张三 | 85 |
+| 李四 | 95 |
+| 李四 | 88 |
+| 王五 | 76 |
+
+分析：
+
+- `student` 表中保存学生姓名。
+- `score` 表中保存学生成绩。
+- 两张表通过共同的 `sid` 字段进行联结。
+- 查询结果同时包含了两张表中的数据。
+
+---
+
+* 三表联结
+
+如果希望继续查询课程名称，则需要再联结 `course` 表。
+
+例如，查询每位学生的姓名、课程名称以及成绩：
+
+```sql
+SELECT
+    student.name,
+    course.cname,
+    score.score
+FROM score
+INNER JOIN student
+ON score.sid = student.sid
+INNER JOIN course
+ON score.cid = course.cid;
+```
+
+运行结果：
+
+| 姓名 | 课程 | 成绩 |
+|------|--------|------:|
+| 张三 | Python | 90 |
+| 张三 | 数据库 | 85 |
+| 李四 | 数据库 | 95 |
+| 李四 | 人工智能 | 88 |
+| 王五 | Python | 76 |
+
+分析：
+
+整个查询过程可以分为两个步骤：
+
+第一步：
+
+```text
+score
+   │
+JOIN
+   │
+student
+```
+
+根据 `sid` 查询学生姓名。
+
+第二步：
+
+```text
+(student + score)
+        │
+      JOIN
+        │
+      course
+```
+
+根据 `cid` 查询课程名称。
+
+最终，一条 SQL 就能够同时查询三张数据表中的信息。  
+由此可见，**INNER JOIN** 可以根据多个数据表之间的关联关系，  
+将不同数据表中的信息整合到同一条查询结果中，是 SQL 中最常用的跨表查询方式。
+
+---
+
+### 子查询
+
+> 有时候，一条 SQL 查询需要先得到另一个查询的结果，再根据这个结果继续查询。  
+这种**在一条 SQL 语句中嵌套另一条 SQL 语句**的写法，称为**子查询（Subquery）**，也叫**嵌套查询**。  
+子查询通常放在圆括号 `()` 中，数据库会**先执行子查询，再执行外层查询**。
+
+基本形式如下：
+```sql
+SELECT ...
+FROM ...
+WHERE 字段 = (
+    SELECT ...
+);
+```
+
+
+#### 示例一：查询最高成绩与对应数据
+
+首先查询成绩表中的最高成绩：
+
+```sql
+SELECT MAX(score)
+FROM score;
+```
+
+运行结果：
+
+```
+95
+```
+
+如果希望直接查询这条最高成绩对应的记录，可以将上面的查询作为子查询：
+
+```sql
+SELECT *
+FROM score
+WHERE score = (
+    SELECT MAX(score)
+    FROM score
+);
+```
+
+执行过程如下：
+
+① 子查询首先执行：
+
+```sql
+SELECT MAX(score)
+FROM score;
+```
+
+得到：
+
+```
+95
+```
+
+② 外层查询继续执行：
+
+```sql
+SELECT *
+FROM score
+WHERE score = 95;
+```
+
+最终查询出最高成绩对应的数据。
+
+
+
+#### 示例二：查询数据库课程的成绩
+
+假设不知道"数据库"课程的编号，只知道课程名称。
+
+可以先查询课程编号：
+
+```sql
+SELECT cid
+FROM course
+WHERE cname = '数据库';
+```
+
+得到：
+
+```
+2
+```
+
+然后继续查询成绩：
+
+```sql
+SELECT *
+FROM score
+WHERE cid = (
+    SELECT cid
+    FROM course
+    WHERE cname = '数据库'
+);
+```
+
+这样就不需要手动输入课程编号。
+
+
+#### 示例三：使用 IN 子查询
+
+有时子查询可能返回多条数据，这时可以使用 `IN`。
+
+例如：查询所有选修了 Python 课程的学生编号。
+
+```sql
+SELECT sid
+FROM score
+WHERE cid IN (
+    SELECT cid
+    FROM course
+    WHERE cname = 'Python'
+);
+```
+
+`IN` 表示：
+
+> 判断某个值是否存在于子查询返回的结果集合中。
+
+如果子查询返回多个结果，`=` 无法使用，而应该使用 `IN`。
+
+---
+
+#### 子查询与普通查询的区别
+
+普通查询：
+
+```sql
+SELECT *
+FROM score
+WHERE cid = 2;
+```
+
+需要提前知道课程编号。
+
+子查询：
+
+```sql
+SELECT *
+FROM score
+WHERE cid = (
+    SELECT cid
+    FROM course
+    WHERE cname = '数据库'
+);
+```
+
+不需要知道课程编号，而是由数据库自动查询得到。
+
+因此，子查询能够提高 SQL 的灵活性，使查询更加方便。
+
+特点：
+
+- 子查询通常放在 `()` 中。
+- 数据库会先执行子查询，再执行外层查询。
+- 当子查询返回一个结果时，通常配合 `=` 使用。
+- 当子查询返回多个结果时，通常配合 `IN` 使用。
+
+子查询常用于：先查询某个条件，再根据该条件继续完成查询。
 
 ---

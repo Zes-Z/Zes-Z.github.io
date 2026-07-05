@@ -125,7 +125,8 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 > [The Math Academy Way Using the Power of Science to Supercharge Student Learning](https://docs.google.com/document/d/1LLZK_34Oer9LwuqAv-pqxfXlR8n7V8zJ_MO323R7egI/edit?pli=1&tab=t.0#heading=h.447z8624tjpw)
 
-
+> **傅里叶变换**
+* [An Interactive Guide To The Fourier Transform](https://betterexplained.com/articles/an-interactive-guide-to-the-fourier-transform/)
 
 
 ---
