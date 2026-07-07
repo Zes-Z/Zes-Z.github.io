@@ -17,7 +17,7 @@ draft: false
 
 ---
 
-## 核心设计理念
+<!-- ## 核心设计理念
 
 Obsidian 围绕三个核心原则构建：
 1. **本地优先与纯文本 (Local-first & Plain Text)**：你的笔记以标准的 Markdown (`.md`) 格式存储在本地设备上。你拥有数据的绝对控制权，无平台锁定风险，随时可以使用任何文本编辑器打开。
@@ -79,4 +79,311 @@ Markdown 是一种轻量级的标记语言：
 在编辑器中输入 `[[`，然后选择或输入另一个笔记的名称。如果目标笔记尚不存在，Obsidian 会创建一个占位链接，点击它即可自动创建该笔记。
 
 ### 第四步：开启图谱之旅
-点击左侧边栏的 **Graph View (关系图谱)** 图标，即可开启你的可视化知识网络探索。
+点击左侧边栏的 **Graph View (关系图谱)** 图标，即可开启你的可视化知识网络探索。 -->
+
+
+## 使用 Obsidian Git 同步笔记
+### 1. 创建 GitHub 仓库
+首先登录 GitHub。  
+点击右上角 **New Repository**。  
+填写仓库信息：
+- Repository name：例如 `Obsidian`
+- Visibility：Public 或 Private（推荐 Private）
+- 不要勾选：
+  - Add a README
+  - Add .gitignore
+  - Choose a license
+
+然后点击
+- Create repository
+
+创建成功后会得到一个仓库地址，例如：
+
+```text
+https://github.com/yourname/Obsidian.git
+```
+
+后面需要使用它。
+
+---
+
+### 2. 安装 Git
+
+如果电脑尚未安装 Git，请前往：
+
+https://git-scm.com/downloads
+
+下载安装即可。
+
+安装完成后打开终端：
+
+```bash
+git --version
+```
+
+如果输出类似：
+
+```text
+git version 2.50.0
+```
+
+说明安装成功。
+
+---
+
+### 3. 创建 Obsidian Vault
+
+打开 Obsidian。
+
+点击
+
+> Create new vault
+
+例如：
+
+```text
+D:\Obsidian
+```
+
+以后所有笔记都会放在这个目录。
+
+---
+
+### 4. 初始化 Git 仓库
+
+打开终端（PowerShell 或 CMD）。
+
+进入 Vault：
+
+```bash
+cd D:\Obsidian
+```
+
+初始化 Git：
+
+```bash
+git init
+```
+
+连接远程仓库：
+
+```bash
+git remote add origin https://github.com/yourname/Obsidian.git
+```
+
+查看是否成功：
+
+```bash
+git remote -v
+```
+
+输出类似：
+
+```text
+origin https://github.com/yourname/Obsidian.git
+```
+
+说明连接成功。
+
+---
+
+### 5. 第一次提交
+
+查看状态：
+
+```bash
+git status
+```
+
+添加全部文件：
+
+```bash
+git add .
+```
+
+提交：
+
+```bash
+git commit -m "Initial commit"
+```
+
+推送：
+
+```bash
+git branch -M main
+git push -u origin main
+```
+
+如果 GitHub 页面出现你的笔记，就说明配置成功。
+
+---
+
+### 6. 安装 Obsidian Git 插件
+
+打开
+
+Settings → Community Plugins
+
+关闭 Safe Mode。
+
+点击
+
+> Browse
+
+搜索：
+
+```text
+Obsidian Git
+```
+
+安装并启用。
+
+---
+
+### 7. 配置插件
+
+进入：
+
+Settings → Obsidian Git
+
+推荐开启：
+
+```
+Auto Pull on startup
+```
+
+启动时自动拉取最新内容。
+
+```
+Auto Backup
+```
+
+自动 Commit。
+
+```
+Auto Push
+```
+
+自动 Push。
+
+例如：
+
+```
+Auto Backup Interval
+```
+
+设置：
+
+```text
+10
+```
+
+表示每 10 分钟自动提交一次。
+
+---
+
+### 8. 日常使用
+
+日常同步非常简单。
+
+## 开始工作
+
+执行：
+
+```text
+Pull
+```
+
+同步最新内容。
+
+---
+
+## 编辑笔记
+
+和平时一样写 Markdown。
+
+---
+
+## 提交
+
+执行：
+
+```text
+Commit all changes
+```
+
+输入说明：
+
+```text
+Update NLP notes
+```
+
+---
+
+## 上传
+
+执行：
+
+```text
+Push
+```
+
+同步到 GitHub。
+
+---
+
+### 9. 推荐工作流程
+
+每天：
+
+```text
+Pull
+    ↓
+编辑笔记
+    ↓
+Commit
+    ↓
+Push
+```
+
+如果开启自动同步，大多数情况下只需要专注于写笔记即可。
+
+---
+
+### 10. 常用命令
+
+查看状态：
+
+```bash
+git status
+```
+
+查看修改：
+
+```bash
+git diff
+```
+
+添加全部文件：
+
+```bash
+git add .
+```
+
+提交：
+
+```bash
+git commit -m "Update notes"
+```
+
+推送：
+
+```bash
+git push
+```
+
+拉取：
+
+```bash
+git pull
+```
