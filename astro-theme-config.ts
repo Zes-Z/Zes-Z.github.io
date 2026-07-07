@@ -33,7 +33,8 @@ const config = {
   { label: 'Home', href: '/' },
   { label: 'Archive', href: '/posts' },
   { label: 'Search', href: '/search' },
-  { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
+  { label: 'Photos', href: 'https://zessphotos.pages.dev/' },
+  // { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
   { label: 'About', href: '/about' },
   { label: 'とも', href: '/links' },
   
