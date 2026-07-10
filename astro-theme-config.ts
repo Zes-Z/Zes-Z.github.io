@@ -13,9 +13,9 @@ type NavItem = {
 const config = {
   site: {
     /** Production origin, used for canonical links, sitemap, and Open Graph metadata. */
-    url: 'https://zesforu.pages.dev/',
+    url: 'https://zesforu.pages.dev',
     /** Subpath such as '/repo-name'. Keep empty when deploying at a domain root. */
-    base: '',
+    base: '/',
     lang: 'zh',
     locale: 'en_US',
     dateLocale: 'en-US',
@@ -33,7 +33,7 @@ const config = {
   { label: 'Home', href: '/' },
   { label: 'Archive', href: '/posts' },
   { label: 'Search', href: '/search' },
-  { label: 'Photos', href: 'https://zesphotos.pages.dev/' },
+  { label: 'Photos', href: 'https://zes-z.github.io/ZesPhotos/' },
   // { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
   { label: 'About', href: '/about' },
   { label: 'とも', href: '/links' },
