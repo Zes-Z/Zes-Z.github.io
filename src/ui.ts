@@ -6,7 +6,7 @@ const ui = {
   allPosts: 'All Posts →',
   postsEyebrow: 'Archive',
   postsTitle: 'All Posts',
-  heroTitle: 'This blog is dedicated to whom it may concern.',
+  heroTitle: 'This blog is dedicated to whom it may concern.😆',
   heroTitleLine2: '',
   viewAll: 'All Posts →',
   readLink: 'Read →',
