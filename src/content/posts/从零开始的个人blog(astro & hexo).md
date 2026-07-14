@@ -38,7 +38,16 @@ git --version
 ```
 
 * 所有命令行,需要回车才能运行噢! 如果能输出版本号说明安装成功。
-
+* 运行卡住或无结果，按下Ctrl+C 中止命令。
+* 此外，当你第一次尝试通过以下方式运行一个脚本时，可能会遇到（提示“在此系统上禁止运行脚本”）  
+这是 PowerShell 的执行策略限制，禁止运行脚本文件。
+* 解决方案
+修改 PowerShell 执行策略
+以管理员身份打开 PowerShell，运行：
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+然后输入 Y 确认。
 
 ---
 
