@@ -140,37 +140,12 @@ Semantic Abstractness↔H(C∣V)
 
 
 ---
+## 今後
+### 転生
+> * [ ] 
 
+### multimodel books
+> * [ ] 
 
-以下暂时放这
-# Algorithm
-
-《算法图解》Grokking algorithms  
-《A Common-Sense Guide... in Python》Jay Wengrow  
-《算法》Sedgewick  
-《算法导论》（CLRS）
-
-《Concrete Mathematics》（具体数学）—— Knuth 等著
-
-《The Art of Computer Programming》（TAOCP）—— Donald Knuth
-
-- 作者：算法之父 Knuth
-    
-- 地位：算法领域的“终极经典”
-    
-- ⚠️ 难度极高，偏学术，不适合初学者。
-    
-- 👉 建议作为长期目标收藏，不必现在读。
-
-
-# 摄影
-
-景深 DoF ∝    ≈
-
-焦距,物距,像距:
-
-放大率 m = v/u
-
-
-
----
+### academic service
+> * [ ] 
