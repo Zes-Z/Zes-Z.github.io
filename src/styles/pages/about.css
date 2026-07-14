@@ -51,7 +51,7 @@
 
 /* 鼠标悬停时：平滑过渡到圆形（圆形感） */
 .profile-media:hover {
-  border-radius: 30%;
+  border-radius: 60%;
 }
 
 .profile-media::after {
