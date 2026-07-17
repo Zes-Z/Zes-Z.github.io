@@ -1,5 +1,5 @@
 ---
-title: "Introduction of Obsidian"
+title: "Introduction to Obsidian"
 category: Omnium
 description: ""
 pubDate: "2026-06-11"
