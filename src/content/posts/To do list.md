@@ -116,7 +116,7 @@ Semantic Abstractness↔H(C∣V)
 
 ---
 ### 数据结构与算法
-* [ ] 
+* [x] 
 * [ ] 
 * [ ] 
 
@@ -133,9 +133,7 @@ Semantic Abstractness↔H(C∣V)
 ### 信息论
 * [x] 熵：entrophy
 
----
-## 摄影
-* [x] 2026.5.24 luyy 220
+
 
 
 
