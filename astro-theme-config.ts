@@ -32,7 +32,8 @@ const config = {
   nav: [ 
   { label: 'Home', href: '/' },
   { label: 'Archive', href: '/posts' },
-  { label: 'Recipes', href: 'https://zes-z.github.io/ZesRecipes/' },
+  // { label: 'Recipes', href: 'https://zes-z.github.io/ZesRecipes/' },
+  { label: 'Recipes', href: 'https://zesrecipes.pages.dev/' },
   { label: 'Photos', href: 'https://zes-z.github.io/ZesPhotos/' },
   // { label: 'Photos', href: 'https://www.alipan.com/s/rnJsLF2KTtt' },
   { label: 'About', href: '/about' },
