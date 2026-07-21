@@ -131,47 +131,51 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 ---
 ## 编程
-> **Python**  
-* [Python 教程](https://docs.python.org/3.14/tutorial/index.html)
+> [!TIP] Python
+> [Python 教程](https://docs.python.org/3.14/tutorial/index.html)
 
-> **C++**  
-* [ISO C++](https://isocpp.org/std)  
-* [Learn C++](https://www.learncpp.com/)  
-* [CPP Reference](https://en.cppreference.com/)
+> [!important] C++
+> * [ISO C++](https://isocpp.org/std)  
+> * [Learn C++](https://www.learncpp.com/)  
+> * [CPP Reference](https://en.cppreference.com/)
 
-> **Go**  
-* [The Go Programming Language](https://go.dev/doc/)  
-* [Welcome to a tour of Go](https://go.dev/tour/list)
-
-
+> [!note] Go
+> [The Go Programming Language](https://go.dev/doc/)  
 
 ---
-> **SQL** (结构化查询语言)  
-* 一个练习SQL的网站：[SQLZoo](https://sqlzoo.net/wiki/SQL_Tutorial)
+> [!important] Markdown
+> [Markdown 语法](https://www.markdownguide.org/basic-syntax/)[]()
 
-> **Markdown**  
-* [Markdown 语法](https://www.markdownguide.org/basic-syntax/)[]()
 
-> **LaTeX**  
-* [Learn LaTeX in 30 minutes](https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes)  
-* [一份（不太）简短的 LATEX2ε 介绍](</一份（不太）简短的LATEX2ε 介绍.pdf>)   
+> [!note] SQL (结构化查询语言)  
+> 一个练习SQL的网站：[SQLZoo](https://sqlzoo.net/wiki/SQL_Tutorial)
+
+
+
+> [!TIP] LaTeX
+> * [Learn LaTeX in 30 minutes](https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes)  
+> * [一份（不太）简短的 LATEX2ε 介绍](</一份（不太）简短的LATEX2ε 介绍.pdf>)   
 中文翻译：CTEX开发小组  
 英文作者：Tobias Oetiker  
 Hubert Partl, Irene Hyna and Elisabeth Schlegl  
-* [Detexify](https://detexify.kirelabs.org/)LaTeX handwritten symbol recognition  
+> * [Detexify](https://detexify.kirelabs.org/) LaTeX handwritten symbol recognition  
 
-> **Git**  
-* 图形化 git [Learn Git Branching](https://learngitbranching.js.org/?demo=&locale=zh_CN)
+> [!CAUTION] Git 
+> * 图形化 git [Learn Git Branching](https://learngitbranching.js.org/?demo=&locale=zh_CN)
 
 
 
 ---
-> **综合类教程网站**  
-[菜鸟教程](https://www.runoob.com/)
 
+> [!TIP] Links to links
+> * [菜鸟教程](https://www.runoob.com/)  
+> * [CS自学指南](https://csdiy.wiki/)
+> * [小林coding](https://xiaolincoding.com/cs_learn/cs_learn.html)
+> * [2026 清华大学计算机系科协暑期技能培训 学习资源](https://summer26.net9.org/basic/survival-guide/cs-resources/)
 
-> **有趣的**
-[Nandgame](https://www.codingame.com/)
+---
+> [!NOTE] 有趣的
+> * [Nandgame](https://www.codingame.com/)
 
 
 
