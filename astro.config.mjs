@@ -2,6 +2,7 @@
 
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import remarkAlerts from 'remark-github-blockquote-alert';
 
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
@@ -43,7 +44,7 @@ export default defineConfig({
   },
 
   markdown: {
-  remarkPlugins: [remarkMath],
+  remarkPlugins: [remarkMath,remarkAlerts],
 
   rehypePlugins: [
     rehypeKatex,
