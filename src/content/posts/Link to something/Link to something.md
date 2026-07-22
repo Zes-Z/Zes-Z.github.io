@@ -108,8 +108,8 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 ---
 ## 数理
-> **图形与可视化计算器**
-* [GeoGebra](https://www.geogebra.org/calculator)
+> [!TIP] 图形与可视化计算器
+> * [GeoGebra](https://www.geogebra.org/calculator)
 
 > **线性代数**
 * 可视化线性代数教材：[immersive linear algebra](https://immersivemath.com/ila/index.html)
