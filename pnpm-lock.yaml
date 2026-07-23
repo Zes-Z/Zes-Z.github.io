@@ -50,6 +50,9 @@ importers:
       toc-rail:
         specifier: ^0.1.4
         version: 0.1.4
+      unist-util-visit:
+        specifier: ^5.1.0
+        version: 5.1.0
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.9

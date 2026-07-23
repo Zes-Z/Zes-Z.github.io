@@ -108,7 +108,7 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 ---
 ## 数理
-> [!TIP] 图形与可视化计算器
+> [!TIP] 图形与可视化计算器  
 > * [GeoGebra](https://www.geogebra.org/calculator)
 
 > **线性代数**
@@ -131,19 +131,19 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 ---
 ## 编程
-> [!TIP] Python
+> [!TIP] Python  
 > [Python 教程](https://docs.python.org/3.14/tutorial/index.html)
 
-> [!important] C++
+> [!important] C++  
 > * [ISO C++](https://isocpp.org/std)  
 > * [Learn C++](https://www.learncpp.com/)  
 > * [CPP Reference](https://en.cppreference.com/)
 
-> [!note] Go
+> [!note] Go  
 > [The Go Programming Language](https://go.dev/doc/)  
 
 ---
-> [!important] Markdown
+> [!important] Markdown  
 > [Markdown 语法](https://www.markdownguide.org/basic-syntax/)[]()
 
 
