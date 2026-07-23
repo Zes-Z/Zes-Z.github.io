@@ -108,51 +108,61 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 ---
 ## 数理
-> [!TIP] 图形与可视化计算器  
+### 图形与可视化计算器
+> [!TIP]  
 > * [GeoGebra](https://www.geogebra.org/calculator)
 
-> **线性代数**
-* 可视化线性代数教材：[immersive linear algebra](https://immersivemath.com/ila/index.html)
+### 微积分
+> [!note]
+> * [An Interactive Guide To The Fourier Transform](https://betterexplained.com/articles/an-interactive-guide-to-the-fourier-transform/)
 
-> **物理学讲义**
-* [The Feynman Lectures on Physics](https://www.feynmanlectures.caltech.edu/)
 
-* [The Simon Initiative](https://www.cmu.edu/simon/open-simon/toolkit/techniques/index.html)
+### 线性代数
+> [!note]  
+> * 可视化线性代数教材：[immersive linear algebra](https://immersivemath.com/ila/index.html)
 
-> **使用Python进行数据分析**
-* 感谢 Wes McKinney 开源：[Python for Data Analysis, 3E](https://wesmckinney.com/book/)  
+### 物理学
+> [!TIP]  
+> * [The Feynman Lectures on Physics](https://www.feynmanlectures.caltech.edu/)
+> * [The Simon Initiative](https://www.cmu.edu/simon/open-simon/toolkit/techniques/index.html)
+
+### 使用Python进行数据分析
+> [!TIP]  
+> * 感谢 Wes McKinney 开源：[Python for Data Analysis, 3E](https://wesmckinney.com/book/)  
 《使用Python进行数据分析》原版  
 
-> [The Math Academy Way Using the Power of Science to Supercharge Student Learning](https://docs.google.com/document/d/1LLZK_34Oer9LwuqAv-pqxfXlR8n7V8zJ_MO323R7egI/edit?pli=1&tab=t.0#heading=h.447z8624tjpw)
 
-> **傅里叶变换**
-* [An Interactive Guide To The Fourier Transform](https://betterexplained.com/articles/an-interactive-guide-to-the-fourier-transform/)
+
 
 
 ---
 ## 编程
-> [!TIP] Python  
+### Python
+> [!TIP] 
 > [Python 教程](https://docs.python.org/3.14/tutorial/index.html)
 
-> [!important] C++  
+### C++
+> [!important]  
 > * [ISO C++](https://isocpp.org/std)  
 > * [Learn C++](https://www.learncpp.com/)  
 > * [CPP Reference](https://en.cppreference.com/)
 
-> [!note] Go  
+### Go
+> [!note]
 > [The Go Programming Language](https://go.dev/doc/)  
 
 ---
-> [!important] Markdown  
+### Markdown
+> [!important] 
 > [Markdown 语法](https://www.markdownguide.org/basic-syntax/)[]()
 
-
-> [!note] SQL (结构化查询语言)  
+###  SQL (结构化查询语言)
+> [!note]  
 > 一个练习SQL的网站：[SQLZoo](https://sqlzoo.net/wiki/SQL_Tutorial)
 
 
-
-> [!TIP] LaTeX
+### LaTeX
+> [!TIP]
 > * [Learn LaTeX in 30 minutes](https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes)  
 > * [一份（不太）简短的 LATEX2ε 介绍](</一份（不太）简短的LATEX2ε 介绍.pdf>)   
 中文翻译：CTEX开发小组  
@@ -160,22 +170,20 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 Hubert Partl, Irene Hyna and Elisabeth Schlegl  
 > * [Detexify](https://detexify.kirelabs.org/) LaTeX handwritten symbol recognition  
 
-> [!CAUTION] Git 
+### Git
+> [!important]  
 > * 图形化 git [Learn Git Branching](https://learngitbranching.js.org/?demo=&locale=zh_CN)
 
 
 
 ---
-
-> [!TIP] Links to links
+### Links to links
+> [!TIP] 
 > * [菜鸟教程](https://www.runoob.com/)  
 > * [CS自学指南](https://csdiy.wiki/)
 > * [小林coding](https://xiaolincoding.com/cs_learn/cs_learn.html)
 > * [2026 清华大学计算机系科协暑期技能培训 学习资源](https://summer26.net9.org/basic/survival-guide/cs-resources/)
 
----
-> [!NOTE] 有趣的
-> * [Nandgame](https://www.codingame.com/)
 
 
 

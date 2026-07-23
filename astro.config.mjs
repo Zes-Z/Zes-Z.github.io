@@ -44,27 +44,28 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
 
-  markdown: {
-  remarkPlugins: [remarkMath,remarkAlerts],
- 
+markdown: {
+  remarkPlugins: [
+    remarkMath,
+    remarkAlerts,
+  ],
 
   rehypePlugins: [
     rehypeKatex,
-
     rehypeSlug,
 
     [
       rehypeAutolinkHeadings,
       {
-        behavior: 'append',
+        behavior: "append",
         properties: {
           ariaHidden: true,
           tabIndex: -1,
-          class: 'heading-anchor',
+          class: "heading-anchor",
         },
         content: {
-          type: 'text',
-          value: '#',
+          type: "text",
+          value: "#",
         },
       },
     ],
