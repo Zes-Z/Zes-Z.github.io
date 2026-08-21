@@ -1,6 +1,7 @@
 ---
-// Root: redirect visitors to the default language home page.
-import { defaultHome } from '../utils/paths';
-
-return Astro.redirect(defaultHome());
+// 根路径:直接渲染默认语言的主页(不做跳转中转,点击网址即进入主页)
+import HomePage from '../components/HomePage.astro';
+import { siteConfig } from '../site.config';
 ---
+
+<HomePage lang={siteConfig.defaultLang} />

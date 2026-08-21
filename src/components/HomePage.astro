@@ -1,0 +1,68 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from './Hero.astro';
+import PinnedGrid from './PinnedGrid.astro';
+import WelcomeBlock from './WelcomeBlock.astro';
+import { siteConfig, siteSubtitle } from '../site.config';
+import { t, localize } from '../i18n';
+import type { Language } from '../types';
+import { getPinnedPosts, slugOf } from '../utils/posts';
+import { postHref } from '../utils/paths';
+import { renderMarkdown } from '../utils/markdown';
+import { resolvePostImage } from '../utils/images';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+
+const pinned = await getPinnedPosts(lang);
+const pinnedCards = await Promise.all(
+  pinned.map(async (post) => ({
+    href: postHref(lang, slugOf(post, lang)),
+    title: post.data.title,
+    description: post.data.description ?? '',
+    date: post.data.pubDate
+      ? `${post.data.pubDate.getFullYear()}/${post.data.pubDate.getMonth() + 1}/${post.data.pubDate.getDate()}`
+      : '',
+    image: await resolvePostImage(slugOf(post, lang), post.data.postImage, 800),
+  }))
+);
+
+const welcome = await getEntry('pages', `${lang}/${siteConfig.welcomePage}`);
+const welcomeHtml = welcome ? (await renderMarkdown(welcome.body ?? '')).html : '';
+const welcomeTitle = welcome?.data.title ?? t(lang, 'home.welcome');
+const heroSubtitleText = siteSubtitle();
+const heroSubtitle = heroSubtitleText ? localize(heroSubtitleText, lang) : undefined;
+---
+
+<BaseLayout lang={lang} fullWidth>
+  <Hero
+    images={[...siteConfig.heroImages]}
+    height="full"
+    position="bottom-left"
+    title={siteConfig.title}
+    subtitle={heroSubtitle}
+  />
+
+  {
+    pinnedCards.length > 0 && (
+      <section class="home-section container-x">
+        <h2 class="section-title">{t(lang, 'home.pinned')}</h2>
+        <PinnedGrid cards={pinnedCards} />
+      </section>
+    )
+  }
+
+  <section class="home-section container-x">
+    <WelcomeBlock title={welcomeTitle} html={welcomeHtml} />
+  </section>
+</BaseLayout>
+
+<style>
+  .home-section {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+  }
+</style>
