@@ -1,0 +1,81 @@
+---
+interface Props {
+  title: string;
+  open?: boolean;
+}
+
+const { title, open = true } = Astro.props;
+---
+
+<section class="collapse card" data-collapse>
+  <button
+    class="collapse-trigger"
+    type="button"
+    aria-expanded={open ? 'true' : 'false'}
+    aria-controls="collapse-body"
+  >
+    <svg class="collapse-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+    <span class="collapse-title">{title}</span>
+  </button>
+  <div class="collapse-body" id="collapse-body" {...(!open ? { hidden: true } : {})}>
+    <slot />
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-collapse]').forEach((collapse) => {
+    if (collapse.dataset.ready === 'true') return;
+    collapse.dataset.ready = 'true';
+    const trigger = collapse.querySelector<HTMLButtonElement>('.collapse-trigger');
+    const body = collapse.querySelector<HTMLElement>('.collapse-body');
+    if (!trigger || !body) return;
+    trigger.addEventListener('click', () => {
+      const willOpen = body.hidden;
+      body.hidden = !willOpen;
+      trigger.setAttribute('aria-expanded', String(willOpen));
+      collapse.classList.toggle('is-collapsed', !willOpen);
+    });
+  });
+</script>
+
+<style>
+  .collapse {
+    overflow: hidden;
+  }
+
+  .collapse-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font-size: 1.02rem;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .collapse-arrow {
+    color: var(--accent);
+    transition: transform var(--transition);
+  }
+  .collapse.is-collapsed .collapse-arrow,
+  .collapse-trigger[aria-expanded='false'] .collapse-arrow {
+    transform: rotate(-90deg);
+  }
+
+  .collapse-title {
+    flex: 1;
+  }
+
+  .collapse-body {
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+import globalCss from '../styles/global.css?inline';
+import '../styles/katex.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SearchPalette from '../components/SearchPalette.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { siteConfig, siteSubtitle } from '../site.config';
+import { localize } from '../i18n';
+import type { Language } from '../types';
+import { withBase } from '../utils/paths';
+
+interface Props {
+  lang: Language;
+  title?: string;
+  description?: string;
+  /** Omit the horizontal container so a page can go full-bleed (e.g. hero). */
+  fullWidth?: boolean;
+}
+
+const { lang, title, description, fullWidth = false } = Astro.props;
+const subtitleText = siteSubtitle();
+const pageTitle = title
+  ? `${title} · ${siteConfig.title}`
+  : subtitleText
+    ? `${siteConfig.title} — ${localize(subtitleText, lang)}`
+    : siteConfig.title;
+const pageDescription = description ?? localize(siteConfig.description, lang);
+---
+
+<!doctype html>
+<html lang={lang} data-lang={lang} data-theme="light" data-code-scheme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <script is:inline>
+      // Anti-flash theme bootstrap: runs before anything renders.
+      // Sets the theme attributes AND an inline background color so the page
+      // never flashes white (or the wrong theme) on navigation.
+      (function () {
+        try {
+          var mode = localStorage.getItem('zest-theme') || 'system';
+          if (mode === 'system') {
+            mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          if (mode !== 'light' && mode !== 'dark') mode = 'light';
+          var root = document.documentElement;
+          root.setAttribute('data-theme', mode);
+          root.setAttribute('data-code-scheme', mode === 'dark' ? 'dark' : 'light');
+          root.style.backgroundColor = mode === 'dark' ? '#101218' : '#eef6ef';
+        } catch (e) {}
+      })();
+    </script>
+    <!-- 全局样式内联进 HTML,页面在导航切换时立即以完整样式渲染,不再出现"先乱后好"的抽动 -->
+    <style is:inline set:html={globalCss} />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={pageDescription} />
+    <link rel="icon" type="image/svg+xml" href={withBase(siteConfig.favicon)} />
+    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={withBase(`/${lang}/rss.xml`)} />
+    <meta name="theme-color" content="#eef6ef" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <Header lang={lang} />
+    <main id="main" class:list={{ 'main--full': fullWidth }}>
+      {fullWidth ? <slot /> : <div class="container-x"><slot /></div>}
+    </main>
+    <Footer lang={lang} />
+    <SearchPalette lang={lang} />
+    <Lightbox />
+  </body>
+</html>
+
+<script>
+  // 代码块右上角"复制"按钮:复制整段代码到剪贴板
+  const copyFallback = (text: string, done: () => void) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      done();
+    } catch {
+      /* ignore */
+    }
+    ta.remove();
+  };
+
+  const bindCopyButtons = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-copy-code]').forEach((btn) => {
+      if (btn.dataset.ready === 'true') return;
+      btn.dataset.ready = 'true';
+      btn.addEventListener('click', () => {
+        const block = btn.closest('.code-block');
+        const code = block?.querySelector('pre code');
+        if (!code) return;
+        const text = code.textContent ?? '';
+        const done = () => {
+          btn.textContent = '✓';
+          window.setTimeout(() => {
+            btn.textContent = '⧉';
+          }, 1400);
+        };
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(() => copyFallback(text, done));
+        } else {
+          copyFallback(text, done);
+        }
+      });
+    });
+  };
+
+  bindCopyButtons();
+  document.addEventListener('astro:page-load', bindCopyButtons);
+</script>

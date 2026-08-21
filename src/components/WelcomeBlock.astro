@@ -1,0 +1,39 @@
+---
+interface Props {
+  title: string;
+  html: string;
+}
+
+const { title, html } = Astro.props;
+---
+
+<section class="welcome card">
+  <h2 class="welcome-title">{title}</h2>
+  <div class="prose welcome-body" set:html={html} />
+</section>
+
+<style>
+  .welcome {
+    padding: clamp(1.6rem, 4vw, 3rem);
+  }
+
+  .welcome-title {
+    margin: 0 0 1.1rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .welcome-title::before {
+    content: '';
+    width: 5px;
+    height: 1.25rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--accent), transparent);
+  }
+
+  .welcome-body {
+    font-size: 1rem;
+  }
+</style>

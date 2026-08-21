@@ -1,0 +1,463 @@
+---
+import { t } from '../i18n';
+import type { Language } from '../types';
+import { withBase } from '../utils/paths';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const indexUrl = withBase(`/${lang}/search-index.json`);
+---
+
+<dialog
+  class="search-dialog"
+  data-search-palette
+  data-index-url={indexUrl}
+  data-i18n-no-results={t(lang, 'search.noResults')}
+  data-i18n-count={t(lang, 'search.count')}
+  data-i18n-invalid={t(lang, 'search.invalidRegex')}
+>
+  <div class="search-head">
+    <svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="9" cy="9" r="5.6" stroke="currentColor" stroke-width="1.8"></circle>
+      <path d="m13.4 13.4 3.8 3.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+    </svg>
+    <input
+      type="search"
+      placeholder={t(lang, 'search.placeholder')}
+      autocomplete="off"
+      spellcheck="false"
+      data-search-input
+    />
+    <button
+      class="regex-toggle"
+      type="button"
+      aria-pressed="false"
+      title={t(lang, 'search.regex')}
+      data-regex-toggle
+    >
+      .*
+    </button>
+    <button class="search-close" type="button" aria-label="close" data-search-close>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="m3.5 3.5 9 9m0-9-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+  <p class="search-status" data-search-status hidden></p>
+  <div class="search-results" data-search-results></div>
+  <div class="search-foot">
+    <span><kbd>↑</kbd><kbd>↓</kbd> {t(lang, 'search.open')}</span>
+    <span><kbd>↵</kbd> / <kbd>Esc</kbd></span>
+  </div>
+</dialog>
+
+<script>
+  interface Item {
+    title: string;
+    description: string;
+    category: string;
+    tags: string[];
+    date: string;
+    href: string;
+    body: string;
+  }
+
+  const dialog = document.querySelector<HTMLDialogElement>('[data-search-palette]');
+  if (!dialog) throw new Error('search palette missing');
+
+  const indexUrl = dialog.dataset.indexUrl ?? '';
+  const input = dialog.querySelector<HTMLInputElement>('[data-search-input]');
+  const results = dialog.querySelector<HTMLElement>('[data-search-results]');
+  const status = dialog.querySelector<HTMLElement>('[data-search-status]');
+  const regexToggle = dialog.querySelector<HTMLButtonElement>('[data-regex-toggle]');
+  const closeBtn = dialog.querySelector<HTMLButtonElement>('[data-search-close]');
+  const i18n = {
+    noResults: dialog.dataset.i18nNoResults ?? 'No matching posts.',
+    count: dialog.dataset.i18nCount ?? 'results',
+    invalid: dialog.dataset.i18nInvalid ?? 'Invalid regular expression',
+  };
+
+  let items: Item[] = [];
+  let loaded = false;
+  let activeIndex = 0;
+  let rendered: Item[] = [];
+  let regexMode = false;
+
+  async function loadIndex(): Promise<void> {
+    if (loaded) return;
+    try {
+      const response = await fetch(indexUrl);
+      const data = (await response.json()) as Item[];
+      items = Array.isArray(data) ? data : [];
+      loaded = true;
+    } catch {
+      items = [];
+      loaded = true;
+    }
+  }
+
+  function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  }
+
+  function makeMatcher(query: string): { test: (text: string) => boolean; error: string | null } {
+    if (!query) return { test: () => false, error: null };
+    if (regexMode) {
+      try {
+        const re = new RegExp(query, 'gi');
+        return { test: (text) => { re.lastIndex = 0; return re.test(text); }, error: null };
+      } catch (e) {
+        return { test: () => false, error: e instanceof Error ? e.message : String(e) };
+      }
+    }
+    const needle = query.toLocaleLowerCase();
+    return { test: (text) => text.toLocaleLowerCase().includes(needle), error: null };
+  }
+
+  /** Build a highlighted snippet around the first match of a haystack. */
+  function highlightSnippet(haystack: string, query: string): string {
+    const plain = haystack.replace(/\s+/g, ' ').trim();
+    if (!plain) return '';
+
+    let matchIndex = -1;
+    let matchLength = 0;
+    if (regexMode) {
+      try {
+        const re = new RegExp(query, 'i');
+        const m = re.exec(plain);
+        if (m) {
+          matchIndex = m.index;
+          matchLength = m[0].length;
+        }
+      } catch {
+        /* handled by makeMatcher */
+      }
+    } else if (query) {
+      matchIndex = plain.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
+      matchLength = query.length;
+    }
+    if (matchIndex === -1) return escapeHtml(plain.slice(0, 140));
+
+    const start = Math.max(0, matchIndex - 48);
+    const end = Math.min(plain.length, matchIndex + matchLength + 84);
+    const prefix = start > 0 ? '…' : '';
+    const suffix = end < plain.length ? '…' : '';
+    const before = escapeHtml(plain.slice(start, matchIndex));
+    const hit = escapeHtml(plain.slice(matchIndex, matchIndex + matchLength));
+    const after = escapeHtml(plain.slice(matchIndex + matchLength, end));
+    return `${prefix}${before}<mark class="search-hit">${hit}</mark>${after}${suffix}`;
+  }
+
+  function render(): void {
+    const query = input?.value.trim() ?? '';
+    if (!query) {
+      status!.hidden = true;
+      results!.innerHTML = '';
+      rendered = [];
+      return;
+    }
+
+    const matcher = makeMatcher(query);
+    status!.hidden = !matcher.error;
+    if (matcher.error) {
+      status!.textContent = `${i18n.invalid}: ${matcher.error}`;
+      results!.innerHTML = '';
+      rendered = [];
+      return;
+    }
+
+    rendered = items.filter((item) => {
+      const haystack = [item.title, item.description, item.category, item.tags.join(' '), item.body].join('\n');
+      return matcher.test(haystack);
+    });
+
+    activeIndex = Math.min(activeIndex, Math.max(rendered.length - 1, 0));
+
+    if (rendered.length === 0) {
+      results!.innerHTML = `<p class="search-empty">${escapeHtml(i18n.noResults)}</p>`;
+      return;
+    }
+
+    results!.innerHTML =
+      `<p class="search-count">${rendered.length} ${escapeHtml(i18n.count)}</p>` +
+      rendered
+        .map((item, index) => {
+          const snippet =
+            highlightSnippet(item.body, query) ||
+            highlightSnippet(item.description, query) ||
+            escapeHtml(item.category);
+          return `
+            <a class="search-item${index === activeIndex ? ' is-active' : ''}" href="${escapeHtml(item.href)}" data-search-item data-index="${index}">
+              <span class="search-item-title">${escapeHtml(item.title)}</span>
+              <span class="search-item-meta">
+                <span class="chip chip--plain">${escapeHtml(item.category)}</span>
+                ${item.tags.slice(0, 3).map((tag) => `<span class="chip chip--plain">${escapeHtml(tag)}</span>`).join('')}
+                <time>${escapeHtml(item.date)}</time>
+              </span>
+              <span class="search-item-snippet">${snippet}</span>
+            </a>
+          `;
+        })
+        .join('');
+  }
+
+  function open(): void {
+    if (dialog!.open) {
+      input?.focus();
+      return;
+    }
+    dialog!.showModal();
+    input!.value = '';
+    activeIndex = 0;
+    regexMode = false;
+    regexToggle!.setAttribute('aria-pressed', 'false');
+    regexToggle!.classList.remove('is-active');
+    render();
+    void loadIndex();
+    requestAnimationFrame(() => input?.focus());
+  }
+
+  function close(): void {
+    if (dialog!.open) dialog!.close();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-search-open]').forEach((button) => {
+    button.addEventListener('click', open);
+  });
+
+  closeBtn?.addEventListener('click', close);
+  dialog!.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    close();
+  });
+  dialog!.addEventListener('click', (event) => {
+    if (event.target === dialog) close();
+  });
+
+  regexToggle?.addEventListener('click', () => {
+    regexMode = !regexMode;
+    regexToggle.setAttribute('aria-pressed', String(regexMode));
+    regexToggle.classList.toggle('is-active', regexMode);
+    render();
+  });
+
+  input?.addEventListener('input', () => {
+    activeIndex = 0;
+    void loadIndex().then(render);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (!dialog!.open) return;
+    const target = event.target;
+    const isEditable =
+      target instanceof HTMLElement &&
+      (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+    if (isEditable && target !== input) return;
+
+    if (event.key === 'Escape') {
+      close();
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      activeIndex = Math.min(activeIndex + 1, rendered.length - 1);
+      syncActive();
+      return;
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      activeIndex = Math.max(activeIndex - 1, 0);
+      syncActive();
+      return;
+    }
+    if (event.key === 'Enter' && rendered[activeIndex]) {
+      event.preventDefault();
+      window.location.href = rendered[activeIndex]!.href;
+    }
+  });
+
+  function syncActive(): void {
+    results?.querySelectorAll<HTMLElement>('[data-search-item]').forEach((item) => {
+      item.classList.toggle('is-active', Number(item.dataset.index) === activeIndex);
+    });
+    const active = results?.querySelector<HTMLElement>('[data-search-item].is-active');
+    active?.scrollIntoView({ block: 'nearest' });
+  }
+
+  results?.addEventListener('mouseover', (event) => {
+    const item = (event.target as HTMLElement).closest<HTMLElement>('[data-search-item]');
+    if (!item) return;
+    activeIndex = Number(item.dataset.index ?? 0);
+    syncActive();
+  });
+</script>
+
+<style>
+  .search-dialog {
+    width: min(680px, calc(100vw - 2rem));
+    max-height: min(72vh, 640px);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-strong);
+  }
+  .search-dialog::backdrop {
+    background: rgba(10, 12, 18, 0.45);
+    backdrop-filter: blur(3px);
+  }
+
+  .search-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-faint);
+  }
+  .search-head input {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  .search-head input::placeholder {
+    color: var(--text-faint);
+  }
+
+  .regex-toggle {
+    flex: none;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text-soft);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  .regex-toggle.is-active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+
+  .search-close {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+  .search-close:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .search-status {
+    margin: 0;
+    padding: 10px 18px;
+    font-size: 0.85rem;
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+  }
+
+  .search-results {
+    overflow-y: auto;
+    max-height: calc(min(72vh, 640px) - 118px);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* 结果项是客户端 JS 动态创建的,不带 Astro 作用域属性,
+     必须写成 :global 才能生效 */
+  :global(.search-count) {
+    margin: 0;
+    padding: 2px 8px 6px;
+    font-size: 0.78rem;
+    color: var(--text-faint);
+  }
+
+  :global(.search-empty) {
+    margin: 0;
+    padding: 28px 10px;
+    text-align: center;
+    color: var(--text-faint);
+  }
+
+  :global(.search-item) {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 11px 12px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    color: inherit;
+  }
+  :global(.search-item:hover),
+  :global(.search-item.is-active) {
+    background: var(--surface-2);
+    border-color: var(--border);
+  }
+  :global(.search-item.is-active) {
+    background: var(--accent-soft);
+  }
+
+  :global(.search-item-title) {
+    font-weight: 600;
+    color: var(--text);
+  }
+  :global(.search-item:hover .search-item-title),
+  :global(.search-item.is-active .search-item-title) {
+    color: var(--hover);
+  }
+
+  :global(.search-item-meta) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+  :global(.search-item-meta time) {
+    margin-left: auto;
+  }
+
+  :global(.search-item-snippet) {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+  }
+
+  .search-foot {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+  .search-foot kbd {
+    font-family: var(--font-mono);
+    padding: 1px 6px;
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: var(--surface-2);
+  }
+</style>

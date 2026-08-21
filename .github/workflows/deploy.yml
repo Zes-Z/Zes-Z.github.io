@@ -1,0 +1,68 @@
+# 自动部署到 GitHub Pages
+# 触发:push 到 main / 手动触发(workflow_dispatch)
+#
+# 部署前请确认:
+#   1. 仓库 Settings → Pages → Source 选择 "GitHub Actions"
+#   2. 若是项目页(非 <username>.github.io 用户页),base 会自动推导;
+#      若用自定义域名,可在 astro.config.mjs 里手动设置 base 与 site
+#   3. src/site.config.ts 的 siteUrl 建议改成你的真实站点地址(RSS/规范链接用)
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 权限:Pages 部署需要
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一组部署并发时取消旧任务
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

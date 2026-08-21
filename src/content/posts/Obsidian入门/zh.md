@@ -1,0 +1,268 @@
+---
+title: "Introduction to Obsidian"
+category: Omnium
+description: ""
+pubDate: "2026-06-11"
+heroImage: ""
+homeFeatured: false   # 用于指定在首页 Read 区优先大图片展示
+# homeOrder:          # 用于指定首页下方 All Posts顺序
+# homeHeroOrder:      # 用于指定首页个签下方置顶文章顺序,在 srcpagesindex.astro 第27行增加置顶篇章数
+draft: false
+
+---
+
+
+> Obsidian 是一款强大、本地优先的知识库与笔记软件，基于 Markdown，直接运行在本地。
+它的核心设计理念是帮助你整理思绪、构建个人知识网络，并打造一个数字化的“第二大脑”。
+
+---
+
+<!-- ## 核心设计理念
+
+Obsidian 围绕三个核心原则构建：
+1. **本地优先与纯文本 (Local-first & Plain Text)**：你的笔记以标准的 Markdown (`.md`) 格式存储在本地设备上。你拥有数据的绝对控制权，无平台锁定风险，随时可以使用任何文本编辑器打开。
+2. **链接作为一等公民 (Link as a First-Class Citizen)**：知识点之间的关联至关重要。Obsidian 让你可以轻松地将不同的笔记连接在一起，形成错综复杂的思维网络。
+3. **极强的扩展性与自定义 (Extensible & Customizable)**：无论是简单的日常手记，还是复杂的学术研究库，你都可以通过丰富的主题和插件将 Obsidian 定制为最适合你工作流的工具。
+
+---
+
+## 核心功能特性
+
+### 1. 双向链接 (Bi-directional Linking)
+在 Obsidian 中，你可以使用类似 Wiki 的语法 `[[笔记名称]]` 轻松连接不同的笔记：
+- **链接 (Links)**：创建指向另一篇笔记的直接引用。
+- **反向链接 (Backlinks)**：Obsidian 会自动跟踪哪些笔记引用了当前笔记，帮助你发现隐藏的知识关联。
+- **出站链接 (Outgoing Links)**：列出当前笔记中所有引向外部的链接。
+
+### 2. 关系图谱 (Graph View)
+关系图谱是 Obsidian 的标志性功能。它以可视化的方式展示你的笔记及其连接关系。每个笔记是一个节点，每个链接是一条连线。随着笔记的增长，你会看到不同主题的知识簇自然涌现，帮助你直观地把握整体知识结构。
+
+### 3. 画布功能 (Canvas)
+Canvas 是内置的无限空间布局工具。它允许你：
+- 将笔记、图片、PDF、网页等卡片拖拽到画布上。
+- 使用连接线、箭头和分组来可视化展示关系。
+- 适用于头脑风暴、项目大纲规划或复杂系统的系统建模。
+
+### 4. 插件与主题生态
+Obsidian 支持高度自定义：
+- **核心插件**：官方内置的功能（如页面预览、命令面板、大纲、标签面板），可按需开启或关闭。
+- **社区插件**：上千款用户开发的插件，极大地扩展了软件功能。例如：
+  - **Dataview**：将你的笔记库视为数据库，使用类 SQL 语法进行查询和汇总。
+  - **Templater**：通过强大的模板功能自动化新建笔记。
+  - **Calendar**：在日历界面中直观管理日记。
+- **主题 (Themes)**：支持一键切换外观，提供极致美观的暗色和亮色视觉体验。
+
+---
+
+## 为什么选择 Obsidian？
+
+- **隐私与所有权**：所有文件都保存在你的本地硬盘上，默认不会上传到任何云端，隐私安全得到完美保障。
+- **数据的长久可读性**：Markdown 是一种通用的纯文本格式。即使未来 Obsidian 停止维护，你的笔记依然可以在未来的几十年里被任何编辑器轻松读取。
+- **非线性思维**：不同于传统的文件夹分类，Obsidian 鼓励网状的思维方式，更符合人脑联想的自然状态。
+
+---
+
+## 快速上手指南
+
+### 第一步：创建保险库 (Vault)
+“保险库 (Vault)” 就是你电脑上的一个文件夹。首次打开 Obsidian 时，点击 **Create new vault (创建新保险库)**，为它命名并选择一个本地保存路径。
+
+### 第二步：掌握基础 Markdown 语法
+Markdown 是一种轻量级的标记语言：
+- `# 一级标题`
+- `## 二级标题`
+- `**加粗文本**` 或 `*斜体文本*`
+- `- 无序列表`
+- `1. 有序列表`
+
+### 第三步：建立笔记连接
+在编辑器中输入 `[[`，然后选择或输入另一个笔记的名称。如果目标笔记尚不存在，Obsidian 会创建一个占位链接，点击它即可自动创建该笔记。
+
+### 第四步：开启图谱之旅
+点击左侧边栏的 **Graph View (关系图谱)** 图标，即可开启你的可视化知识网络探索。 -->
+
+
+## 使用 Obsidian Git 同步笔记
+### 1. 创建 GitHub 仓库
+首先登录 GitHub。  
+点击右上角 **New Repository**。  
+填写仓库信息：
+- Repository name：例如 `Obsidian`
+- Visibility：Public 或 Private（推荐 Private）
+- 不要勾选：
+  - Add a README
+  - Add .gitignore
+  - Choose a license
+
+然后点击
+- Create repository
+
+创建成功后会得到一个仓库地址，例如：
+
+```text
+https://github.com/yourname/Obsidian.git
+```
+
+后面需要使用它。
+
+---
+
+### 2. 安装 Git
+
+如果电脑尚未安装 Git，请前往：
+
+https://git-scm.com/downloads
+
+下载安装即可。
+
+安装完成后打开终端：
+
+```bash
+git --version
+```
+
+如果输出类似：
+
+```text
+git version 2.50.0
+```
+
+说明安装成功。
+
+---
+
+### 3. 创建 Obsidian Vault
+
+打开 Obsidian。
+
+点击
+
+> Create new vault
+
+例如：
+
+```text
+D:\Obsidian\Knowledge
+```
+
+以后所有笔记都会放在这个目录。
+
+---
+
+### 4. 初始化 Git 仓库
+
+打开终端（PowerShell 或 CMD）。
+
+进入 Vault：
+
+```bash
+cd D:\Obsidian\Knowledge
+```
+
+初始化 Git：
+
+```bash
+git init
+```
+
+连接远程仓库：
+
+```bash
+git branch -M main
+git remote add origin https://github.com/yourname/Obsidian.git
+```
+
+查看是否成功：
+
+```bash
+git remote -v
+```
+
+输出类似以下，说明连接成功。
+
+```text
+origin https://github.com/yourname/Obsidian.git
+```
+
+
+
+在知识库D:\Obsidian\Knowledg文件夹下新建第一个笔记
+
+返回`powershell`并手动推送到远端(仅此次需要)
+
+```bash
+git add .
+
+git commit -m "first obsidian commit"
+
+git push -u origin main
+```
+
+一会过后如果 GitHub 仓库页面出现你的笔记文件，就说明配置成功。
+
+---
+
+### 6. 安装 Obsidian Git 插件
+
+打开
+
+Settings → Community Plugins
+
+关闭 Safe Mode。
+
+点击
+
+> Browse
+
+搜索：
+
+```text
+Git
+```
+
+安装并启用。
+
+---
+
+### 7. 配置插件
+
+进入：
+
+Settings → Obsidian Git
+
+推荐开启：
+
+```
+Auto Pull on startup
+```
+
+启动时自动拉取最新内容。
+
+```
+Auto Backup
+```
+
+自动 Commit。
+
+```
+Auto Push
+```
+
+自动 Push。
+
+例如：
+
+```
+Auto Backup Interval
+```
+
+设置：
+
+```text
+10
+```
+
+表示每 10 分钟自动提交一次。
+
+---
+

@@ -1,0 +1,139 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../../site.config';
+import { t } from '../../../i18n';
+import type { Language } from '../../../types';
+import { portfolioPhotos } from '../../../utils/photos';
+import { withBase } from '../../../utils/paths';
+import { renderMarkdown } from '../../../utils/markdown';
+
+export async function getStaticPaths() {
+  const paths: { params: { lang: string; slug: string } }[] = [];
+  for (const lang of siteConfig.langs) {
+    const items = await getCollection('portfolios', (p) => p.id.startsWith(`${lang}/`));
+    for (const item of items) {
+      paths.push({ params: { lang, slug: item.id.slice(lang.length + 1) } });
+    }
+  }
+  return paths;
+}
+
+const { lang, slug } = Astro.params as { lang: Language; slug: string };
+const item = (await getCollection('portfolios')).find((p) => p.id === `${lang}/${slug}`);
+
+if (!item) {
+  return Astro.redirect(`/${lang}/photos`);
+}
+
+const title = item.data.title;
+const description = item.data.description ?? '';
+const { html: bodyHtml } = await renderMarkdown(item.body ?? '');
+const photos = await portfolioPhotos(slug);
+const backHref = withBase(`/${lang}/photos`);
+---
+
+<BaseLayout lang={lang} title={title} description={description || undefined}>
+  <div class="portfolio-detail">
+    <a class="portfolio-back" href={backHref}>← {t(lang, 'nav.photos')}</a>
+
+    <h1 class="portfolio-detail-title">{title}</h1>
+    {description && <p class="portfolio-detail-desc">{description}</p>}
+
+    {bodyHtml && <div class="prose portfolio-detail-body" set:html={bodyHtml} />}
+
+    {
+      photos.length > 0 ? (
+        <div class="portfolio-detail-masonry">
+          {
+            photos.map((p) => (
+              <img
+                class:list={['photo-item', { 'is-landscape': p.landscape }]}
+                src={p.src}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            ))
+          }
+        </div>
+      ) : (
+        <p class="photos-empty">{t(lang, 'photos.empty')}</p>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .portfolio-detail {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 0 2rem;
+  }
+
+  .portfolio-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+  }
+  .portfolio-back:hover {
+    color: var(--hover);
+  }
+
+  .portfolio-detail-title {
+    margin: 0 0 0.6rem;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 800;
+  }
+
+  .portfolio-detail-desc {
+    margin: 0 0 0.6rem;
+    color: var(--text-soft);
+    font-size: 1rem;
+  }
+
+  .portfolio-detail-body {
+    margin: 0.6rem 0 1.6rem;
+  }
+
+  .portfolio-detail-masonry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: dense;
+    gap: 14px;
+    align-items: start;
+  }
+  .photo-item {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+  }
+  .photo-item.is-landscape {
+    grid-column: span 2;
+  }
+  @media (max-width: 900px) {
+    .portfolio-detail-masonry {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .portfolio-detail-masonry {
+      grid-template-columns: 1fr;
+    }
+    .photo-item.is-landscape {
+      grid-column: span 1;
+    }
+  }
+
+  .photos-empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-faint);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+  }
+</style>

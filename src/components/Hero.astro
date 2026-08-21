@@ -1,0 +1,167 @@
+---
+import { withBase } from '../utils/paths';
+
+interface Props {
+  images: string[];
+  /** 'full' = ~92vh home hero, 'medium' = shorter page hero (friends page). */
+  height?: 'full' | 'medium';
+  /** Optional overlay content (site title / subtitle). */
+  title?: string;
+  subtitle?: string;
+  /** Overlay placement. */
+  position?: 'center' | 'bottom-left';
+  /** Crossfade interval in ms. */
+  interval?: number;
+}
+
+const { images, height = 'full', title, subtitle, position = 'center', interval = 6000 } = Astro.props;
+const hasOverlay = Boolean(title || subtitle);
+---
+
+<section class:list={['hero', `hero--${height}`]} data-hero data-hero-interval={interval}>
+  {
+    images.map((src, index) => (
+      <img
+        class:list={['hero-image', { 'is-active': index === 0 }]}
+        src={withBase(src)}
+        alt=""
+        loading={index === 0 ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    ))
+  }
+  <div class="hero-veil"></div>
+  <div class="hero-fade-top" aria-hidden="true"></div>
+  <div class="hero-fade-bottom" aria-hidden="true"></div>
+  {hasOverlay && (
+    <div class:list={['hero-overlay', `hero-overlay--${position}`]}>
+      {title && <h1 class="hero-title">{title}</h1>}
+      {subtitle && <p class="hero-subtitle">{subtitle}</p>}
+    </div>
+  )}
+</section>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  if (hero && !hero.dataset.ready) {
+    hero.dataset.ready = 'true';
+    const images = [...hero.querySelectorAll<HTMLImageElement>('.hero-image')];
+    const interval = Number(hero.dataset.heroInterval ?? 6000);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (images.length > 1 && !reducedMotion) {
+      let index = 0;
+      window.setInterval(() => {
+        const current = images[index]!;
+        const next = images[(index + 1) % images.length]!;
+        current.classList.remove('is-active');
+        next.classList.add('is-active');
+        index = (index + 1) % images.length;
+      }, interval);
+    }
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .hero--full {
+    height: min(92vh, 860px);
+    min-height: 480px;
+  }
+  .hero--medium {
+    height: min(56vh, 480px);
+    min-height: 300px;
+  }
+
+  .hero-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    /* 柔和淡入淡出 */
+    transition: opacity 2.4s ease-in-out;
+  }
+  .hero-image.is-active {
+    opacity: 1;
+  }
+
+  .hero-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--hero-veil);
+    pointer-events: none;
+  }
+
+  /* 顶部渐隐:与透明导航栏融合(quietpages 式) */
+  .hero-fade-top {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 2;
+    height: 9rem;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.4), transparent);
+    pointer-events: none;
+  }
+  /* 底部渐隐:柔和融入页面背景(弱化版) */
+  .hero-fade-bottom {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 2;
+    height: clamp(3.5rem, 8vh, 6.5rem);
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 45%, transparent));
+    pointer-events: none;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    padding: 2rem;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  }
+
+  /* 左下角小文字块(quietpages 式) */
+  .hero-overlay--bottom-left {
+    align-items: flex-start;
+    justify-content: flex-end;
+    text-align: left;
+    padding: 0 5vw 4.5rem;
+  }
+  .hero-overlay--bottom-left .hero-title {
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  }
+  .hero-overlay--bottom-left .hero-subtitle {
+    font-size: clamp(0.92rem, 1.4vw, 1.05rem);
+    max-width: 34em;
+    opacity: 0.88;
+  }
+
+  .hero-title {
+    margin: 0;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-subtitle {
+    margin: 0;
+    font-size: clamp(1rem, 2.4vw, 1.3rem);
+    font-weight: 400;
+    opacity: 0.92;
+    max-width: 42em;
+  }
+</style>

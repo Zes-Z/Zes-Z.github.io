@@ -1,0 +1,52 @@
+---
+import { siteConfig } from '../site.config';
+import { t } from '../i18n';
+import type { Language } from '../types';
+import { localizePath } from '../utils/paths';
+
+interface Props {
+  lang: Language;
+  pathname: string;
+}
+
+const { lang, pathname } = Astro.props;
+
+// 单击轮换:中文 → English → 日本語 → 中文 …
+const langs = siteConfig.langs;
+const next = langs[(langs.indexOf(lang) + 1) % langs.length]!;
+const nextLabel = t(next, 'lang.name');
+---
+
+<language-picker>
+  <a
+    class="icon-btn lang-btn"
+    href={localizePath(pathname, next)}
+    title={`${t(lang, 'lang.switch')} → ${nextLabel}`}
+    aria-label={`${t(lang, 'lang.switch')} → ${nextLabel}`}
+  >
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"></circle>
+      <path d="M2 10h16M10 2c2.2 2.4 3.3 5 3.3 8S12.2 15.6 10 18M10 2c-2.2 2.4-3.3 5-3.3 8s1.1 5.6 3.3 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+    </svg>
+    <span class="lang-current">{lang.toUpperCase()}</span>
+  </a>
+</language-picker>
+
+<style>
+  language-picker {
+    display: inline-flex;
+  }
+
+  .lang-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    padding: 0 10px;
+  }
+
+  .lang-current {
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+</style>

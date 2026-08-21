@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../site.config';
+import { withBase } from '../utils/paths';
+
+const lang = siteConfig.defaultLang;
+---
+
+<BaseLayout lang={lang} title="404">
+  <div class="not-found">
+    <p class="nf-code">404</p>
+    <h1 class="nf-title">Page not found</h1>
+    <a class="nf-home" href={withBase(`/${lang}`)}>{siteConfig.title}</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    gap: 0.6rem;
+  }
+  .nf-code {
+    margin: 0;
+    font-size: clamp(4rem, 14vw, 8rem);
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .nf-title {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .nf-home {
+    margin-top: 1rem;
+    padding: 0.55rem 1.4rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-weight: 600;
+  }
+  .nf-home:hover {
+    background: var(--accent-strong);
+    color: var(--accent-contrast);
+  }
+</style>

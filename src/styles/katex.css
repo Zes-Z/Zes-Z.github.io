@@ -1,0 +1,3 @@
+/* KaTeX styles: kept in a separate file (loaded as an external stylesheet)
+   so that the inlined critical CSS in BaseLayout stays small. */
+@import 'katex/dist/katex.min.css';

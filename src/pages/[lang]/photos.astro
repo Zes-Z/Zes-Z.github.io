@@ -1,0 +1,343 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../site.config';
+import { t } from '../../i18n';
+import type { Language } from '../../types';
+import { wallPhotos, portfolioCover, portfolioPhotos } from '../../utils/photos';
+import { withBase } from '../../utils/paths';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Language };
+
+const wall = await wallPhotos();
+
+const portfolios = await Promise.all(
+  (await getCollection('portfolios', (p) => p.id.startsWith(`${lang}/`))).map(async (p) => {
+    const slug = p.id.slice(lang.length + 1);
+    const photos = await portfolioPhotos(slug);
+    return {
+      href: withBase(`/${lang}/photos/${slug}`),
+      title: p.data.title,
+      description: p.data.description ?? '',
+      cover: await portfolioCover(slug),
+      count: photos.length,
+    };
+  })
+);
+
+const tabs = [
+  { id: 'wall', label: t(lang, 'photos.wall') },
+  { id: 'portfolio', label: t(lang, 'photos.portfolio') },
+  { id: 'coming', label: t(lang, 'photos.coming') },
+];
+---
+
+<BaseLayout lang={lang} title={t(lang, 'nav.photos')}>
+  <div class:list={['photos-page', { 'gray-wall': siteConfig.photosGrayscaleHover }]}>
+    <div class="photos-tabs" role="tablist">
+      {
+        tabs.map((tab, index) => (
+          <button
+            class:list={['photos-tab', { 'is-active': index === 0 }]}
+            type="button"
+            role="tab"
+            aria-selected={index === 0 ? 'true' : 'false'}
+            data-photos-tab={tab.id}
+          >
+            {tab.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <!-- 1. 瀑布流展示墙 -->
+    <section class="photos-view is-active" role="tabpanel" data-photos-view="wall">
+      {
+        wall.length > 0 ? (
+          <div class="photo-masonry">
+            {
+              wall.map((p) => (
+                <img
+                  class:list={['photo-item', { 'is-landscape': p.landscape }]}
+                  src={p.src}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))
+            }
+          </div>
+        ) : (
+          <p class="photos-empty">{t(lang, 'photos.empty')}</p>
+        )
+      }
+    </section>
+
+    <!-- 2. 作品集文件夹瀑布流 -->
+    <section class="photos-view" role="tabpanel" data-photos-view="portfolio">
+      {
+        portfolios.length > 0 ? (
+          <div class="portfolio-masonry">
+            {
+              portfolios.map((p) => (
+                <a class="portfolio-card" href={p.href}>
+                  {p.cover && <img class="portfolio-cover" src={p.cover} alt={p.title} loading="lazy" decoding="async" />}
+                  <span class="portfolio-veil"></span>
+                  <span class="portfolio-body">
+                    <span class="portfolio-title">{p.title}</span>
+                    <span class="portfolio-meta">
+                      {p.description && <span class="portfolio-desc">{p.description}</span>}
+                      <span class="portfolio-count">{p.count} photos</span>
+                    </span>
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+        ) : (
+          <p class="photos-empty">{t(lang, 'photos.empty')}</p>
+        )
+      }
+    </section>
+
+    <!-- 3. 暂时保留 -->
+    <section class="photos-view" role="tabpanel" data-photos-view="coming">
+      <div class="photos-coming">
+        <p class="photos-coming-title">{t(lang, 'photos.coming')}</p>
+        <p class="photos-coming-desc">{t(lang, 'photos.comingDesc')}</p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // 类别切换:点击标签切换对应板块。
+  // 通过导航类型区分"返回"与"刷新":
+  //   - 从作品集详情页返回(back_forward)→ 恢复进入前的板块
+  //   - 刷新/直接打开(reload/navigate)→ 默认回到"所有"
+  const STORAGE_KEY = 'zest-photos-tab';
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-photos-tab]')];
+  const views = [...document.querySelectorAll<HTMLElement>('[data-photos-view]')];
+
+  const activate = (id: string) => {
+    tabs.forEach((b) => {
+      const active = b.dataset.photosTab === id;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-selected', String(active));
+    });
+    views.forEach((view) => {
+      view.classList.toggle('is-active', view.dataset.photosView === id);
+    });
+  };
+
+  const navEntry = performance.getEntriesByType?.('navigation')[0] as
+    | PerformanceNavigationTiming
+    | undefined;
+  const navType = navEntry?.type;
+  const saved = sessionStorage.getItem(STORAGE_KEY);
+  const hasSavedTab = Boolean(saved) && tabs.some((b) => b.dataset.photosTab === saved);
+  const initial = navType === 'back_forward' && hasSavedTab ? saved! : 'wall';
+  activate(initial);
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const id = tab.dataset.photosTab ?? '';
+      activate(id);
+      try {
+        sessionStorage.setItem(STORAGE_KEY, id);
+      } catch {
+        /* ignore */
+      }
+    });
+  });
+</script>
+
+<style>
+  .photos-page {
+    margin-top: 1.5rem;
+  }
+
+  /* 标签行:仿归档"类别"胶囊 */
+  .photos-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .photos-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+  .photos-tab:hover {
+    border-color: var(--hover);
+    color: var(--hover);
+    background: var(--surface-2);
+  }
+  .photos-tab.is-active {
+    background: color-mix(in srgb, var(--sky) 14%, transparent);
+    border-color: var(--sky);
+    color: var(--sky);
+    font-weight: 600;
+  }
+
+  .photos-view {
+    display: none;
+  }
+  .photos-view.is-active {
+    display: block;
+  }
+
+  /* 瀑布流展示墙:网格布局,横屏图横跨两列(长宽约放大两倍,与竖屏协调) */
+  .photo-masonry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: dense;
+    gap: 14px;
+    align-items: start;
+  }
+  .photo-item {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+  }
+  .photo-item.is-landscape {
+    grid-column: span 2;
+  }
+  @media (max-width: 900px) {
+    .photo-masonry {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .photo-masonry {
+      grid-template-columns: 1fr;
+    }
+    .photo-item.is-landscape {
+      grid-column: span 1;
+    }
+  }
+
+  /* 作品集瀑布流 */
+  .portfolio-masonry {
+    columns: 3;
+    column-gap: 14px;
+  }
+  @media (max-width: 900px) {
+    .portfolio-masonry {
+      columns: 2;
+    }
+  }
+  @media (max-width: 560px) {
+    .portfolio-masonry {
+      columns: 1;
+    }
+  }
+
+  .portfolio-card {
+    position: relative;
+    display: block;
+    break-inside: avoid;
+    margin-bottom: 14px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    background: var(--surface-2);
+  }
+
+  .portfolio-cover {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .portfolio-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, transparent 40%, rgba(10, 12, 16, 0.72));
+  }
+
+  .portfolio-body {
+    position: absolute;
+    z-index: 2;
+    inset: auto 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .portfolio-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.3;
+  }
+
+  .portfolio-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .portfolio-desc {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .portfolio-count {
+    flex: none;
+    font-size: 0.72rem;
+    opacity: 0.8;
+    font-family: var(--font-mono);
+  }
+
+  .photos-empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-faint);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+  }
+
+  /* 暂时保留 */
+  .photos-coming {
+    padding: 4rem 1.5rem;
+    text-align: center;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    color: var(--text-soft);
+  }
+  .photos-coming-title {
+    margin: 0 0 0.4rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .photos-coming-desc {
+    margin: 0;
+    color: var(--text-faint);
+  }
+</style>

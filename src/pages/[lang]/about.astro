@@ -1,0 +1,59 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Collapse from '../../components/Collapse.astro';
+import { siteConfig } from '../../site.config';
+import { t } from '../../i18n';
+import type { Language } from '../../types';
+import { renderMarkdown } from '../../utils/markdown';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Language };
+
+const about = await getEntry('pages', `${lang}/about`);
+const resume = await getEntry('pages', `${lang}/resume`);
+
+const aboutHtml = about ? (await renderMarkdown(about.body ?? '')).html : '';
+const resumeHtml = resume ? (await renderMarkdown(resume.body ?? '')).html : '';
+const aboutTitle = about?.data.title ?? t(lang, 'nav.about');
+const resumeTitle = resume?.data.title ?? t(lang, 'about.resume');
+---
+
+<BaseLayout lang={lang} title={t(lang, 'nav.about')}>
+  <div class="about-stack">
+    <section class="card about-card">
+      <h2 class="about-heading">{aboutTitle}</h2>
+      <div class="prose" set:html={aboutHtml} />
+    </section>
+
+    {
+      resumeHtml && (
+        <Collapse title={resumeTitle} open>
+          <div class="prose" set:html={resumeHtml} />
+        </Collapse>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .about-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+  }
+
+  .about-card {
+    padding: clamp(1.6rem, 4vw, 2.6rem);
+  }
+
+  .about-heading {
+    margin: 0 0 1rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+</style>

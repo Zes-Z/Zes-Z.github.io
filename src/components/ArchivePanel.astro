@@ -1,0 +1,601 @@
+---
+import { t } from '../i18n';
+import { siteConfig } from '../site.config';
+import type { Language } from '../types';
+
+export interface ArchivePostData {
+  id: string;
+  href: string;
+  title: string;
+  category: string;
+  tags: string[];
+  date: string;
+  /** preformatted "YYYY/M/D" */
+  year: number;
+  month: number;
+  day: number;
+  image?: string;
+  ratio: string;
+}
+
+interface Props {
+  lang: Language;
+  posts: ArchivePostData[];
+  categories: [string, number][];
+  tags: [string, number][];
+}
+
+const { lang, posts, categories, tags } = Astro.props;
+
+// Timeline grouping done at build time: year → posts
+const timeline = posts.reduce<Map<number, ArchivePostData[]>>((map, post) => {
+  const list = map.get(post.year) ?? [];
+  list.push(post);
+  map.set(post.year, list);
+  return map;
+}, new Map());
+const years = [...timeline.keys()].sort((a, b) => b - a);
+---
+
+<div class="archive-panel" data-archive-panel data-lang={lang} data-max-tags={siteConfig.maxSelectedTags}>
+  <aside class="archive-side card">
+    <div class="filter-group">
+      <h3 class="filter-title">{t(lang, 'archive.tags')}</h3>
+      <ul class="filter-list filter-list--tags">
+        {
+          tags.map(([name, count]) => (
+            <li>
+              <button class="filter-item" type="button" data-tag={name} aria-pressed="false">
+                <span># {name}</span>
+                <span class="filter-count">{count}</span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </aside>
+
+  <div class="archive-main">
+    <!-- 分类:右板块最上方,横向胶囊单选 -->
+    <div class="archive-categories" role="group" aria-label={t(lang, 'archive.categories')}>
+      <button class="category-pill is-active" type="button" data-category="" aria-pressed="true">
+        <span>{t(lang, 'archive.all')}</span>
+        <span class="filter-count">{posts.length}</span>
+      </button>
+      {
+        categories.map(([name, count]) => (
+          <button class="category-pill" type="button" data-category={name} aria-pressed="false">
+            <span>{name}</span>
+            <span class="filter-count">{count}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="timeline" data-timeline>
+      {
+        years.map((year) => (
+          <section class="timeline-year">
+            <h2 class="timeline-year-heading">{year}</h2>
+            <ul class="timeline-list">
+              {
+                (timeline.get(year) ?? []).map((post) => (
+                  <li class="timeline-item">
+                    <time class="timeline-date">{post.month}/{post.day}</time>
+                    <a class="timeline-title" href={post.href}>{post.title}</a>
+                    <span class="timeline-meta">
+                      <span class="chip">{post.category}</span>
+                      {post.tags.map((tagName) => <span class="chip chip--plain">{tagName}</span>)}
+                    </span>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+
+    <div class="masonry" data-masonry hidden></div>
+    <p class="masonry-empty" data-masonry-empty hidden>{t(lang, 'archive.noMatch')}</p>
+  </div>
+</div>
+
+<script>
+  interface ArchiveItem {
+    id: string;
+    href: string;
+    title: string;
+    category: string;
+    tags: string[];
+    date: string;
+    year: number;
+    month: number;
+    day: number;
+    image?: string;
+    ratio: string;
+  }
+
+  const panel = document.querySelector<HTMLElement>('[data-archive-panel]');
+  if (panel && panel.dataset.ready !== 'true') {
+    panel.dataset.ready = 'true';
+
+    const allPosts: ArchiveItem[] = JSON.parse(
+      document.getElementById('archive-posts-data')?.textContent ?? '[]'
+    );
+
+  const timeline = panel.querySelector<HTMLElement>('[data-timeline]');
+  const masonry = panel.querySelector<HTMLElement>('[data-masonry]');
+  const masonryEmpty = panel.querySelector<HTMLElement>('[data-masonry-empty]');
+
+  // 标签同时选中上限(site.config.ts 的 maxSelectedTags)
+  const MAX_TAGS = Number(panel.dataset.maxTags ?? 3);
+
+  const state = { category: '', tags: new Set<string>() };
+
+  const categoryButtons = [...panel.querySelectorAll<HTMLButtonElement>('[data-category]')];
+  const tagButtons = [...panel.querySelectorAll<HTMLButtonElement>('[data-tag]')];
+
+  function filtered(): ArchiveItem[] {
+    return allPosts.filter((post) => {
+      const categoryOk = !state.category || post.category === state.category;
+      const tagOk = [...state.tags].every((tag) => post.tags.includes(tag));
+      return categoryOk && tagOk;
+    });
+  }
+
+  function hasSelection(): boolean {
+    return Boolean(state.category) || state.tags.size > 0;
+  }
+
+  function syncFilters(): void {
+    categoryButtons.forEach((button) => {
+      const active = button.dataset.category === state.category;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    tagButtons.forEach((button) => {
+      const active = state.tags.has(button.dataset.tag ?? '');
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+  }
+
+  function renderMasonry(): void {
+    const posts = filtered();
+    masonry!.innerHTML = '';
+    if (posts.length === 0) {
+      masonryEmpty!.hidden = false;
+      return;
+    }
+    masonryEmpty!.hidden = true;
+    posts.forEach((post) => {
+      const card = document.createElement('a');
+      card.className = 'masonry-card';
+      card.href = post.href;
+      card.innerHTML = `
+        <span class="masonry-media" style="aspect-ratio: ${post.ratio}">
+          ${
+            post.image
+              ? `<img class="masonry-img" src="${post.image}" alt="" loading="lazy" decoding="async" />`
+              : `<span class="masonry-fallback"></span>`
+          }
+        </span>
+        <span class="masonry-veil"></span>
+        <span class="masonry-caption">
+          <time>${post.date}</time>
+          <span class="masonry-title">${escapeHtml(post.title)}</span>
+          <span class="masonry-chips">
+            <span class="chip">${escapeHtml(post.category)}</span>
+          </span>
+        </span>
+      `;
+      masonry!.appendChild(card);
+    });
+  }
+
+  function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  }
+
+  function syncView(): void {
+    if (hasSelection()) {
+      timeline!.hidden = true;
+      masonry!.hidden = false;
+      renderMasonry();
+    } else {
+      masonry!.hidden = true;
+      masonryEmpty!.hidden = true;
+      timeline!.hidden = false;
+    }
+  }
+
+  categoryButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      state.category = button.dataset.category ?? '';
+      syncFilters();
+      syncView();
+    });
+  });
+
+  tagButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const tag = button.dataset.tag ?? '';
+      if (state.tags.has(tag)) {
+        state.tags.delete(tag);
+      } else {
+        // 达到同时选中上限时,忽略新增
+        if (state.tags.size >= MAX_TAGS) return;
+        state.tags.add(tag);
+      }
+      syncFilters();
+      syncView();
+    });
+  });
+
+  syncView();
+  }
+</script>
+
+<script id="archive-posts-data" type="application/json" is:inline set:html={JSON.stringify(posts)} />
+
+<style>
+  .archive-panel {
+    display: grid;
+    grid-template-columns: 1fr 3fr; /* 左右块比例 1:3 */
+    gap: clamp(1.2rem, 3vw, 2.2rem);
+    align-items: start;
+    margin-top: 1.5rem;
+  }
+
+  /* ---------- left: filters ---------- */
+  .archive-side {
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .filter-title {
+    margin: 0 0 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .filter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .filter-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-soft);
+    font-size: 0.88rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .filter-item:hover {
+    background: var(--surface-2);
+    color: var(--hover);
+  }
+  .filter-item.is-active {
+    background: color-mix(in srgb, var(--sky) 14%, transparent);
+    color: var(--sky);
+    font-weight: 600;
+  }
+
+  .filter-count {
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    background: var(--surface-2);
+    border-radius: 999px;
+    padding: 0 8px;
+    line-height: 1.5;
+  }
+  .filter-item.is-active .filter-count {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+
+  .filter-list--tags {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  /* ---------- right top: category pills ---------- */
+  .archive-categories {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.3rem;
+  }
+
+  .category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 15px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-soft);
+    font-size: 0.86rem;
+    cursor: pointer;
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+  .category-pill:hover {
+    border-color: var(--hover);
+    color: var(--hover);
+    background: var(--surface-2);
+  }
+  .category-pill.is-active {
+    background: color-mix(in srgb, var(--sky) 14%, transparent);
+    border-color: var(--sky);
+    color: var(--sky);
+    font-weight: 600;
+  }
+  .category-pill .filter-count {
+    background: var(--surface-2);
+  }
+  .category-pill.is-active .filter-count {
+    background: color-mix(in srgb, var(--sky) 16%, transparent);
+  }
+
+  /* ---------- right: timeline(竖线) / masonry ---------- */
+  .timeline {
+    position: relative;
+    padding-left: 26px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--border-strong), var(--border));
+  }
+
+  .timeline-year {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  .timeline-year-heading {
+    position: relative;
+    margin: 0 0 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  /* 年份节点(实心圆点,落在竖线上) */
+  .timeline-year-heading::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-sizing: border-box;
+  }
+
+  .timeline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .timeline-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+  }
+  /* 文章节点(空心圆环,落在竖线上) */
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 2px solid var(--border-strong);
+    box-sizing: border-box;
+  }
+  .timeline-item:hover {
+    background: var(--surface-2);
+  }
+  .timeline-item:hover::before {
+    border-color: var(--accent);
+  }
+
+  .timeline-date {
+    flex: none;
+    width: 3.2em;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-faint);
+  }
+
+  .timeline-title {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .timeline-title:hover {
+    color: var(--hover);
+  }
+
+  .timeline-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* ---------- masonry ----------
+     卡片是客户端 JS 动态创建的,不会带 Astro 作用域属性,
+     因此这些规则必须写成 :global 才能生效 */
+
+  .masonry {
+    columns: 3;
+    column-gap: 14px;
+  }
+
+  :global(.masonry-card) {
+    position: relative;
+    display: block;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 14px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    background: var(--surface-2);
+  }
+
+  /* 高度由正常文档流中的 media 层决定,保证卡片高度与图片区域完全一致,
+     文字永远不会跑到图片外 */
+  :global(.masonry-media) {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+
+  :global(.masonry-img),
+  :global(.masonry-fallback) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(.masonry-img) {
+    display: block;
+  }
+  :global(.masonry-fallback) {
+    background:
+      radial-gradient(circle at 30% 20%, var(--accent-soft), transparent 45%),
+      linear-gradient(135deg, var(--surface-2), var(--surface));
+  }
+
+  :global(.masonry-card:hover .masonry-img) {
+    transform: scale(1.06);
+  }
+
+  :global(.masonry-veil) {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, transparent 46%, rgba(10, 12, 16, 0.78));
+  }
+
+  :global(.masonry-caption) {
+    position: absolute;
+    z-index: 2;
+    inset: auto 12px 12px; /* 角落显示文章名、日期 */
+    max-width: calc(100% - 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+  }
+  :global(.masonry-caption time) {
+    font-size: 0.7rem;
+    opacity: 0.85;
+  }
+  :global(.masonry-title) {
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: break-word;
+  }
+  :global(.masonry-chips .chip) {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .masonry-empty {
+    margin: 0;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-faint);
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+  }
+
+  /* 每行 1–3 个文章块:与容器宽度联动 */
+  @media (max-width: 1100px) {
+    .masonry {
+      columns: 2;
+    }
+  }
+  @media (max-width: 640px) {
+    .masonry {
+      columns: 1;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .archive-panel {
+      grid-template-columns: 1fr;
+    }
+    .archive-side {
+      position: static;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      flex: 1 1 220px;
+    }
+  }
+</style>

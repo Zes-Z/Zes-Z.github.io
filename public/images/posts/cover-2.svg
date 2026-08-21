@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720"><defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f9d7c"/>
+      <stop offset="1" stop-color="#7cc0a8"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="720" fill="url(#g)"/>
+  <circle cx="760" cy="180" r="150" fill="#ffffff" opacity="0.22"/>
+  <circle cx="200" cy="600" r="190" fill="#ffffff" opacity="0.14"/>
+  <text x="480" y="380" font-family="sans-serif" font-size="64" font-weight="700" fill="#ffffff" opacity="0.9" text-anchor="middle">Markdown</text></svg>

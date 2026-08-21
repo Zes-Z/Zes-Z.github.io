@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchivePanel from '../../components/ArchivePanel.astro';
+import { siteConfig } from '../../site.config';
+import { t } from '../../i18n';
+import type { Language } from '../../types';
+import {
+  getPublishedPosts,
+  categoriesOf,
+  tagsOf,
+  slugOf,
+} from '../../utils/posts';
+import { postHref } from '../../utils/paths';
+import { resolvePostImage, postImageRatio } from '../../utils/images';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Language };
+const allPosts = await getPublishedPosts(lang);
+
+const posts = await Promise.all(
+  allPosts.map(async (post) => {
+    const date = post.data.pubDate ?? new Date(0);
+    return {
+      id: slugOf(post, lang),
+      href: postHref(lang, slugOf(post, lang)),
+      title: post.data.title,
+      category: post.data.category,
+      tags: post.data.tag ?? [],
+      date: `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`,
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+      image: await resolvePostImage(slugOf(post, lang), post.data.postImage, 600),
+      // 比例取自原图真实宽高比,映射到最近的 2/3、3/2、1/1
+      ratio: await postImageRatio(slugOf(post, lang), post.data.postImage, siteConfig.masonryRatios),
+    };
+  })
+);
+
+const categories = [...categoriesOf(allPosts).entries()];
+const tags = [...tagsOf(allPosts).entries()];
+---
+
+<BaseLayout lang={lang} title={t(lang, 'nav.archive')}>
+  <ArchivePanel {lang} {posts} {categories} {tags} />
+</BaseLayout>

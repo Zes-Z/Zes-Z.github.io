@@ -1,0 +1,228 @@
+---
+import { siteConfig } from '../site.config';
+import { t, localize } from '../i18n';
+import type { Language } from '../types';
+import { homeHref, withBase } from '../utils/paths';
+import LanguagePicker from './LanguagePicker.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const pathname = Astro.url.pathname;
+
+const resolveHref = (href: string | ((l: Language) => string)) =>
+  typeof href === 'function' ? href(lang) : href;
+
+const home = withBase(`/${lang}`);
+const items = siteConfig.nav.map((item) => {
+  const href = withBase(resolveHref(item.href));
+  const isHome = href === home;
+  const active =
+    !item.external && (pathname === href || (!isHome && pathname.startsWith(`${href}/`)));
+  return { label: localize(item.label, lang), href, active, external: item.external };
+});
+---
+
+<header class="site-header">
+  <div class="container-x header-inner">
+    <a class="logo" href={homeHref(lang)}>{siteConfig.title}</a>
+
+    <button class="hamburger" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      </svg>
+    </button>
+
+    <nav class="site-nav" id="site-nav" data-nav>
+      <ul>
+        {
+          items.map((item) => (
+            <li>
+              <a
+                class:list={['nav-link', { 'is-active': item.active }]}
+                href={item.href}
+                {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <button
+        class="icon-btn"
+        type="button"
+        aria-label={t(lang, 'search.open')}
+        title={t(lang, 'search.open')}
+        data-search-open
+      >
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="5.6" stroke="currentColor" stroke-width="1.8"></circle>
+          <path d="m13.4 13.4 3.8 3.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+      </button>
+      <LanguagePicker lang={lang} pathname={pathname} />
+      <ThemeToggle lang={lang} />
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const header = document.querySelector<HTMLElement>('.site-header');
+
+  toggle?.addEventListener('click', () => {
+    const open = nav?.classList.toggle('is-open') ?? false;
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  // 向下滚动时导航栏慢慢淡出;向上滚动时淡回
+  const FADE_DISTANCE = 260;
+  const syncScroll = () => {
+    if (!header) return;
+    const y = window.scrollY;
+    const opacity = Math.max(0, Math.min(1, 1 - y / FADE_DISTANCE));
+    header.style.opacity = String(opacity);
+    header.style.pointerEvents = opacity < 0.06 ? 'none' : '';
+    syncOverHero();
+  };
+
+  // 当导航悬浮在页面顶部大图上方时,文字用白色(其它情况用普通导航色)
+  const syncOverHero = () => {
+    if (!header) return;
+    const hero = document.querySelector('.hero');
+    if (!hero) {
+      header.classList.remove('is-over-hero');
+      return;
+    }
+    const heroHeight = hero.getBoundingClientRect().height;
+    header.classList.toggle('is-over-hero', window.scrollY < heroHeight - 40);
+  };
+
+  window.addEventListener('scroll', syncScroll, { passive: true });
+  syncScroll();
+
+  document.addEventListener('astro:page-load', () => {
+    nav?.classList.remove('is-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    syncScroll();
+  });
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    /* 全透明:无底色、无模糊、无边框,完全悬浮在底图之上 */
+    background: transparent;
+    /* 滚动淡入淡出 */
+    transition: opacity 320ms ease;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    height: var(--header-h);
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--nav-text);
+  }
+  .logo:hover {
+    color: var(--hover);
+  }
+
+  .site-nav {
+    margin-inline: auto;
+  }
+
+  .site-nav ul {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-link {
+    display: inline-block;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--nav-text);
+  }
+  .nav-link:hover {
+    color: var(--hover);
+    background: var(--surface-2);
+  }
+  .nav-link.is-active {
+    color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 16%, transparent);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .hamburger {
+    display: none;
+    margin-left: auto;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  @media (max-width: 980px) {
+    .hamburger {
+      display: grid;
+    }
+
+    .site-nav {
+      position: absolute;
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-strong);
+      padding: 0.75rem var(--gutter);
+      display: none;
+    }
+    .site-nav.is-open {
+      display: block;
+    }
+    .site-nav ul {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.15rem;
+    }
+    .nav-link {
+      display: block;
+      padding: 0.7rem 0.9rem;
+      border-radius: var(--radius-sm);
+    }
+  }
+</style>

@@ -1,0 +1,115 @@
+[
+  {
+    "name": {
+      "eng": "friends",
+      "cn": "朋友",
+      "jap": "友達"
+    },
+    "desc": {
+      "eng": "Friendship forever.",
+      "cn": "常联系。",
+      "jap": "一期一会。"
+    },
+    "items": [
+      {
+        "name": {
+          "eng": "cyou daii",
+          "cn": "cyou daii",
+          "jap": "cyou daii"
+        },
+        "desc": {
+          "eng": "Notes on programming and life.",
+          "cn": "感谢他的协作。",
+          "jap": "プログラミングと生活のメモ。"
+        },
+        "avatar": "https://avatars.githubusercontent.com/u/57286919",
+        "link": "https://davis-blog.vercel.app/"
+      },
+      {
+        "name": {
+          "eng": "kosame",
+          "cn": "kosame",
+          "jap": "kosame"
+        },
+        "desc": {
+          "eng": "Essays on the calm craft of writing.",
+          "cn": "感谢她的倾听。",
+          "jap": "静かな執筆についての随筆。"
+        },
+        "avatar": "https://avatars.githubusercontent.com/u/9919",
+        "link": "https://example.com"
+      },
+      {
+        "name": {
+          "eng": "cyou shiyu",
+          "cn": "cyou shiyu",
+          "jap": "cyou shiyu"
+        },
+        "desc": {
+          "eng": "A small harbour of everyday observations.",
+          "cn": "感谢她的同理心。",
+          "jap": "日々の観察の小さな港。"
+        },
+        "avatar": "https://avatars.githubusercontent.com/u/1",
+        "link": "https://example.com"
+      },
+      {
+        "name": {
+          "eng": "kim",
+          "cn": "kim",
+          "jap": "kim"
+        },
+        "desc": {
+          "eng": "Essays on the calm craft of writing.",
+          "cn": "感谢她的存在。",
+          "jap": "静かな執筆についての随筆。"
+        },
+        "avatar": "https://avatars.githubusercontent.com/u/9919",
+        "link": "https://example.com"
+      }
+
+    ]
+  },
+  {
+    "name": {
+      "eng": "Tools",
+      "cn": "工具",
+      "jap": "ツール"
+    },
+    "desc": {
+      "eng": "Useful tools worth keeping.",
+      "cn": "值得收藏的实用工具。",
+      "jap": "手元に置きたい便利なツール。"
+    },
+    "items": [
+      {
+        "name": {
+          "eng": "Astro",
+          "cn": "Astro",
+          "jap": "Astro"
+        },
+        "desc": {
+          "eng": "The framework this theme is built on.",
+          "cn": "本主题所基于的框架。",
+          "jap": "このテーマの土台となったフレームワーク。"
+        },
+        "avatar": "https://avatars.githubusercontent.com/u/44914786",
+        "link": "https://astro.build"
+      },
+      {
+        "name": {
+          "eng": "KaTeX",
+          "cn": "KaTeX",
+          "jap": "KaTeX"
+        },
+        "desc": {
+          "eng": "Fast math typesetting for the web.",
+          "cn": "为 Web 打造的快速数学排版。",
+          "jap": "Web のための高速数式組版。"
+        },
+        "avatar": "https://avatars.githubusercontent.com/u/14904029",
+        "link": "https://katex.org"
+      }
+    ]
+  }
+]

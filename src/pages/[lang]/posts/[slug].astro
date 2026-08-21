@@ -1,0 +1,213 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import TableOfContents from '../../../components/TableOfContents.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '../../../site.config';
+import { t } from '../../../i18n';
+import type { Language } from '../../../types';
+import { slugOf } from '../../../utils/posts';
+import { renderMarkdown } from '../../../utils/markdown';
+import { archiveHref } from '../../../utils/paths';
+import { resolvePostAsset } from '../../../utils/images';
+import { getImage } from 'astro:assets';
+
+export async function getStaticPaths() {
+  const paths: { params: { lang: string; slug: string } }[] = [];
+  for (const lang of siteConfig.langs) {
+    const posts = await getCollection('posts', (post) => post.id.startsWith(`${lang}/`));
+    for (const post of posts) {
+      if (post.data.draft) continue;
+      paths.push({ params: { lang, slug: slugOf(post, lang) } });
+    }
+  }
+  return paths;
+}
+
+const { lang, slug } = Astro.params as { lang: Language; slug: string };
+const post = (await getCollection('posts')).find((p) => p.id === `${lang}/${slug}`);
+
+if (!post || post.data.draft) {
+  return Astro.redirect(archiveHref(lang));
+}
+
+const title = post.data.title;
+const description = post.data.description ?? '';
+const date = post.data.pubDate ?? new Date(0);
+const dateText = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+const { html: bodyHtml, headings } = await renderMarkdown(post.body ?? '', {
+  resolveImage: async (url) => {
+    const meta = await resolvePostAsset(slug, url);
+    if (!meta) return undefined;
+    try {
+      return (await getImage({ src: meta, width: 1000 })).src;
+    } catch {
+      return undefined;
+    }
+  },
+});
+// 无标题分级的文章:单列居中,正文不会被挤进目录列
+const hasToc = headings.length > 0;
+---
+
+<BaseLayout lang={lang} title={title} description={description || undefined}>
+  <div class="reading-progress" aria-hidden="true">
+    <span data-progress-bar></span>
+  </div>
+
+  <div class:list={['post-layout', { 'has-toc': hasToc }]}>
+    {hasToc && <TableOfContents {lang} {headings} />}
+
+    <article class="post">
+      <header class="post-header">
+        <p class="post-breadcrumb">
+          <a href={archiveHref(lang)}>{t(lang, 'nav.archive')}</a>
+          <span aria-hidden="true">/</span>
+          <span>{post.data.category}</span>
+        </p>
+        <h1 class="post-title">{title}</h1>
+        {description && <p class="post-description">{description}</p>}
+        <div class="post-meta">
+          <time datetime={date.toISOString()}>{dateText}</time>
+          <span class="chip">{post.data.category}</span>
+          {post.data.tag?.map((tagName) => <span class="chip chip--plain"># {tagName}</span>)}
+        </div>
+      </header>
+
+      <div class="prose post-body" set:html={bodyHtml} />
+
+      <footer class="post-footer">
+        <a class="post-back" href={archiveHref(lang)}>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M10 3.5 6 8l4 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          {t(lang, 'nav.archive')}
+        </a>
+      </footer>
+    </article>
+  </div>
+</BaseLayout>
+
+<script>
+  // 顶部细进度条:按阅读进度填充
+  const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
+  const update = () => {
+    if (!bar) return;
+    const root = document.documentElement;
+    const total = root.scrollHeight - window.innerHeight;
+    bar.style.width = total > 0 ? `${Math.min(100, (window.scrollY / total) * 100)}%` : '0%';
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+</script>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    height: 3px;
+    pointer-events: none;
+  }
+  .reading-progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--sky);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .post-layout {
+    display: grid;
+    /* 默认(无目录):正文单列居中 */
+    grid-template-columns: minmax(0, 780px);
+    gap: 2rem;
+    justify-content: center;
+    align-items: start;
+  }
+  /* 有目录:左列目录稍宽(一行显示更多文字),正文随之往右;
+     用左侧内边距在容器内偏置居中(比整体平移安全,不会产生横向溢出/滚动条) */
+  .post-layout.has-toc {
+    grid-template-columns: 220px minmax(0, 780px);
+    gap: 2.5rem;
+    padding-left: 2.5rem;
+  }
+
+  .post {
+    max-width: 780px;
+    padding: clamp(1rem, 3vw, 2.5rem) 0;
+  }
+
+  .post-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    color: var(--text-faint);
+  }
+  .post-breadcrumb a {
+    color: var(--text-soft);
+  }
+  .post-breadcrumb a:hover {
+    color: var(--hover);
+  }
+
+  .post-title {
+    margin: 0 0 0.7rem;
+    font-size: clamp(1.7rem, 4.4vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .post-description {
+    margin: 0 0 1rem;
+    color: var(--text-soft);
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .post-meta time {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-faint);
+  }
+
+  .post-body {
+    margin-top: 1.4rem;
+  }
+
+  .post-footer {
+    margin-top: 2.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 1024px) {
+    .post-layout,
+    .post-layout.has-toc {
+      grid-template-columns: minmax(0, 780px);
+      padding-left: 0;
+    }
+    .toc {
+      display: none;
+    }
+  }
+</style>

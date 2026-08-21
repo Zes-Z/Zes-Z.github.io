@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/Hero.astro';
+import { siteConfig } from '../../site.config';
+import { t, localize } from '../../i18n';
+import type { Language, FriendGroup } from '../../types';
+import friends from '../../content/friends.json';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Language };
+const groups = friends as FriendGroup[];
+---
+
+<BaseLayout lang={lang} title={t(lang, 'nav.links')} fullWidth>
+  <Hero images={[...siteConfig.linksHeroImages]} height="medium" />
+
+  <div class="container-x links-content">
+    {
+      groups.map((group) => (
+        <section class="links-group">
+          {group.name && <h2 class="links-group-title">{localize(group.name, lang)}</h2>}
+          {group.desc && <p class="links-group-desc">{localize(group.desc, lang)}</p>}
+          <div class="links-grid">
+            {
+              group.items.map((friend) => (
+                <a class="friend-card card" href={friend.link} target="_blank" rel="noopener noreferrer">
+                  <img
+                    class="friend-avatar"
+                    src={friend.avatar}
+                    alt={localize(friend.name, lang)}
+                    loading="lazy"
+                    decoding="async"
+                    onerror="this.onerror=null;this.src='/images/avatar-fallback.svg'"
+                  />
+                  <span class="friend-text">
+                    <span class="friend-name">{localize(friend.name, lang)}</span>
+                    <span class="friend-desc">{localize(friend.desc, lang)}</span>
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .links-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+    margin-top: 2.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .links-group-title {
+    margin: 0 0 0.35rem;
+    font-size: 1.3rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .links-group-title::before {
+    content: '';
+    width: 5px;
+    height: 1.2rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--accent), transparent);
+  }
+
+  .links-group-desc {
+    margin: 0 0 1rem;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 每行 2~3 列 */
+    gap: 14px;
+  }
+
+  @media (max-width: 1000px) {
+    .links-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 640px) {
+    .links-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .friend-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    color: inherit;
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+  .friend-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-strong);
+    border-color: var(--border-strong);
+    color: inherit;
+  }
+
+  .friend-avatar {
+    flex: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    object-fit: cover;
+    background: var(--surface-2);
+  }
+
+  .friend-text {
+    display: flex;
+    flex-direction: column; /* 右侧两行文字 */
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .friend-name {
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .friend-card:hover .friend-name {
+    color: var(--accent-strong);
+  }
+
+  .friend-desc {
+    color: var(--text-soft);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

@@ -1,0 +1,143 @@
+---
+import { t } from '../i18n';
+import type { Language } from '../types';
+import type { MarkdownHeading } from '../utils/markdown';
+
+interface Props {
+  lang: Language;
+  headings: MarkdownHeading[];
+}
+
+const { lang, headings } = Astro.props;
+const items = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
+---
+
+{
+  items.length > 0 && (
+    <nav class="toc" aria-label={t(lang, 'post.toc')} data-toc>
+      <ol class="toc-list">
+        {
+          items.map((heading) => (
+            <li class:list={['toc-item', `toc-depth-${heading.depth}`]}>
+              <a href={`#${heading.slug}`} data-toc-link>{heading.text}</a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  )
+}
+
+<script>
+  const toc = document.querySelector<HTMLElement>('[data-toc]');
+  if (toc && !toc.dataset.ready) {
+    toc.dataset.ready = 'true';
+    const links = [...toc.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+    const entries = links
+      .map((link) => ({ link, el: document.getElementById(decodeURIComponent(link.hash.slice(1))) }))
+      .filter((e): e is { link: HTMLAnchorElement; el: HTMLElement } => e.el !== null);
+
+    if (entries.length > 0) {
+      const update = () => {
+        const pos = window.scrollY + 96;
+        let current = entries[0]!.el;
+        for (const { el } of entries) {
+          if (el.getBoundingClientRect().top + window.scrollY <= pos) current = el;
+        }
+        links.forEach((link) => {
+          const active = link.hash === `#${current.id}`;
+          link.classList.toggle('is-active', active);
+          if (active) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+      };
+
+      // 点击目录:平滑滚动到章节,但不写入浏览历史(返回时不会多次点击)
+      links.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', link.hash);
+        });
+      });
+
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+    }
+  }
+</script>
+
+<style>
+  .toc {
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+    /* 目录列独立滑动,但隐藏滚动条(滚轮可滚动,不显示滚动条) */
+    max-height: calc(100vh - var(--header-h) - 32px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-left: 1px;
+  }
+  .toc::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border-left: 2px solid var(--border);
+  }
+
+  .toc-item {
+    position: relative;
+  }
+
+  .toc-item a {
+    display: block;
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text-soft);
+    transition:
+      color var(--transition-fast),
+      background var(--transition-fast);
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* 父级(一级)标题:字重加深 */
+  .toc-depth-2 a {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .toc-depth-2 a:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .toc-item a:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .toc-item a.is-active {
+    color: var(--sky);
+    background: color-mix(in srgb, var(--sky) 10%, transparent);
+    border-left-color: var(--sky);
+  }
+
+  .toc-depth-3 a {
+    padding-left: 20px;
+  }
+  .toc-depth-4 a {
+    padding-left: 30px;
+  }
+</style>
