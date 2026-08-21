@@ -22,7 +22,7 @@ export const siteConfig = {
   } satisfies LocalizedText,
 
   /** Production site URL (RSS links, canonical URLs). */
-  siteUrl: 'https://example.com',
+  siteUrl: 'https://zes-z.github.io/',
 
   author: 'Zes',
 
