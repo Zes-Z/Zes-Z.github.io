@@ -31,7 +31,7 @@ export const siteConfig = {
   /** Language cycle order for the single-click switcher: zh → en → ja → zh. */
   langs: ['zh', 'en', 'ja'] as const,
 
-  favicon: '/favicon.svg',
+  favicon: '/favicon.ico',
 
   /**
    * Top navigation (modular). Add / remove / reorder entries freely.
