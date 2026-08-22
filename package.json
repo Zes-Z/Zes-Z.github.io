@@ -6,15 +6,16 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro",
-    "check": "astro check",
-    "newpost": "tsx cli/newpost.ts",
-    "format": "prettier --write ."
-  },
+"scripts": {
+  "dev": "astro dev",
+  "build": "astro check && astro build",
+  "preview": "astro preview",
+  "astro": "astro",
+  "check": "astro check",
+  "newpost": "tsx cli/newpost.ts newpost",
+  "newport": "tsx cli/newpost.ts newport",
+  "format": "prettier --write ."
+},
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@shikijs/rehype": "^3.16.2",

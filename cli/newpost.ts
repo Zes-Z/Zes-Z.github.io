@@ -1,169 +1,470 @@
 /**
- * Interactive "new post" CLI for Zest.
- * Run with: pnpm newpost
+ * Zest Content CLI
  *
- * Creates ONE folder per post:
+ * Usage:
+ *   pnpm newpost "文章名"
+ *   pnpm newport "项目名"
  *
- *   src/content/posts/<slug>/
- *     zh.md        Chinese article
- *     en.md        English article
- *     ja.md        Japanese article
- *     cover.png    ← put the article cover image here and reference it
- *                    as `postImage: ./cover.png`
+ * Creates:
  *
- * pubDate is stamped automatically from the creation time.
+ *   newpost:
+ *   src/content/posts/<文章名>/
+ *     zh.md
+ *     en.md
+ *     ja.md
+ *
+ *   newport:
+ *   src/content/portfolios/<项目名>/
+ *     zh.md
+ *     en.md
+ *     ja.md
  */
-import prompts from 'prompts';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const postsDir = join(root, 'src', 'content', 'posts');
+import prompts from 'prompts';
+import {
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+} from 'node:fs';
+import {
+  join,
+  dirname,
+} from 'node:path';
+import {
+  fileURLToPath,
+} from 'node:url';
+
+const root = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '..'
+);
 
 function today(): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+
+  return `${now.getFullYear()}-${pad(
+    now.getMonth() + 1
+  )}-${pad(now.getDate())}`;
 }
 
-const response = await prompts(
-  [
-    {
-      type: 'text',
-      name: 'slug',
-      message: 'Slug (post folder name)',
-      initial: (_prev: unknown) => `${today()}-post`,
-      validate: (value: string) =>
-        /^[a-z0-9][a-z0-9-]*$/.test(value) ? true : 'Lowercase letters, digits and dashes only',
-    },
-    {
-      type: 'text',
-      name: 'titleZh',
-      message: 'Chinese title (中文标题)',
-      validate: (value: string) => (value.trim() ? true : 'Chinese title is required'),
-    },
-    {
-      type: 'text',
-      name: 'titleEn',
-      message: 'English title',
-      initial: (_prev: unknown, values: { titleZh?: string }) => values.titleZh ?? '',
-    },
-    {
-      type: 'text',
-      name: 'titleJa',
-      message: 'Japanese title (日本語タイトル)',
-      initial: (_prev: unknown, values: { titleZh?: string }) => values.titleZh ?? '',
-    },
-    {
-      type: 'text',
-      name: 'category',
-      message: 'Category (required, exactly one)',
-      validate: (value: string) => (value.trim() ? true : 'Category is required'),
-    },
-    {
-      type: 'text',
-      name: 'tags',
-      message: 'Tags (comma separated, may be empty)',
-    },
-    {
-      type: 'text',
-      name: 'description',
-      message: 'Description (may be empty)',
-    },
-    {
-      type: 'text',
-      name: 'postImage',
-      message: 'Cover image (relative to the post folder, e.g. ./cover.png)',
-    },
-    {
-      type: 'toggle',
-      name: 'homepined',
-      message: 'Pin on the home page?',
-      initial: false,
-      active: 'yes',
-      inactive: 'no',
-    },
-    {
-      type: 'number',
-      name: 'pinedOrder',
-      message: 'Pinned order (smaller = earlier)',
-      initial: 0,
-    },
-    {
-      type: 'toggle',
-      name: 'draft',
-      message: 'Draft?',
-      initial: true,
-      active: 'yes',
-      inactive: 'no',
-    },
-  ],
-  {
-    onCancel: () => {
-      console.log('Cancelled.');
-      process.exit(0);
-    },
-  }
-) as {
-  slug: string;
-  titleZh: string;
-  titleEn: string;
-  titleJa: string;
-  category: string;
-  tags: string;
-  description: string;
-  postImage: string;
-  homepined: boolean;
-  pinedOrder: number;
-  draft: boolean;
-};
+/* =========================================================
+ * Command
+ * ======================================================= */
 
-const folder = join(postsDir, response.slug);
-if (existsSync(folder)) {
-  console.error(`Folder already exists: ${folder}`);
+const command = process.argv[2];
+
+if (command !== 'newpost' && command !== 'newport') {
+  console.error(
+    [
+      'Usage:',
+      '  pnpm newpost "文章名"',
+      '  pnpm newport "项目名"',
+    ].join('\n')
+  );
+
   process.exit(1);
 }
 
-const tags = response.tags
-  .split(',')
-  .map((t) => t.trim())
-  .filter(Boolean);
+const name = process.argv.slice(3).join(' ').trim();
 
-const common = [
-  `category: ${JSON.stringify(response.category)}`,
-  tags.length ? `tag: [${tags.map((t) => JSON.stringify(t)).join(', ')}]` : 'tag: []',
-  `description: ${JSON.stringify(response.description)}`,
-  `pubDate: ${today()} # auto-stamped at creation`,
-  response.postImage ? `postImage: ${JSON.stringify(response.postImage)}` : 'postImage:',
-  `homepined: ${response.homepined}`,
-  `pinedOrder: ${response.pinedOrder}`,
-  `draft: ${response.draft}`,
-].join('\n');
+if (!name) {
+  console.error(
+    `Usage: pnpm ${command} "${command === 'newpost' ? '文章名' : '项目名'}"`
+  );
 
-const files = {
-  'zh.md': {
-    title: response.titleZh,
-    body: `# ${response.titleZh}\n\n在这里开始写作…\n\n- 提示:公式 \`$e^{i\\pi}+1=0$\`、图片 \`![alt](./img.png)\`(放在本文件夹内)、视频直接写 HTML。\n`,
-  },
-  'en.md': {
-    title: response.titleEn || response.titleZh,
-    body: `# ${response.titleEn || response.titleZh}\n\nStart writing here…\n\n- Tips: math \`$e^{i\\pi}+1=0$\`, images \`![alt](./img.png)\` (keep them in this folder), videos as raw HTML.\n`,
-  },
-  'ja.md': {
-    title: response.titleJa || response.titleZh,
-    body: `# ${response.titleJa || response.titleZh}\n\nここに書き始める…\n\n- ヒント:数式 \`$e^{i\\pi}+1=0$\`、画像 \`![alt](./img.png)\`(このフォルダに置く)、動画は生 HTML で。\n`,
-  },
-};
-
-mkdirSync(folder, { recursive: true });
-for (const [name, file] of Object.entries(files)) {
-  const frontmatter = [`title: ${JSON.stringify(file.title)}`, common].join('\n');
-  writeFileSync(join(folder, name), `---\n${frontmatter}\n---\n${file.body}`, 'utf8');
-  console.log(`wrote ${join('src/content/posts', response.slug, name)}`);
+  process.exit(1);
 }
 
-console.log(`\nCreated post folder: src/content/posts/${response.slug}/`);
-console.log(
-  `Put the cover image in the folder${response.postImage ? ` (referenced as ${response.postImage})` : ''} and fill each language file.`
-);
+/* =========================================================
+ * newpost
+ * ======================================================= */
+
+async function newPost() {
+  const postsDir = join(
+    root,
+    'src',
+    'content',
+    'posts'
+  );
+
+  const folder = join(postsDir, name);
+
+  if (existsSync(folder)) {
+    console.error(
+      `Folder already exists: ${folder}`
+    );
+
+    process.exit(1);
+  }
+
+  const response = await prompts(
+    [
+      {
+        type: 'text',
+        name: 'titleEn',
+        message: 'English title',
+        validate: (value: string) =>
+          value.trim()
+            ? true
+            : 'English title is required',
+      },
+
+      {
+        type: 'text',
+        name: 'titleJa',
+        message: 'Japanese title (日本語タイトル)',
+        validate: (value: string) =>
+          value.trim()
+            ? true
+            : 'Japanese title is required',
+      },
+
+      {
+        type: 'select',
+        name: 'categoryPreset',
+        message: 'Category',
+        choices: [
+          {
+            title: 'Omnium',
+            value: 'Omnium',
+          },
+          {
+            title: 'Math & Coding',
+            value: 'Math & Coding',
+          },
+          {
+            title: 'Source',
+            value: 'Source',
+          },
+          {
+            title: '输入以新建',
+            value: '__custom__',
+          },
+        ],
+        initial: 0,
+      },
+
+      {
+        type: (prev: string) =>
+          prev === '__custom__'
+            ? 'text'
+            : null,
+
+        name: 'categoryCustom',
+        message: 'New category',
+        validate: (value: string) =>
+          value.trim()
+            ? true
+            : 'Category is required',
+      },
+
+      {
+        type: 'text',
+        name: 'tags',
+        message: 'Tags (comma separated, may be empty)',
+        initial: '',
+      },
+
+      {
+        type: 'text',
+        name: 'description',
+        message: 'Description (may be empty)',
+        initial: '',
+      },
+
+      {
+        type: 'toggle',
+        name: 'draft',
+        message: 'Draft?',
+        initial: true,
+        active: 'yes',
+        inactive: 'no',
+      },
+    ],
+    {
+      onCancel: () => {
+        console.log('Cancelled.');
+        process.exit(0);
+      },
+    }
+  ) as {
+    titleEn: string;
+    titleJa: string;
+    categoryPreset: string;
+    categoryCustom?: string;
+    tags: string;
+    description: string;
+    draft: boolean;
+  };
+
+  const category =
+    response.categoryPreset === '__custom__'
+      ? response.categoryCustom?.trim() ?? ''
+      : response.categoryPreset;
+
+  if (!category) {
+    console.error('Category is required.');
+    process.exit(1);
+  }
+
+  const tags = response.tags
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+  const common = [
+    `description: ${JSON.stringify(
+      response.description
+    )}`,
+
+    `pubDate: "${today()}"`,
+
+    `category: ${JSON.stringify(category)}`,
+
+    tags.length
+      ? `tag: [${tags
+          .map((tag) => JSON.stringify(tag))
+          .join(', ')}]`
+      : 'tag: []',
+
+    'postImage:',
+
+    'homepined: false',
+
+    'pinedOrder: 0',
+
+    `draft: ${response.draft}`,
+  ].join('\n');
+
+  /*
+   * Default Markdown body.
+   *
+   * Each language file gets the same three
+   * heading placeholders.
+   */
+  const body = `#
+
+
+
+---
+
+#
+
+
+
+---
+
+#
+
+
+
+---
+
+`;
+
+  const files = {
+    'zh.md': {
+      title: name,
+    },
+
+    'en.md': {
+      title: response.titleEn.trim(),
+    },
+
+    'ja.md': {
+      title: response.titleJa.trim(),
+    },
+  };
+
+  mkdirSync(folder, {
+    recursive: true,
+  });
+
+  for (const [fileName, file] of Object.entries(
+    files
+  )) {
+    const frontmatter = [
+      `title: ${JSON.stringify(file.title)}`,
+      common,
+    ].join('\n');
+
+    writeFileSync(
+      join(folder, fileName),
+
+      `---\n${frontmatter}\n---\n\n${body}`,
+
+      'utf8'
+    );
+
+    console.log(
+      `wrote ${join(
+        'src/content/posts',
+        name,
+        fileName
+      )}`
+    );
+  }
+
+  console.log('');
+  console.log(
+    `Created post folder: src/content/posts/${name}/`
+  );
+
+  console.log('');
+  console.log('Default values:');
+  console.log(`  pubDate: ${today()}`);
+  console.log('  postImage:');
+  console.log('  homepined: false');
+  console.log('  pinedOrder: 0');
+  console.log(`  draft: ${response.draft}`);
+}
+
+/* =========================================================
+ * newport
+ * ======================================================= */
+
+async function newPort() {
+  const portfoliosDir = join(
+    root,
+    'src',
+    'content',
+    'portfolios'
+  );
+
+  const folder = join(
+    portfoliosDir,
+    name
+  );
+
+  if (existsSync(folder)) {
+    console.error(
+      `Folder already exists: ${folder}`
+    );
+
+    process.exit(1);
+  }
+
+  const response = await prompts(
+    [
+      {
+        type: 'text',
+        name: 'titleEn',
+        message: 'English title',
+        validate: (value: string) =>
+          value.trim()
+            ? true
+            : 'English title is required',
+      },
+
+      {
+        type: 'text',
+        name: 'titleJa',
+        message: 'Japanese title (日本語タイトル)',
+        validate: (value: string) =>
+          value.trim()
+            ? true
+            : 'Japanese title is required',
+      },
+
+      {
+        type: 'text',
+        name: 'descriptionZh',
+        message: 'Chinese description (中文描述)',
+        initial: '',
+      },
+
+      {
+        type: 'text',
+        name: 'descriptionEn',
+        message: 'English description',
+        initial: '',
+      },
+
+      {
+        type: 'text',
+        name: 'descriptionJa',
+        message: 'Japanese description (日本語説明)',
+        initial: '',
+      },
+    ],
+    {
+      onCancel: () => {
+        console.log('Cancelled.');
+        process.exit(0);
+      },
+    }
+  ) as {
+    titleEn: string;
+    titleJa: string;
+    descriptionZh: string;
+    descriptionEn: string;
+    descriptionJa: string;
+  };
+
+  const files = {
+    'zh.md': {
+      title: name,
+      description:
+        response.descriptionZh.trim(),
+    },
+
+    'en.md': {
+      title: response.titleEn.trim(),
+      description:
+        response.descriptionEn.trim(),
+    },
+
+    'ja.md': {
+      title: response.titleJa.trim(),
+      description:
+        response.descriptionJa.trim(),
+    },
+  };
+
+  mkdirSync(folder, {
+    recursive: true,
+  });
+
+  for (const [fileName, file] of Object.entries(
+    files
+  )) {
+    const content = `---
+title: ${JSON.stringify(file.title)}
+description: ${JSON.stringify(file.description)}
+---
+
+`;
+
+    writeFileSync(
+      join(folder, fileName),
+      content,
+      'utf8'
+    );
+
+    console.log(
+      `wrote ${join(
+        'src/content/portfolios',
+        name,
+        fileName
+      )}`
+    );
+  }
+
+  console.log('');
+  console.log(
+    `Created portfolio folder: src/content/portfolios/${name}/`
+  );
+}
+
+/* =========================================================
+ * Run
+ * ======================================================= */
+
+if (command === 'newpost') {
+  await newPost();
+}
+
+if (command === 'newport') {
+  await newPort();
+}
