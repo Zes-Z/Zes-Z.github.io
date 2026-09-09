@@ -1,24 +1,97 @@
 /* =========================================================
    Self / About Zes
+   Ocean Blue Theme
    ========================================================= */
 
 :root {
-  --self-bg: #11172f;
-  --self-bg-deep: #0d1228;
 
-  --self-text: #f5f5f7;
-  --self-text-soft: #c3c7d5;
-  --self-text-muted: #8e94a8;
+  /* ---------------------------------------------------------
+     Ocean colors
+     --------------------------------------------------------- */
 
-  --self-accent: #ff8d4d;
-  --self-accent-2: #ff5f91;
+  --self-bg:
+    #063b5c;
 
-  --self-card: rgba(255, 255, 255, 0.055);
-  --self-card-border: rgba(255, 255, 255, 0.12);
+  --self-bg-deep:
+    #021f38;
 
-  --self-header-height: 88px;
+  --self-bg-dark:
+    #011526;
 
-  --self-max-width: 1440px;
+
+  /* ---------------------------------------------------------
+     Text
+     --------------------------------------------------------- */
+
+  --self-text:
+    #f5fbff;
+
+  --self-text-soft:
+    #c5e1ee;
+
+  --self-text-muted:
+    #8db5c9;
+
+
+  /* ---------------------------------------------------------
+     Accent
+     --------------------------------------------------------- */
+
+  --self-accent:
+    #66d9ff;
+
+  --self-accent-2:
+    #4ca8ff;
+
+  --self-accent-light:
+    #a9edff;
+
+
+  /* ---------------------------------------------------------
+     Cards
+     --------------------------------------------------------- */
+
+  --self-card:
+    rgba(90, 205, 255, 0.085);
+
+  --self-card-hover:
+    rgba(90, 205, 255, 0.14);
+
+  --self-card-border:
+    rgba(151, 228, 255, 0.20);
+
+
+  /* ---------------------------------------------------------
+     Header
+     --------------------------------------------------------- */
+
+  --self-header-height:
+    72px;
+
+
+  /* ---------------------------------------------------------
+     Layout
+     --------------------------------------------------------- */
+
+  --self-max-width:
+    1440px;
+
+  /* ---------------------------------------------------------
+     Navigation
+     --------------------------------------------------------- */
+
+  /* 导航项目之间的水平间距 */
+  --self-nav-gap:
+    42px;
+
+  /* 导航下方切换条的移动速度 */
+  --self-nav-transition:
+    420ms;
+
+  /* 切换条距离导航栏底部的距离 */
+  --self-nav-indicator-bottom:
+    18px;
+
 }
 
 
@@ -30,40 +103,34 @@
   box-sizing: border-box;
 }
 
+
 html {
+
   margin: 0;
   padding: 0;
 
+  /*
+   * 不依赖 scroll-padding-top。
+   *
+   * JS 会自己计算 section 的绝对位置。
+   */
   scroll-behavior: smooth;
 
-  scroll-padding-top: var(--self-header-height);
 }
 
+
 body {
+
   margin: 0;
   padding: 0;
 
   min-width: 320px;
   min-height: 100vh;
 
-  background:
-    radial-gradient(
-      circle at 75% 20%,
-      rgba(70, 91, 160, 0.22),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 20% 80%,
-      rgba(255, 100, 130, 0.08),
-      transparent 28%
-    ),
-    linear-gradient(
-      180deg,
-      var(--self-bg),
-      var(--self-bg-deep)
-    );
+  overflow-x: hidden;
 
-  color: var(--self-text);
+  color:
+    var(--self-text);
 
   font-family:
     system-ui,
@@ -74,72 +141,256 @@ body {
     "Microsoft YaHei",
     sans-serif;
 
-  overflow-x: hidden;
+
+  /*
+   * =======================================================
+   * 深海蓝背景
+   * =======================================================
+   */
+
+  background:
+
+    /*
+     * 顶部水面亮光
+     */
+    radial-gradient(
+      ellipse 90% 45% at 50% 0%,
+      rgba(83, 207, 255, 0.24),
+      transparent 65%
+    ),
+
+    /*
+     * 左侧海水光
+     */
+    radial-gradient(
+      ellipse 55% 60% at 5% 35%,
+      rgba(27, 153, 214, 0.18),
+      transparent 70%
+    ),
+
+    /*
+     * 右侧海水光
+     */
+    radial-gradient(
+      ellipse 55% 60% at 95% 65%,
+      rgba(31, 126, 201, 0.16),
+      transparent 70%
+    ),
+
+    /*
+     * 深海渐变
+     */
+    linear-gradient(
+      180deg,
+      #07517a 0%,
+      #063f63 28%,
+      #042e4d 58%,
+      #021f38 82%,
+      #011526 100%
+    );
+
 }
 
 
 /* =========================================================
-   星空背景
+   Ocean Ripple Background
    ========================================================= */
 
+/*
+ * 第一层：缓慢流动的海水光影
+ */
 body::before {
   content: "";
 
   position: fixed;
-  inset: 0;
-
-  pointer-events: none;
-
-  opacity: 0.7;
-
-  background-image:
-    radial-gradient(
-      circle at 12% 12%,
-      rgba(255, 255, 255, 0.9) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 31% 22%,
-      rgba(255, 255, 255, 0.65) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 54% 14%,
-      rgba(255, 255, 255, 0.75) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 72% 28%,
-      rgba(255, 255, 255, 0.7) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 88% 15%,
-      rgba(255, 255, 255, 0.6) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 17% 62%,
-      rgba(255, 255, 255, 0.7) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 43% 76%,
-      rgba(255, 255, 255, 0.7) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 79% 68%,
-      rgba(255, 255, 255, 0.75) 0 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle at 94% 83%,
-      rgba(255, 255, 255, 0.6) 0 1px,
-      transparent 2px
-    );
+  inset: -25%;
 
   z-index: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse 45% 16% at 15% 15%,
+      rgba(110, 225, 255, 0.22),
+      transparent 72%
+    ),
+
+    radial-gradient(
+      ellipse 55% 18% at 80% 25%,
+      rgba(70, 190, 255, 0.18),
+      transparent 72%
+    ),
+
+    radial-gradient(
+      ellipse 60% 20% at 25% 52%,
+      rgba(65, 205, 255, 0.16),
+      transparent 72%
+    ),
+
+    radial-gradient(
+      ellipse 50% 18% at 78% 65%,
+      rgba(80, 175, 255, 0.14),
+      transparent 72%
+    ),
+
+    radial-gradient(
+      ellipse 70% 25% at 45% 90%,
+      rgba(40, 150, 220, 0.16),
+      transparent 72%
+    );
+
+  filter: blur(18px);
+
+  opacity: 0.9;
+
+  animation:
+    oceanLightFlow
+    16s
+    ease-in-out
+    infinite
+    alternate;
+}
+
+
+@keyframes oceanLightFlow {
+
+  0% {
+    transform:
+      translate3d(-3%, -2%, 0)
+      scale(1);
+  }
+
+  25% {
+    transform:
+      translate3d(2%, 1%, 0)
+      scale(1.04);
+  }
+
+  50% {
+    transform:
+      translate3d(-1%, 4%, 0)
+      scale(1.07);
+  }
+
+  75% {
+    transform:
+      translate3d(3%, 1%, 0)
+      scale(1.03);
+  }
+
+  100% {
+    transform:
+      translate3d(-2%, 3%, 0)
+      scale(1.06);
+  }
+}
+
+
+/*
+ * 第二层：真正可见的水波纹
+ *
+ * 多组椭圆形波纹同时缓慢变形、移动。
+ */
+body::after {
+  content: "";
+
+  position: fixed;
+  inset: -15%;
+
+  z-index: 0;
+  pointer-events: none;
+
+  background:
+
+    /* 第一组波纹 */
+    repeating-radial-gradient(
+      ellipse 85% 22% at 20% 18%,
+      transparent 0%,
+      transparent 7%,
+      rgba(145, 235, 255, 0.055) 7.5%,
+      transparent 8.5%,
+      transparent 14%
+    ),
+
+    /* 第二组波纹 */
+    repeating-radial-gradient(
+      ellipse 100% 25% at 80% 42%,
+      transparent 0%,
+      transparent 8%,
+      rgba(115, 220, 255, 0.05) 8.5%,
+      transparent 9.5%,
+      transparent 17%
+    ),
+
+    /* 第三组波纹 */
+    repeating-radial-gradient(
+      ellipse 90% 20% at 35% 75%,
+      transparent 0%,
+      transparent 9%,
+      rgba(105, 210, 255, 0.045) 9.5%,
+      transparent 10.5%,
+      transparent 19%
+    );
+
+  opacity: 0.9;
+
+  filter: blur(1px);
+
+  transform:
+    scaleX(1.7)
+    scaleY(0.65);
+
+  animation:
+    oceanRippleFlow
+    20s
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes oceanRippleFlow {
+
+  0% {
+    transform:
+      translate3d(-4%, -2%, 0)
+      scaleX(1.7)
+      scaleY(0.65);
+  }
+
+  20% {
+    transform:
+      translate3d(2%, 0%, 0)
+      scaleX(1.82)
+      scaleY(0.70);
+  }
+
+  40% {
+    transform:
+      translate3d(4%, 2%, 0)
+      scaleX(1.65)
+      scaleY(0.62);
+  }
+
+  60% {
+    transform:
+      translate3d(-1%, 4%, 0)
+      scaleX(1.78)
+      scaleY(0.68);
+  }
+
+  80% {
+    transform:
+      translate3d(-4%, 2%, 0)
+      scaleX(1.88)
+      scaleY(0.72);
+  }
+
+  100% {
+    transform:
+      translate3d(-2%, -1%, 0)
+      scaleX(1.7)
+      scaleY(0.65);
+  }
 }
 
 
@@ -148,38 +399,57 @@ body::before {
    ========================================================= */
 
 .self-header {
+
   position: fixed;
 
   top: 0;
   left: 0;
   right: 0;
 
-  height: var(--self-header-height);
+  height:
+    var(--self-header-height);
 
   z-index: 1000;
 
-  background: rgba(13, 18, 40, 0.88);
+
+  /*
+   * 和海蓝背景融合，
+   * 不再使用原来的深紫色。
+   */
+background:
+  rgba(0, 214, 29, 0.03);
 
   border-bottom:
-    1px solid rgba(255, 255, 255, 0.06);
+    1px solid
+    rgba(135, 225, 255, 0.16);
 
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter:
+    blur(18px);
+
+  -webkit-backdrop-filter:
+    blur(18px);
+
 }
 
+
 .self-header-inner {
-  width: min(
-    calc(100% - 80px),
-    var(--self-max-width)
-  );
+
+  width:
+    min(
+      calc(100% - 80px),
+      var(--self-max-width)
+    );
 
   height: 100%;
 
   margin: 0 auto;
 
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
+
 }
 
 
@@ -188,34 +458,51 @@ body::before {
    ========================================================= */
 
 .self-logo {
+
   display: inline-flex;
 
   align-items: center;
+
   gap: 12px;
 
-  color: var(--self-accent);
+  color:
+    var(--self-accent);
 
   text-decoration: none;
 
   font-size: 25px;
+
   font-weight: 800;
 
   transition:
     transform 0.25s ease,
     opacity 0.25s ease;
+
 }
+
 
 .self-logo:hover {
-  transform: translateY(-2px);
+
+  transform:
+    translateY(-2px);
+
   opacity: 0.9;
+
 }
+
 
 .self-logo-icon {
+
   font-size: 30px;
+
 }
 
+
 .self-logo-text {
-  letter-spacing: -0.02em;
+
+  letter-spacing:
+    -0.02em;
+
 }
 
 
@@ -224,36 +511,57 @@ body::before {
    ========================================================= */
 
 .self-nav {
+
   display: flex;
+
   align-items: center;
 
   gap: 42px;
+
 }
 
+
 .self-nav-link {
+
   position: relative;
 
   padding: 30px 0;
 
-  color: var(--self-text-soft);
+  color:
+    rgba(224, 243, 250, 0.82);
 
   text-decoration: none;
 
   font-size: 18px;
+
   font-weight: 700;
+
+  transform: translateY(-3px);
 
   transition:
     color 0.25s ease,
     transform 0.25s ease;
+
 }
+
 
 .self-nav-link:hover {
-  color: var(--self-text);
 
-  transform: translateY(-1px);
+  color:
+    #ffffff;
+
+  transform:
+    translateY(-1px);
+
 }
 
+
+/*
+ * Active underline
+ */
+
 .self-nav-link::after {
+
   content: "";
 
   position: absolute;
@@ -261,7 +569,7 @@ body::before {
   left: 0;
   right: 0;
 
-  bottom: 12px;
+  bottom: var(--self-nav-indicator-bottom);
 
   height: 3px;
 
@@ -270,23 +578,92 @@ body::before {
   background:
     linear-gradient(
       90deg,
-      var(--self-accent),
-      var(--self-accent-2)
+      #65e2ff,
+      #4ca8ff
     );
 
-  transform: scaleX(0);
+  box-shadow:
+    0 0 12px
+    rgba(81, 209, 255, 0.45);
 
-  transform-origin: center;
+  transform:
+    scaleX(0);
 
-  transition: transform 0.25s ease;
+  transform-origin:
+    center;
+
+  transition:
+    transform var(--self-nav-transition) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease;
+
 }
+
 
 .self-nav-link.active {
-  color: var(--self-text);
+
+  color:
+    #ffffff;
+
 }
 
+
 .self-nav-link.active::after {
-  transform: scaleX(1);
+
+  transform:
+    scaleX(1);
+
+}
+
+
+/* =========================================================
+   Utility navigation items
+   ========================================================= */
+
+/* “未知”暂时只作为视觉上的导航块，不可点击。 */
+.self-nav-link--placeholder {
+
+  cursor: default;
+
+  opacity: 0.48;
+
+}
+
+.self-nav-link--placeholder:hover {
+
+  color:
+    rgba(224, 243, 250, 0.82);
+
+  transform:
+    translateY(-3px);
+
+}
+
+.self-nav-link--placeholder::after {
+
+  display: none;
+
+}
+
+
+/* 简历：保持普通导航文字风格，点击后下载 /cv.pdf */
+.self-nav-link--resume::after {
+
+  display: none;
+
+}
+
+.self-nav-link--resume {
+
+  color:
+    rgba(224, 243, 250, 0.92);
+
+}
+
+.self-nav-link--resume:hover {
+
+  color:
+    #ffffff;
+
 }
 
 
@@ -295,9 +672,11 @@ body::before {
    ========================================================= */
 
 .self-page {
+
   position: relative;
 
   z-index: 1;
+
 }
 
 
@@ -305,42 +684,95 @@ body::before {
    Section
    ========================================================= */
 
+/*
+ * 这是本次修复跳转问题最重要的地方。
+ *
+ * 每个 section 从页面真正的顶部开始。
+ *
+ * 不再使用：
+ *
+ *     scroll-margin-top
+ *
+ * 不再使用：
+ *
+ *     scroll-padding-top
+ *
+ * JS 会直接滚到 section 的 document top。
+ */
+
 .self-section {
+
   position: relative;
+
+  width: 100%;
 
   min-height: 100vh;
 
+  min-height: 100svh;
+
+
+  /*
+   * 顶部留出 Header 的空间。
+   *
+   * 注意：
+   *
+   * section 自己仍然从 viewport top = 0 开始，
+   * 只是里面的内容从 Header 下方开始。
+   */
   padding:
-    calc(var(--self-header-height) + 70px)
+
+    calc(
+      var(--self-header-height) + 70px
+    )
+
     40px
-    90px;
+
+    80px;
+
 
   display: flex;
-  align-items: center;
-  justify-content: center;
 
-  scroll-margin-top: var(--self-header-height);
+  align-items:
+    flex-start;
+
+  justify-content:
+    center;
+
+
+  /*
+   * 非常重要：
+   * section 不再因为浏览器 anchor 行为
+   * 被额外偏移。
+   */
+  scroll-margin-top: 0;
 
   overflow: hidden;
+
 }
 
+
 .self-section-inner {
+
   position: relative;
 
-  width: min(
-    100%,
-    var(--self-max-width)
-  );
+  width:
+    min(
+      100%,
+      var(--self-max-width)
+    );
 
-  margin: 0 auto;
+  margin:
+    0 auto;
+
 }
 
 
 /* =========================================================
-   装饰线
+   Section decoration
    ========================================================= */
 
 .self-decoration {
+
   position: absolute;
 
   height: 2px;
@@ -349,32 +781,45 @@ body::before {
     linear-gradient(
       90deg,
       transparent,
-      var(--self-accent-2),
+      rgba(111, 225, 255, 0.55),
       transparent
     );
 
-  opacity: 0.8;
+  opacity: 0.65;
+
 }
 
+
 .self-decoration--one {
+
   width: 180px;
 
   top: 18%;
+
   right: 15%;
+
 }
 
+
 .self-decoration--two {
+
   width: 130px;
 
   top: 60%;
+
   left: 5%;
+
 }
 
+
 .self-decoration--three {
+
   width: 150px;
 
   bottom: 18%;
+
   right: 25%;
+
 }
 
 
@@ -383,39 +828,55 @@ body::before {
    ========================================================= */
 
 .self-section-title {
+
   margin: 0;
 
   text-align: center;
 
-  font-size: clamp(38px, 5vw, 68px);
+  font-size:
+    clamp(
+      38px,
+      5vw,
+      68px
+    );
 
   font-weight: 850;
 
-  letter-spacing: -0.045em;
+  letter-spacing:
+    -0.045em;
 
   line-height: 1.1;
+
 }
 
+
 .self-section-title .emoji {
+
   display: inline-block;
 
   margin-right: 12px;
 
   font-size: 0.75em;
+
 }
 
+
 .self-section-subtitle {
-  margin: 22px auto 0;
+
+  margin:
+    22px auto 0;
 
   max-width: 720px;
 
   text-align: center;
 
-  color: var(--self-text-soft);
+  color:
+    var(--self-text-soft);
 
   font-size: 18px;
 
   line-height: 1.8;
+
 }
 
 
@@ -424,17 +885,29 @@ body::before {
    ========================================================= */
 
 .self-home {
+
   min-height: 100vh;
 
+  min-height: 100svh;
+
+  /*
+   * 首页仍然保持视觉居中。
+   */
+  align-items: center;
+
   padding-top:
-    calc(var(--self-header-height) + 20px);
+    var(--self-header-height);
+
 }
 
+
 .self-home-inner {
-  width: min(
-    100%,
-    var(--self-max-width)
-  );
+
+  width:
+    min(
+      100%,
+      var(--self-max-width)
+    );
 
   display: grid;
 
@@ -445,71 +918,100 @@ body::before {
   gap: 80px;
 
   align-items: center;
+
 }
 
+
 .self-home-content {
+
   position: relative;
 
   z-index: 2;
+
 }
+
 
 .self-home-eyebrow {
-  margin: 0 0 20px;
 
-  color: var(--self-accent);
+  margin:
+    0 0 20px;
+
+  color:
+    var(--self-accent);
 
   font-size: 18px;
+
   font-weight: 700;
 
-  letter-spacing: 0.08em;
+  letter-spacing:
+    0.08em;
+
 }
 
+
 .self-home-title {
+
   margin: 0;
 
-  font-size: clamp(
-    64px,
-    9vw,
-    120px
-  );
+  font-size:
+    clamp(
+      64px,
+      9vw,
+      120px
+    );
 
   font-weight: 900;
 
-  letter-spacing: -0.065em;
+  letter-spacing:
+    -0.065em;
 
   line-height: 0.95;
 
+
+  /*
+   * 海蓝系标题。
+   */
   background:
     linear-gradient(
       120deg,
-      #ffb15b,
-      #ff7e64,
-      #ff5e91
+      #c4f7ff,
+      #62dcff,
+      #68aaff
     );
 
   -webkit-background-clip: text;
+
   background-clip: text;
 
   color: transparent;
+
 }
 
+
 .self-home-description {
-  margin: 30px 0 0;
+
+  margin:
+    30px 0 0;
 
   max-width: 650px;
 
-  color: var(--self-text-soft);
+  color:
+    var(--self-text-soft);
 
-  font-size: clamp(
-    18px,
-    2vw,
-    25px
-  );
+  font-size:
+    clamp(
+      18px,
+      2vw,
+      25px
+    );
 
   line-height: 1.7;
+
 }
 
+
 .self-home-buttons {
+
   display: flex;
 
   flex-wrap: wrap;
@@ -517,90 +1019,149 @@ body::before {
   gap: 16px;
 
   margin-top: 38px;
+
 }
 
+
 .self-button {
+
   display: inline-flex;
 
   align-items: center;
+
   justify-content: center;
 
   min-width: 150px;
 
-  padding: 15px 26px;
+  padding:
+    15px 26px;
 
   border-radius: 999px;
 
   text-decoration: none;
 
   font-size: 16px;
+
   font-weight: 750;
 
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
     background 0.25s ease;
+
 }
+
 
 .self-button:hover {
-  transform: translateY(-3px);
+
+  transform:
+    translateY(-3px);
+
 }
 
+
 .self-button--primary {
-  color: white;
+
+  color:
+    #ffffff;
 
   background:
     linear-gradient(
       135deg,
-      #ff9b4a,
-      #ff5f64
+      #45d8ff,
+      #3c8fff
     );
 
   box-shadow:
     0 10px 35px
-    rgba(255, 110, 80, 0.28);
+    rgba(49, 180, 255, 0.25);
+
 }
 
+
 .self-button--secondary {
-  color: var(--self-text);
+
+  color:
+    var(--self-text);
 
   border:
     1px solid
-    rgba(255, 255, 255, 0.18);
+    rgba(155, 228, 255, 0.25);
 
   background:
-    rgba(255, 255, 255, 0.04);
+    rgba(84, 192, 240, 0.08);
+
 }
 
 
 /* =========================================================
-   Home image / avatar
+   Avatar
    ========================================================= */
 
 .self-home-visual {
+
   display: flex;
 
   justify-content: center;
+
   align-items: center;
+
 }
 
+
 .self-avatar-wrap {
+
   position: relative;
 
-  width: min(
-    430px,
-    70vw
-  );
+  width:
+    min(
+      360px,
+      70vw
+    );
 
   aspect-ratio: 1;
 
   display: flex;
 
   align-items: center;
+
   justify-content: center;
+
+
+  /*
+   * 轻微上下浮动。
+   */
+  animation:
+    self-avatar-float
+    5s
+    ease-in-out
+    infinite;
+
 }
 
+
+@keyframes self-avatar-float {
+
+  0%,
+  100% {
+
+    transform:
+      translateY(0);
+
+  }
+
+  50% {
+
+    transform:
+      translateY(-10px);
+
+  }
+
+}
+
+
 .self-avatar-ring {
+
   position: absolute;
 
   inset: 0;
@@ -612,16 +1173,23 @@ body::before {
   background:
     linear-gradient(
       135deg,
-      #ff9d4d,
-      #ff5c9a
+      #6eeaff,
+      #4a9dff
     );
 
   box-shadow:
-    0 0 80px
-    rgba(255, 100, 130, 0.15);
+
+    0 0 60px
+    rgba(76, 205, 255, 0.18),
+
+    0 0 120px
+    rgba(55, 141, 255, 0.10);
+
 }
 
+
 .self-avatar-placeholder {
+
   position: absolute;
 
   inset: 8px;
@@ -629,19 +1197,42 @@ body::before {
   border-radius: 50%;
 
   background:
+
     radial-gradient(
       circle at 40% 35%,
-      #3a456d,
-      #1d2648 60%,
-      #121831
+      #2b7094,
+      #104767 58%,
+      #062b45
     );
 
   display: flex;
 
   align-items: center;
+
   justify-content: center;
 
   font-size: 110px;
+
+  overflow: hidden;
+
+}
+
+
+/*
+ * 如果你已经换成 img，
+ * 这部分会直接生效。
+ */
+
+.self-avatar-placeholder img {
+
+  width: 100%;
+
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
 }
 
 
@@ -650,43 +1241,59 @@ body::before {
    ========================================================= */
 
 .self-about-inner {
-  width: min(
-    100%,
-    1300px
-  );
+
+  width:
+    min(
+      100%,
+      1300px
+    );
+
 }
+
 
 .self-about-highlight {
-  margin: 45px auto 0;
+
+  margin:
+    45px auto 0;
 
   text-align: center;
 
-  color: var(--self-accent);
+  color:
+    var(--self-accent);
 
-  font-size: clamp(
-    28px,
-    4vw,
-    48px
-  );
+  font-size:
+    clamp(
+      28px,
+      4vw,
+      48px
+    );
 
   font-weight: 850;
+
 }
 
+
 .self-about-text {
+
   max-width: 850px;
 
-  margin: 24px auto 0;
+  margin:
+    24px auto 0;
 
   text-align: center;
 
-  color: var(--self-text-soft);
+  color:
+    var(--self-text-soft);
 
   font-size: 18px;
 
   line-height: 2;
+
 }
 
+
 .self-about-grid {
+
   display: grid;
 
   grid-template-columns:
@@ -695,9 +1302,12 @@ body::before {
   gap: 28px;
 
   margin-top: 60px;
+
 }
 
+
 .self-info-card {
+
   padding: 34px;
 
   min-height: 230px;
@@ -711,37 +1321,60 @@ body::before {
   background:
     var(--self-card);
 
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter:
+    blur(12px);
+
+  -webkit-backdrop-filter:
+    blur(12px);
 
   transition:
     transform 0.3s ease,
-    border-color 0.3s ease;
+    border-color 0.3s ease,
+    background 0.3s ease;
+
 }
+
 
 .self-info-card:hover {
-  transform: translateY(-6px);
+
+  transform:
+    translateY(-6px);
 
   border-color:
-    rgba(255, 141, 77, 0.4);
+    rgba(103, 222, 255, 0.42);
+
+  background:
+    var(--self-card-hover);
+
 }
+
 
 .self-info-card-icon {
+
   font-size: 40px;
+
 }
+
 
 .self-info-card h3 {
-  margin: 20px 0 10px;
+
+  margin:
+    20px 0 10px;
 
   font-size: 22px;
+
 }
 
+
 .self-info-card p {
+
   margin: 0;
 
-  color: var(--self-text-soft);
+  color:
+    var(--self-text-soft);
 
   line-height: 1.8;
+
 }
 
 
@@ -750,13 +1383,18 @@ body::before {
    ========================================================= */
 
 .self-skills-inner {
-  width: min(
-    100%,
-    1350px
-  );
+
+  width:
+    min(
+      100%,
+      1350px
+    );
+
 }
 
+
 .self-skills-grid {
+
   display: grid;
 
   grid-template-columns:
@@ -765,10 +1403,14 @@ body::before {
   gap: 22px;
 
   margin-top: 65px;
+
 }
 
+
 .self-skill-card {
-  padding: 30px 24px;
+
+  padding:
+    30px 24px;
 
   min-height: 220px;
 
@@ -783,34 +1425,60 @@ body::before {
   background:
     var(--self-card);
 
+  backdrop-filter:
+    blur(10px);
+
+  -webkit-backdrop-filter:
+    blur(10px);
+
   transition:
     transform 0.3s ease,
-    background 0.3s ease;
+    background 0.3s ease,
+    border-color 0.3s ease;
+
 }
+
 
 .self-skill-card:hover {
-  transform: translateY(-8px);
+
+  transform:
+    translateY(-8px);
 
   background:
-    rgba(255, 255, 255, 0.08);
+    var(--self-card-hover);
+
+  border-color:
+    rgba(103, 222, 255, 0.42);
+
 }
+
 
 .self-skill-icon {
+
   font-size: 48px;
+
 }
+
 
 .self-skill-card h3 {
-  margin: 20px 0 8px;
+
+  margin:
+    20px 0 8px;
 
   font-size: 21px;
+
 }
 
+
 .self-skill-card p {
+
   margin: 0;
 
-  color: var(--self-text-muted);
+  color:
+    var(--self-text-muted);
 
   line-height: 1.6;
+
 }
 
 
@@ -819,13 +1487,18 @@ body::before {
    ========================================================= */
 
 .self-works-inner {
-  width: min(
-    100%,
-    1350px
-  );
+
+  width:
+    min(
+      100%,
+      1350px
+    );
+
 }
 
+
 .self-works-grid {
+
   display: grid;
 
   grid-template-columns:
@@ -834,9 +1507,12 @@ body::before {
   gap: 24px;
 
   margin-top: 65px;
+
 }
 
+
 .self-work-card {
+
   display: flex;
 
   flex-direction: column;
@@ -854,6 +1530,12 @@ body::before {
   background:
     var(--self-card);
 
+  backdrop-filter:
+    blur(10px);
+
+  -webkit-backdrop-filter:
+    blur(10px);
+
   text-decoration: none;
 
   color: inherit;
@@ -862,44 +1544,64 @@ body::before {
     transform 0.3s ease,
     border-color 0.3s ease,
     background 0.3s ease;
+
 }
+
 
 .self-work-card:hover {
-  transform: translateY(-8px);
+
+  transform:
+    translateY(-8px);
 
   border-color:
-    rgba(255, 141, 77, 0.45);
+    rgba(103, 222, 255, 0.45);
 
   background:
-    rgba(255, 255, 255, 0.08);
+    var(--self-card-hover);
+
 }
+
 
 .self-work-icon {
+
   font-size: 48px;
+
 }
+
 
 .self-work-card h3 {
-  margin: 24px 0 10px;
+
+  margin:
+    24px 0 10px;
 
   font-size: 24px;
+
 }
+
 
 .self-work-card p {
+
   margin: 0;
 
-  color: var(--self-text-soft);
+  color:
+    var(--self-text-soft);
 
   line-height: 1.75;
+
 }
 
+
 .self-work-link {
+
   margin-top: auto;
 
   padding-top: 25px;
 
-  color: var(--self-accent);
+  color:
+    var(--self-accent);
 
   font-weight: 750;
+
 }
 
 
@@ -908,24 +1610,99 @@ body::before {
    ========================================================= */
 
 .self-footer {
-  padding: 45px 40px;
+
+  padding:
+    45px 40px;
 
   border-top:
     1px solid
-    rgba(255, 255, 255, 0.08);
+    rgba(142, 224, 255, 0.12);
 
   text-align: center;
 
-  color: var(--self-text-muted);
+  color:
+    var(--self-text-muted);
 
   background:
-    rgba(5, 8, 20, 0.3);
+    rgba(1, 18, 32, 0.35);
+
 }
 
+
 .self-footer-name {
-  color: var(--self-text);
+
+  color:
+    var(--self-text);
 
   font-weight: 750;
+
+}
+
+
+/* =========================================================
+   Tablet
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+  .self-home-inner {
+
+    grid-template-columns:
+      1fr;
+
+    text-align: center;
+
+  }
+
+
+  .self-home-content {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+  }
+
+
+  .self-home-visual {
+
+    order: -1;
+
+  }
+
+
+  .self-avatar-wrap {
+
+    width: 300px;
+
+  }
+
+
+  .self-about-grid {
+
+    grid-template-columns:
+      1fr;
+
+  }
+
+
+  .self-skills-grid {
+
+    grid-template-columns:
+      repeat(2, 1fr);
+
+  }
+
+
+  .self-works-grid {
+
+    grid-template-columns:
+      repeat(2, 1fr);
+
+  }
+
 }
 
 
@@ -933,114 +1710,145 @@ body::before {
    Mobile
    ========================================================= */
 
-@media (max-width: 1000px) {
-
-  .self-home-inner {
-    grid-template-columns: 1fr;
-
-    text-align: center;
-  }
-
-  .self-home-content {
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-  }
-
-  .self-home-visual {
-    order: -1;
-  }
-
-  .self-avatar-wrap {
-    width: 300px;
-  }
-
-  .self-about-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .self-skills-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .self-works-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-}
-
-
 @media (max-width: 650px) {
 
   :root {
-    --self-header-height: 72px;
+
+    --self-header-height:
+      72px;
+
+    --self-nav-gap:
+      16px;
+
+    --self-nav-indicator-bottom:
+      7px;
+
   }
+
 
   .self-header-inner {
-    width: calc(100% - 32px);
+
+    width:
+      calc(100% - 32px);
+
   }
+
 
   .self-logo {
+
     font-size: 20px;
+
   }
+
 
   .self-logo-icon {
+
     font-size: 24px;
+
   }
+
 
   .self-nav {
+
     gap: 16px;
+
   }
+
 
   .self-nav-link {
-    padding: 24px 0;
+
+    padding:
+      24px 0;
 
     font-size: 14px;
+
   }
+
 
   .self-nav-link::after {
-    bottom: 7px;
 
     height: 2px;
+
   }
+
 
   .self-section {
+
+    /*
+     * section 本身仍然从 top = 0 开始。
+     */
     padding:
-      calc(var(--self-header-height) + 45px)
+
+      calc(
+        var(--self-header-height) + 45px
+      )
+
       20px
+
       70px;
+
   }
+
+
+  .self-home {
+
+    padding-top:
+      var(--self-header-height);
+
+  }
+
 
   .self-home-title {
+
     font-size: 68px;
+
   }
+
 
   .self-home-description {
+
     font-size: 17px;
+
   }
+
 
   .self-avatar-wrap {
+
     width: 230px;
+
   }
+
 
   .self-avatar-placeholder {
+
     font-size: 70px;
+
   }
+
 
   .self-skills-grid {
-    grid-template-columns: 1fr;
+
+    grid-template-columns:
+      1fr;
+
   }
+
 
   .self-works-grid {
-    grid-template-columns: 1fr;
+
+    grid-template-columns:
+      1fr;
+
   }
 
+
   .self-home-buttons {
-    justify-content: center;
+
+    justify-content:
+      center;
+
   }
+
 }
 
 
@@ -1051,13 +1859,31 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
 
   html {
-    scroll-behavior: auto;
+
+    scroll-behavior:
+      auto;
+
   }
+
+
+  .self-avatar-wrap {
+
+    animation:
+      none;
+
+  }
+
 
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
+
+    transition-duration:
+      0.01ms !important;
+
+    animation-duration:
+      0.01ms !important;
+
   }
+
 }

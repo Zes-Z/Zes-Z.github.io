@@ -12,13 +12,18 @@ interface Props {
 const {
   lang,
   title = 'About Zes',
-  description = 'About Zes — Zes 的个人空间',
+  description = siteConfig.description,
 } = Astro.props;
+
+const pageTitle = `${title} · ${siteConfig.title}`;
 ---
 
 <!doctype html>
+
 <html lang={lang} data-lang={lang}>
+
   <head>
+
     <meta charset="UTF-8" />
 
     <meta
@@ -27,13 +32,13 @@ const {
     />
 
     <meta
-      name="description"
-      content={description}
+      name="generator"
+      content={Astro.generator}
     />
 
     <meta
-      name="generator"
-      content={Astro.generator}
+      name="description"
+      content={description}
     />
 
     <link
@@ -42,33 +47,66 @@ const {
       href={siteConfig.favicon}
     />
 
-    <meta
-      name="theme-color"
-      content="#11172f"
-    />
-
-    <title>{title}</title>
+    <title>{pageTitle}</title>
 
     <style is:inline set:html={selfCss} />
+
   </head>
 
+
   <body>
+
+    <!-- =====================================================
+         Main page
+         ===================================================== -->
+
+    <main
+      id="main"
+      class="self-page"
+    >
+
+      <slot />
+
+    </main>
+
+
+    <!-- =====================================================
+         Fixed Header
+         ===================================================== -->
+
     <header class="self-header">
+
       <div class="self-header-inner">
 
+        <!-- Logo -->
+
         <a
-          class="self-logo"
           href="#home"
+          class="self-logo"
           aria-label="Zes Home"
         >
-          <span class="self-logo-icon">🐱</span>
-          <span class="self-logo-text">Zes</span>
+
+          <span
+            class="self-logo-icon"
+            aria-hidden="true"
+          >
+            🐱
+          </span>
+
+          <span class="self-logo-text">
+            Zes
+          </span>
+
         </a>
+
+
+        <!-- Navigation -->
 
         <nav
           class="self-nav"
           aria-label="Main navigation"
         >
+
           <a
             href="#home"
             class="self-nav-link active"
@@ -100,72 +138,374 @@ const {
           >
             作品
           </a>
+
+          <!-- 暂未启用的导航项 -->
+          <span
+            class="self-nav-link self-nav-link--placeholder"
+            aria-disabled="true"
+          >
+            未知
+          </span>
+
+          <!-- CV 下载 -->
+          <a
+            href="/cv.pdf"
+            class="self-nav-link self-nav-link--resume"
+            download="cv.pdf"
+          >
+            简历
+          </a>
+
         </nav>
 
       </div>
+
     </header>
 
-    <main class="self-page">
-      <slot />
-    </main>
-  </body>
-</html>
 
-<script>
-  const navLinks =
-    document.querySelectorAll<HTMLAnchorElement>(
-      '.self-nav-link'
-    );
+    <!-- =====================================================
+         Navigation / Section Scroll Controller
+         ===================================================== -->
 
-  const sections =
-    document.querySelectorAll<HTMLElement>(
-      '.self-section'
-    );
+    <script>
 
-  function setActiveSection(id: string) {
-    navLinks.forEach((link) => {
-      link.classList.toggle(
-        'active',
-        link.dataset.section === id
-      );
-    });
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const visibleEntries = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort(
-          (a, b) =>
-            b.intersectionRatio -
-            a.intersectionRatio
+      const header =
+        document.querySelector<HTMLElement>(
+          '.self-header'
         );
 
-      if (visibleEntries.length > 0) {
-        const id =
-          visibleEntries[0].target.id;
 
-        setActiveSection(id);
+      const navLinks =
+        Array.from(
+          document.querySelectorAll<HTMLAnchorElement>(
+            '.self-nav-link[data-section]'
+          )
+        );
+
+
+      const sections =
+        Array.from(
+          document.querySelectorAll<HTMLElement>(
+            '.self-section[id]'
+          )
+        );
+
+
+      /* =====================================================
+         Scroll to section
+         =====================================================
+
+         关键：
+
+         不再：
+
+             sectionTop - headerHeight
+
+         而是：
+
+             sectionTop
+
+         即让 section 本身真正到达 viewport 顶部。
+
+         Header 是 fixed，
+         所以它会自然覆盖在 section 上方。
+      */
+
+      function scrollToSection(
+        section: HTMLElement,
+        smooth = true
+      ) {
+
+        const top =
+          section.getBoundingClientRect().top +
+          window.scrollY;
+
+
+        window.scrollTo({
+
+          top: Math.max(0, top),
+
+          behavior:
+            smooth
+              ? 'smooth'
+              : 'auto',
+
+        });
+
       }
-    },
-    {
-      root: null,
-      rootMargin: '-20% 0px -55% 0px',
-      threshold: [0.1, 0.25, 0.5, 0.75],
-    }
-  );
 
-  sections.forEach((section) => {
-    observer.observe(section);
-  });
 
-  navLinks.forEach((link) => {
-    link.addEventListener('click', () => {
-      const target = link.dataset.section;
+      /* =====================================================
+         Set active navigation
+         ===================================================== */
 
-      if (target) {
-        setActiveSection(target);
+      function setActive(
+        sectionId: string
+      ) {
+
+        navLinks.forEach(
+          (link) => {
+
+            link.classList.toggle(
+              'active',
+              link.dataset.section === sectionId
+            );
+
+          }
+        );
+
       }
-    });
-  });
-</script>
+
+
+      /* =====================================================
+         Navigation click
+         ===================================================== */
+
+      navLinks.forEach(
+        (link) => {
+
+          link.addEventListener(
+            'click',
+            (event) => {
+
+              const sectionId =
+                link.dataset.section;
+
+              if (!sectionId) {
+                return;
+              }
+
+
+              const section =
+                document.getElementById(
+                  sectionId
+                );
+
+
+              if (!section) {
+                return;
+              }
+
+
+              /*
+               * 阻止浏览器默认 anchor 行为。
+               */
+              event.preventDefault();
+
+
+              /*
+               * 我们自己计算并滚动。
+               */
+              scrollToSection(
+                section,
+                true
+              );
+
+
+              /*
+               * 修改 URL hash，
+               * 但不触发浏览器默认跳转。
+               */
+              history.replaceState(
+                null,
+                '',
+                `#${sectionId}`
+              );
+
+
+              /*
+               * 立即更新导航。
+               */
+              setActive(
+                sectionId
+              );
+
+            }
+          );
+
+        }
+      );
+
+
+      /* =====================================================
+         Detect current section while scrolling
+         ===================================================== */
+
+      function updateActiveSection() {
+
+        if (
+          sections.length === 0
+        ) {
+          return;
+        }
+
+
+        /*
+         * 当前页面滚动位置。
+         */
+        const scrollPosition =
+          window.scrollY;
+
+
+        let currentId =
+          sections[0]?.id ?? 'home';
+
+
+        /*
+         * 用 section 的真实 document top
+         * 判断当前位于哪一块。
+         *
+         * 不再减 Header 高度。
+         */
+        for (
+          const section of sections
+        ) {
+
+          const sectionTop =
+            section.getBoundingClientRect().top +
+            window.scrollY;
+
+
+          if (
+            scrollPosition >=
+            sectionTop - 10
+          ) {
+
+            currentId =
+              section.id;
+
+          }
+
+        }
+
+
+        setActive(
+          currentId
+        );
+
+      }
+
+
+      /* =====================================================
+         Scroll performance
+         ===================================================== */
+
+      let ticking = false;
+
+
+      window.addEventListener(
+        'scroll',
+        () => {
+
+          if (ticking) {
+            return;
+          }
+
+
+          ticking = true;
+
+
+          requestAnimationFrame(
+            () => {
+
+              updateActiveSection();
+
+              ticking = false;
+
+            }
+          );
+
+        },
+        {
+          passive: true,
+        }
+      );
+
+
+      /* =====================================================
+         Initial hash
+         ===================================================== */
+
+      function handleInitialHash() {
+
+        const hash =
+          window.location.hash;
+
+
+        if (!hash) {
+
+          updateActiveSection();
+
+          return;
+
+        }
+
+
+        const section =
+          document.getElementById(
+            hash.slice(1)
+          );
+
+
+        if (!section) {
+
+          updateActiveSection();
+
+          return;
+
+        }
+
+
+        /*
+         * 等页面 layout 完成之后
+         * 再进行第一次定位。
+         */
+        requestAnimationFrame(
+          () => {
+
+            requestAnimationFrame(
+              () => {
+
+                scrollToSection(
+                  section,
+                  false
+                );
+
+                setActive(
+                  section.id
+                );
+
+              }
+            );
+
+          }
+        );
+
+      }
+
+
+      /* =====================================================
+         Resize
+         ===================================================== */
+
+      window.addEventListener(
+        'resize',
+        () => {
+
+          updateActiveSection();
+
+        }
+      );
+
+
+      /* =====================================================
+         Start
+         ===================================================== */
+
+      handleInitialHash();
+
+    </script>
+
+  </body>
+
+</html>

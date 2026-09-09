@@ -1,0 +1,334 @@
+---
+---
+
+<canvas
+  id="self-ocean-canvas"
+  class="self-ocean-canvas"
+  aria-hidden="true"
+></canvas>
+
+<script>
+  const canvas =
+    document.querySelector<HTMLCanvasElement>(
+      '#self-ocean-canvas'
+    );
+
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+
+    if (ctx) {
+      type Wave = {
+        amplitude: number;
+        wavelength: number;
+        speed: number;
+        phase: number;
+        opacity: number;
+        y: number;
+        thickness: number;
+      };
+
+      let width = 0;
+      let height = 0;
+
+      let waves: Wave[] = [];
+
+      let animationFrame = 0;
+
+      const reducedMotion =
+        window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        );
+
+      function resize() {
+        const dpr = Math.min(
+          window.devicePixelRatio || 1,
+          2
+        );
+
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        canvas.width =
+          width * dpr;
+
+        canvas.height =
+          height * dpr;
+
+        canvas.style.width =
+          `${width}px`;
+
+        canvas.style.height =
+          `${height}px`;
+
+        ctx.setTransform(
+          dpr,
+          0,
+          0,
+          dpr,
+          0,
+          0
+        );
+
+        createWaves();
+      }
+
+      function createWaves() {
+        waves = [
+          {
+            amplitude: 14,
+            wavelength: 320,
+            speed: 0.00045,
+            phase: 0,
+            opacity: 0.18,
+            y: height * 0.28,
+            thickness: 1.2,
+          },
+          {
+            amplitude: 19,
+            wavelength: 420,
+            speed: 0.00032,
+            phase: 1.7,
+            opacity: 0.15,
+            y: height * 0.42,
+            thickness: 1.4,
+          },
+          {
+            amplitude: 24,
+            wavelength: 520,
+            speed: 0.00024,
+            phase: 3.2,
+            opacity: 0.12,
+            y: height * 0.58,
+            thickness: 1.6,
+          },
+          {
+            amplitude: 30,
+            wavelength: 620,
+            speed: 0.00018,
+            phase: 5.1,
+            opacity: 0.09,
+            y: height * 0.74,
+            thickness: 1.8,
+          },
+        ];
+      }
+
+      function drawOceanBase() {
+        const gradient =
+          ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            height
+          );
+
+        gradient.addColorStop(
+          0,
+          '#123b56'
+        );
+
+        gradient.addColorStop(
+          0.28,
+          '#0c3049'
+        );
+
+        gradient.addColorStop(
+          0.62,
+          '#08263c'
+        );
+
+        gradient.addColorStop(
+          1,
+          '#041624'
+        );
+
+        ctx.fillStyle = gradient;
+
+        ctx.fillRect(
+          0,
+          0,
+          width,
+          height
+        );
+      }
+
+      function drawLight() {
+        const light =
+          ctx.createRadialGradient(
+            width * 0.5,
+            -height * 0.08,
+            10,
+            width * 0.5,
+            height * 0.2,
+            height * 0.8
+          );
+
+        light.addColorStop(
+          0,
+          'rgba(104, 211, 231, 0.16)'
+        );
+
+        light.addColorStop(
+          0.35,
+          'rgba(61, 157, 184, 0.07)'
+        );
+
+        light.addColorStop(
+          1,
+          'rgba(0, 0, 0, 0)'
+        );
+
+        ctx.fillStyle = light;
+
+        ctx.fillRect(
+          0,
+          0,
+          width,
+          height
+        );
+      }
+
+      function drawWave(
+        wave: Wave,
+        time: number
+      ) {
+        ctx.beginPath();
+
+        const phase =
+          wave.phase +
+          time * wave.speed;
+
+        for (
+          let x = -20;
+          x <= width + 20;
+          x += 6
+        ) {
+          const y =
+            wave.y +
+            Math.sin(
+              (x / wave.wavelength) *
+                Math.PI *
+                2 +
+                phase
+            ) *
+              wave.amplitude;
+
+          if (x === -20) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+
+        ctx.strokeStyle =
+          `rgba(121, 216, 231, ${wave.opacity})`;
+
+        ctx.lineWidth =
+          wave.thickness;
+
+        ctx.stroke();
+      }
+
+      function drawSurfaceGlow(
+        time: number
+      ) {
+        const offset =
+          Math.sin(time * 0.00025) *
+          20;
+
+        const gradient =
+          ctx.createLinearGradient(
+            0,
+            height * 0.12 + offset,
+            0,
+            height * 0.38 + offset
+          );
+
+        gradient.addColorStop(
+          0,
+          'rgba(130, 223, 239, 0.09)'
+        );
+
+        gradient.addColorStop(
+          0.5,
+          'rgba(78, 179, 202, 0.035)'
+        );
+
+        gradient.addColorStop(
+          1,
+          'rgba(0, 0, 0, 0)'
+        );
+
+        ctx.fillStyle = gradient;
+
+        ctx.fillRect(
+          0,
+          0,
+          width,
+          height
+        );
+      }
+
+      function animate(
+        time: number
+      ) {
+        drawOceanBase();
+
+        drawLight();
+
+        drawSurfaceGlow(time);
+
+        if (!reducedMotion.matches) {
+          for (const wave of waves) {
+            drawWave(
+              wave,
+              time
+            );
+          }
+        } else {
+          for (const wave of waves) {
+            drawWave(
+              {
+                ...wave,
+                speed: 0,
+              },
+              0
+            );
+          }
+        }
+
+        animationFrame =
+          requestAnimationFrame(
+            animate
+          );
+      }
+
+      function start() {
+        resize();
+
+        animationFrame =
+          requestAnimationFrame(
+            animate
+          );
+      }
+
+      function stop() {
+        cancelAnimationFrame(
+          animationFrame
+        );
+      }
+
+      window.addEventListener(
+        'resize',
+        resize
+      );
+
+      window.addEventListener(
+        'beforeunload',
+        stop
+      );
+
+      start();
+    }
+  }
+</script>
