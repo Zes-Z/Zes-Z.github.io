@@ -13,11 +13,17 @@
       '#self-ocean-canvas'
     );
 
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
+  if (!canvas) {
+    throw new Error('Ocean canvas not found.');
+  }
 
-    if (ctx) {
-      type Wave = {
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    throw new Error('2D canvas context is not available.');
+  }
+
+  type Wave = {
         amplitude: number;
         wavelength: number;
         speed: number;
@@ -328,7 +334,5 @@
         stop
       );
 
-      start();
-    }
-  }
+  start();
 </script>

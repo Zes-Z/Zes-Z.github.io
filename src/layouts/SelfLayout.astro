@@ -12,8 +12,21 @@ interface Props {
 const {
   lang,
   title = 'About Zes',
-  description = siteConfig.description,
+  description,
 } = Astro.props;
+
+const rawDescription = description ?? siteConfig.description;
+
+const pageDescription =
+  typeof rawDescription === 'string'
+    ? rawDescription
+    : rawDescription[
+        lang === 'zh'
+          ? 'cn'
+          : lang === 'ja'
+            ? 'jap'
+            : 'eng'
+      ];
 
 const pageTitle = `${title} · ${siteConfig.title}`;
 ---
@@ -38,7 +51,7 @@ const pageTitle = `${title} · ${siteConfig.title}`;
 
     <meta
       name="description"
-      content={description}
+      content={pageDescription}
     />
 
     <link
@@ -168,12 +181,6 @@ const pageTitle = `${title} · ${siteConfig.title}`;
          ===================================================== -->
 
     <script>
-
-      const header =
-        document.querySelector<HTMLElement>(
-          '.self-header'
-        );
-
 
       const navLinks =
         Array.from(
