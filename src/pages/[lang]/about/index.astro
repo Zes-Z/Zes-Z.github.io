@@ -1,0 +1,353 @@
+---
+import SelfLayout from '../../../layouts/SelfLayout.astro';
+import { siteConfig } from '../../../site.config';
+import type { Language } from '../../../types';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.map((lang) => ({
+    params: { lang },
+  }));
+}
+
+const { lang } = Astro.params as {
+  lang: Language;
+};
+---
+
+<SelfLayout
+  lang={lang}
+  title="About Zes"
+  description="About Zes — Zes 的个人空间"
+>
+
+  <!-- 首页 -->
+  <section
+    id="home"
+    class="self-section self-home"
+  >
+    <div class="self-home-inner">
+
+      <div class="self-home-content">
+
+        <p class="self-home-eyebrow">
+          HELLO, I'M ZES
+        </p>
+
+        <h1 class="self-home-title">
+          Zes
+        </h1>
+
+        <p class="self-home-description">
+          语言学 · NLP · 编程 · 知识系统
+          <br />
+          一个正在研究语言、代码与世界的人。
+        </p>
+
+        <div class="self-home-buttons">
+
+          <a
+            href="#about"
+            class="self-button self-button--primary"
+          >
+            了解 Zes →
+          </a>
+
+          <a
+            href="#works"
+            class="self-button self-button--secondary"
+          >
+            查看作品
+          </a>
+
+        </div>
+
+      </div>
+
+      <div class="self-home-visual">
+
+        <div class="self-avatar-wrap">
+
+          <div class="self-avatar-ring"></div>
+
+          <div class="self-avatar-placeholder">
+            🐱
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- 关于 -->
+  <section
+    id="about"
+    class="self-section"
+  >
+
+    <div class="self-section-inner self-about-inner">
+
+      <h2 class="self-section-title">
+        <span class="emoji">🤔</span>
+        关于 Zes
+      </h2>
+
+      <p class="self-about-highlight">
+        Linguistics · NLP · Programming
+      </p>
+
+      <p class="self-about-text">
+        我对语言、计算机以及知识的组织方式感兴趣。
+        目前主要关注日语语言学、自然语言处理以及
+        分布式语义表示。
+        <br />
+        这里记录一些研究、思考、实验和正在做的东西。
+      </p>
+
+      <div class="self-about-grid">
+
+        <article class="self-info-card">
+          <div class="self-info-card-icon">
+            📚
+          </div>
+
+          <h3>
+            Linguistics
+          </h3>
+
+          <p>
+            日语语言学、复合动词、语义学以及
+            分布语义学。
+          </p>
+        </article>
+
+
+        <article class="self-info-card">
+          <div class="self-info-card-icon">
+            🧠
+          </div>
+
+          <h3>
+            Research
+          </h3>
+
+          <p>
+            使用计算方法研究语言现象，
+            尝试让语言学与 NLP 产生更多连接。
+          </p>
+        </article>
+
+
+        <article class="self-info-card">
+          <div class="self-info-card-icon">
+            💻
+          </div>
+
+          <h3>
+            Programming
+          </h3>
+
+          <p>
+            Python、TypeScript、Astro、Go，
+            以及各种正在折腾的东西。
+          </p>
+        </article>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- 技能 -->
+  <section
+    id="skills"
+    class="self-section"
+  >
+
+    <div class="self-section-inner self-skills-inner">
+
+      <h2 class="self-section-title">
+        <span class="emoji">🚀</span>
+        我的 Skills
+      </h2>
+
+      <p class="self-section-subtitle">
+        正在使用、学习以及不断折腾的技术。
+      </p>
+
+      <div class="self-skills-grid">
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">🐍</div>
+          <h3>Python</h3>
+          <p>NLP · 数据处理 · 科学计算</p>
+        </article>
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">🌐</div>
+          <h3>TypeScript</h3>
+          <p>Web · Astro · Frontend</p>
+        </article>
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">🐹</div>
+          <h3>Go</h3>
+          <p>Backend · Tools · Systems</p>
+        </article>
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">🤖</div>
+          <h3>NLP / AI</h3>
+          <p>fastText · Embeddings · LLM</p>
+        </article>
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">🗄️</div>
+          <h3>PostgreSQL</h3>
+          <p>Data · Research · Database</p>
+        </article>
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">📝</div>
+          <h3>Obsidian</h3>
+          <p>Knowledge Management · Notes</p>
+        </article>
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">🌱</div>
+          <h3>Git</h3>
+          <p>GitHub · Version Control</p>
+        </article>
+
+        <article class="self-skill-card">
+          <div class="self-skill-icon">✨</div>
+          <h3>Vibe Coding</h3>
+          <p>Build · Experiment · Iterate</p>
+        </article>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- 作品 -->
+  <section
+    id="works"
+    class="self-section"
+  >
+
+    <div class="self-section-inner self-works-inner">
+
+      <h2 class="self-section-title">
+        <span class="emoji">🛠️</span>
+        我的作品
+      </h2>
+
+      <p class="self-section-subtitle">
+        一些正在做、做过或者觉得有意思的东西。
+      </p>
+
+      <div class="self-works-grid">
+
+        <a
+          class="self-work-card"
+          href="https://github.com/Zes-Z"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class="self-work-icon">
+            📝
+          </div>
+
+          <h3>
+            memoX
+          </h3>
+
+          <p>
+            一个简洁的笔记工具。
+          </p>
+
+          <span class="self-work-link">
+            → GitHub
+          </span>
+        </a>
+
+
+        <a
+          class="self-work-card"
+          href="https://github.com/Zes-Z"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class="self-work-icon">
+            🌐
+          </div>
+
+          <h3>
+            Zes4U
+          </h3>
+
+          <p>
+            我的个人网站、博客以及知识空间。
+          </p>
+
+          <span class="self-work-link">
+            → GitHub
+          </span>
+        </a>
+
+
+        <a
+          class="self-work-card"
+          href="https://github.com/Zes-Z"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class="self-work-icon">
+            🧠
+          </div>
+
+          <h3>
+            Japanese NLP Research
+          </h3>
+
+          <p>
+            基于 fastText 词向量研究日语复合动词
+            的语义合成性。
+          </p>
+
+          <span class="self-work-link">
+            → Research
+          </span>
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- Footer -->
+  <footer class="self-footer">
+
+    <p>
+      <span class="self-footer-name">
+        🐱 Zes
+      </span>
+    </p>
+
+    <p>
+      © {new Date().getFullYear()} Zes.
+      Built with curiosity.
+    </p>
+
+  </footer>
+
+</SelfLayout>

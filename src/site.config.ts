@@ -11,12 +11,12 @@ export const siteConfig = {
   /** 主页左下角欢迎文字块(点击进入站内介绍页)。 */
   welcomeText: 'Welcome to this site!',
   /** 主页左下角欢迎文字块的链接目标。 */
-  welcomeHref: (lang: Language) => `/${lang}/about-me`,
+  welcomeHref: (lang: Language) => `/${lang}/about-site`,
   /** 主页右下角“About Zes”文字块(后续另建个人展示站后替换 href 即可)。 */
   aboutZes: {
     text: 'About Zes',
     // TODO: 个人展示站上线后替换成对应地址
-    href: 'https://zes-z.github.io/',
+    href: (lang: Language) => `/${lang}/about`,
   },
   /** Site subtitle (supports the three languages). */
   // subtitle: {

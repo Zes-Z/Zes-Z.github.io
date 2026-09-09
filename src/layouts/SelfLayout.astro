@@ -1,0 +1,171 @@
+---
+import selfCss from '../styles/self.css?inline';
+import { siteConfig } from '../site.config';
+import type { Language } from '../types';
+
+interface Props {
+  lang: Language;
+  title?: string;
+  description?: string;
+}
+
+const {
+  lang,
+  title = 'About Zes',
+  description = 'About Zes — Zes 的个人空间',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang} data-lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+
+    <meta
+      name="description"
+      content={description}
+    />
+
+    <meta
+      name="generator"
+      content={Astro.generator}
+    />
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href={siteConfig.favicon}
+    />
+
+    <meta
+      name="theme-color"
+      content="#11172f"
+    />
+
+    <title>{title}</title>
+
+    <style is:inline set:html={selfCss} />
+  </head>
+
+  <body>
+    <header class="self-header">
+      <div class="self-header-inner">
+
+        <a
+          class="self-logo"
+          href="#home"
+          aria-label="Zes Home"
+        >
+          <span class="self-logo-icon">🐱</span>
+          <span class="self-logo-text">Zes</span>
+        </a>
+
+        <nav
+          class="self-nav"
+          aria-label="Main navigation"
+        >
+          <a
+            href="#home"
+            class="self-nav-link active"
+            data-section="home"
+          >
+            首页
+          </a>
+
+          <a
+            href="#about"
+            class="self-nav-link"
+            data-section="about"
+          >
+            关于
+          </a>
+
+          <a
+            href="#skills"
+            class="self-nav-link"
+            data-section="skills"
+          >
+            技能
+          </a>
+
+          <a
+            href="#works"
+            class="self-nav-link"
+            data-section="works"
+          >
+            作品
+          </a>
+        </nav>
+
+      </div>
+    </header>
+
+    <main class="self-page">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<script>
+  const navLinks =
+    document.querySelectorAll<HTMLAnchorElement>(
+      '.self-nav-link'
+    );
+
+  const sections =
+    document.querySelectorAll<HTMLElement>(
+      '.self-section'
+    );
+
+  function setActiveSection(id: string) {
+    navLinks.forEach((link) => {
+      link.classList.toggle(
+        'active',
+        link.dataset.section === id
+      );
+    });
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visibleEntries = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort(
+          (a, b) =>
+            b.intersectionRatio -
+            a.intersectionRatio
+        );
+
+      if (visibleEntries.length > 0) {
+        const id =
+          visibleEntries[0].target.id;
+
+        setActiveSection(id);
+      }
+    },
+    {
+      root: null,
+      rootMargin: '-20% 0px -55% 0px',
+      threshold: [0.1, 0.25, 0.5, 0.75],
+    }
+  );
+
+  sections.forEach((section) => {
+    observer.observe(section);
+  });
+
+  navLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      const target = link.dataset.section;
+
+      if (target) {
+        setActiveSection(target);
+      }
+    });
+  });
+</script>

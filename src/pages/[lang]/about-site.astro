@@ -11,24 +11,24 @@ export async function getStaticPaths() {
 
 const { lang } = Astro.params as { lang: Language };
 
-const page = await getEntry('pages', `${lang}/about-me`);
+const page = await getEntry('pages', `${lang}/about-site`);
 const html = (await renderMarkdown(page?.body ?? '')).html;
 ---
 
 <BaseLayout lang={lang} title={page?.data.title ?? 'Welcome to this site!'}>
-  <article class="about-me-page">
-    <h1 class="about-me-title">{page?.data.title ?? 'Welcome to this site!'}</h1>
-    <div class="prose about-me-body" set:html={html} />
+  <article class="about-site-page">
+    <h1 class="about-site-title">{page?.data.title ?? 'Welcome to this site!'}</h1>
+    <div class="prose about-site-body" set:html={html} />
   </article>
 </BaseLayout>
 
 <style>
-  .about-me-page {
+  .about-site-page {
     max-width: 780px;
     margin: 0 auto;
     padding: clamp(1rem, 3vw, 2.5rem) 0;
   }
-  .about-me-title {
+  .about-site-title {
     margin: 0 0 1.2rem;
     font-size: clamp(1.6rem, 4vw, 2.2rem);
     font-weight: 700;

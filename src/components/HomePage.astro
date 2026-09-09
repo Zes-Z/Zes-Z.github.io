@@ -33,17 +33,17 @@ const heroSubtitle = heroSubtitleText ? localize(heroSubtitleText, lang) : undef
 ---
 
 <BaseLayout lang={lang} fullWidth>
-  <Hero
-    images={[...siteConfig.heroImages]}
-    height="full"
-    position="bottom-left"
-    title={siteConfig.welcomeText}
-    titleHref={siteConfig.welcomeHref(lang)}
-    rightTitle={siteConfig.aboutZes.text}
-    rightTitleHref={siteConfig.aboutZes.href}
-    subtitle={heroSubtitle}
-    interval={siteConfig.heroInterval}
-  />
+<Hero
+  images={[...siteConfig.heroImages]}
+  height="full"
+  position="bottom-left"
+  title={siteConfig.welcomeText}
+  titleHref={siteConfig.welcomeHref(lang)}
+  rightTitle={siteConfig.aboutZes.text}
+  rightTitleHref={siteConfig.aboutZes.href(lang)}
+  subtitle={heroSubtitle}
+  interval={siteConfig.heroInterval}
+/>
 
   {
     pinnedCards.length > 0 && (
