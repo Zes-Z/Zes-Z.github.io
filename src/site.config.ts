@@ -31,16 +31,16 @@ export const siteConfig = {
     jap: 'Zest — 三言語切り替え・ライト/ダーク配色・正規表現検索・アーカイブを備えた Astro ブログテーマ。',
   } satisfies LocalizedText,
 
-  /** Production site URL (RSS links, canonical URLs). */
+// Production site URL (RSS links, canonical URLs).
   siteUrl: 'https://zes-z.github.io/',
 
   author: 'Zes',
 
-  /** Default language: visitors of / are redirected here. */
+// Default language: visitors of / are redirected here.
   defaultLang: 'zh' as Language,
-  /** Language cycle order for the single-click switcher: zh → en → ja → zh. */
+// Language cycle order for the single-click switcher: zh → en → ja → zh.
   langs: ['zh', 'en', 'ja'] as const,
-
+// 网站小图标，默认存放在public下
   favicon: '/favicon.ico',
 
   /**
@@ -105,10 +105,10 @@ export const siteConfig = {
 
   /** Fullscreen hero images (soft crossfade). */
   heroImages: [
-    '/images/saber花间意.jpg',
-    '/images/海浪海鸥.jpg',
-    '/images/碧海蓝天.jpg',
-    '/images/晴川万里.jpg',
+    '/wallpapers/saber花间意.jpg',
+    '/wallpapers/海浪海鸥.jpg',
+    '/wallpapers/碧海蓝天.jpg',
+    '/wallpapers/晴川万里.jpg',
 
   ],
  
@@ -119,8 +119,8 @@ export const siteConfig = {
   linksHero: {
     images: [
       // '/images/线条小狗西瓜游泳池.jpg', 
-      '/images/海绵宝宝自拍合照.jpg',
-      '/images/郊外旅行线条小狗.jpg',
+      '/wallpapers/海绵宝宝自拍合照.jpg',
+      '/wallpapers/郊外旅行线条小狗.jpg',
     ],
     interval: 4000,
   },
@@ -133,7 +133,7 @@ export const siteConfig = {
 
 
 //  * 相册"所有"板块的图片:true = 默认淡黑白、悬停变彩色;
-//  * 仅作用于"所有"(wall)板块,作品集板块始终全彩。
+//  * 仅作用于"所有"(photos)板块,作品集板块始终全彩。
   photosGrayscaleHover: true,
 } as const;
 

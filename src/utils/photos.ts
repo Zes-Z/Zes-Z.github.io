@@ -4,7 +4,7 @@ import { nearestRatio } from './ratio';
 /**
  * Photo helpers for the photos page.
  *
- *   wall        : flat photos in `src/content/wall/*`
+ *   photos        : flat photos in `src/content/photos/*`
  *   portfolios  : each portfolio lives in `src/content/portfolios/<slug>/`
  *                 (photo files named main.*, 1.*, 2.* …)
  *
@@ -12,8 +12,8 @@ import { nearestRatio } from './ratio';
  * not reduced; only the aspect ratio is detected for masonry layout.
  */
 
-const wallGlob = import.meta.glob(
-  '/src/content/wall/*.{png,jpg,jpeg,PNG,JPG,JPEG,webp,gif,avif,svg}'
+const photosGlob = import.meta.glob(
+  '/src/content/photos/*.{png,jpg,jpeg,PNG,JPG,JPEG,webp,gif,avif,svg}'
 );
 const portfolioGlob = import.meta.glob(
   '/src/content/portfolios/**/*.{png,jpg,jpeg,PNG,JPG,JPEG,webp,gif,avif,svg}'
@@ -49,10 +49,10 @@ async function resolvePhoto(path: string, loader: () => Promise<unknown>) {
   return promise;
 }
 
-/** Photos for the "wall" view. */
-export async function wallPhotos(): Promise<Photo[]> {
+/** Photos for the "photos" view. */
+export async function photosPhotos(): Promise<Photo[]> {
   const out: Photo[] = [];
-  for (const [path, loader] of Object.entries(wallGlob)) {
+  for (const [path, loader] of Object.entries(photosGlob)) {
     const photo = await resolvePhoto(path, loader);
     if (photo) out.push(photo);
   }

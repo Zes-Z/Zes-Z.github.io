@@ -28,7 +28,7 @@ const en = {
   'archive.all': 'All posts',
   'archive.noMatch': 'No posts match the current filters.',
 
-  'photos.wall': 'All',
+  'photos.photos': 'All',
   'photos.portfolio': 'Portfolios',
   'photos.coming': 'Coming soon',
   'photos.comingDesc': 'This section is still under construction — stay tuned.',
@@ -69,7 +69,7 @@ const zh: Record<UiKey, string> = {
   'archive.all': '归档',
   'archive.noMatch': '没有符合当前筛选的文章。',
 
-  'photos.wall': '所有',
+  'photos.photos': '所有',
   'photos.portfolio': '作品集',
   'photos.coming': '待定',
   'photos.comingDesc': '该板块正在建设中,敬请期待。',
@@ -109,7 +109,7 @@ const ja: Record<UiKey, string> = {
   'archive.all': 'すべての記事',
   'archive.noMatch': '条件に一致する記事がありません。',
 
-  'photos.wall': 'すべて',
+  'photos.photos': 'すべて',
   'photos.portfolio': '作品集',
   'photos.coming': '準備中',
   'photos.comingDesc': 'このセクションは準備中です。お楽しみに。',

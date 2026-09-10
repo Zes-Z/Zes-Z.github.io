@@ -616,12 +616,12 @@ mark.search-hit {
 }
 
 /* 相册"所有"板块:默认淡黑白、悬停彩色
-   (site.config.ts 的 photosGrayscaleHover 控制;仅作用于 wall 板块,作品集不受影响) */
-.photos-page.gray-wall [data-photos-view='wall'] .photo-item {
-  filter: grayscale(0.75);
-  transition: filter 0.4s ease;
+   (site.config.ts 的 photosGrayscaleHover 控制;仅作用于 photos 板块,作品集不受影响) */
+.photos-page.gray-photos [data-photos-view='photos'] .photo-item {
+  filter: grayscale(0.8);
+  transition: filter 0.6s ease;
 }
-.photos-page.gray-wall [data-photos-view='wall'] .photo-item:hover {
+.photos-page.gray-photos [data-photos-view='photos'] .photo-item:hover {
   filter: grayscale(0);
 }
 
