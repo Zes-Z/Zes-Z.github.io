@@ -69,7 +69,10 @@ const { lang } = Astro.params as {
           <div class="self-avatar-ring"></div>
 
           <div class="self-avatar-placeholder">
-            🐱
+            <img
+             src="/about zes.jpg"
+             alt="Zes"
+            />
           </div>
 
         </div>
@@ -88,24 +91,34 @@ const { lang } = Astro.params as {
 
     <div class="self-section-inner self-about-inner">
 
-      <h2 class="self-section-title">
+      <h3 class="self-section-title">
         <span class="emoji">🤔</span>
-        关于 Zes
-      </h2>
-
-      <p class="self-about-highlight">
-        Linguistics · NLP · Programming
-      </p>
+        关于 在时
+      </h3>
 
       <p class="self-about-text">
-        我对语言、计算机以及知识的组织方式感兴趣。
-        目前主要关注日语语言学、自然语言处理以及
-        分布式语义表示。
+        一些标签，这是了解我的最快方式。
         <br />
-        这里记录一些研究、思考、实验和正在做的东西。
+        当然，如果有机会我们可以一边走一边聊。
       </p>
 
+
+
       <div class="self-about-grid">
+
+        <article class="self-info-card">
+          <div class="self-info-card-icon">
+            🧠
+          </div>
+
+          <h3>
+            INTJ + 双鱼 + 完美主义
+          </h3>
+
+          <p>
+            一个追求完美却又懒惰、焦躁且（有点）自律的三日坊主。
+          </p>
+        </article>
 
         <article class="self-info-card">
           <div class="self-info-card-icon">
@@ -117,26 +130,11 @@ const { lang } = Astro.params as {
           </h3>
 
           <p>
-            知晓一些语言学知识，同时会一点哑巴英语和日语，以及一口不太流利的宿松话。
+            自高等教育阶段起，以外语为专业。
+            <br />
+            知晓一些语言学，同时会一点哑巴英语和日语，以及一口不太流利的宿松话。
           </p>
         </article>
-
-
-        <article class="self-info-card">
-          <div class="self-info-card-icon">
-            🧠
-          </div>
-
-          <h3>
-            INTJ + 双鱼
-          </h3>
-
-          <p>
-            使用计算方法研究语言现象，
-            尝试让语言学与 NLP 产生更多连接。
-          </p>
-        </article>
-
 
         <article class="self-info-card">
           <div class="self-info-card-icon">
@@ -168,10 +166,10 @@ const { lang } = Astro.params as {
 
     <div class="self-section-inner self-skills-inner">
 
-      <h2 class="self-section-title">
+      <h3 class="self-section-title">
         <span class="emoji">🚀</span>
         我的 Skills
-      </h2>
+      </h3>
 
       <p class="self-section-subtitle">
         正在使用、学习以及不断折腾的技术。
@@ -242,10 +240,10 @@ const { lang } = Astro.params as {
 
     <div class="self-section-inner self-works-inner">
 
-      <h2 class="self-section-title">
+      <h3 class="self-section-title">
         <span class="emoji">🛠️</span>
         我的作品
-      </h2>
+      </h3>
 
       <p class="self-section-subtitle">
         一些正在做、做过或者觉得有意思的东西。
@@ -264,11 +262,11 @@ const { lang } = Astro.params as {
           </div>
 
           <h3>
-            memoX
+            DailyUp
           </h3>
 
           <p>
-            一个简洁的笔记工具。
+            一个精简的每日打卡记录工具。
           </p>
 
           <span class="self-work-link">
@@ -334,12 +332,6 @@ const { lang } = Astro.params as {
 
   <!-- Footer -->
   <footer class="self-footer">
-
-    <p>
-      <span class="self-footer-name">
-        🐱 Zes
-      </span>
-    </p>
 
     <p>
       © {new Date().getFullYear()} Zes.

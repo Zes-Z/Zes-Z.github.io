@@ -722,10 +722,10 @@ background:
   padding:
 
     calc(
-      var(--self-header-height) + 70px
+      var(--self-header-height) + 30px
     )
 
-    40px
+    60px
 
     80px;
 
@@ -835,15 +835,15 @@ background:
 
   font-size:
     clamp(
-      38px,
+      36px,
       5vw,
-      68px
+      48px
     );
 
-  font-weight: 850;
+  font-weight: 720;
 
   letter-spacing:
-    -0.045em;
+    0em;
 
   line-height: 1.1;
 
@@ -856,7 +856,7 @@ background:
 
   margin-right: 12px;
 
-  font-size: 0.75em;
+  font-size: 1em;
 
 }
 
@@ -1301,7 +1301,7 @@ background:
 
   gap: 28px;
 
-  margin-top: 60px;
+  margin-top: 40px;
 
 }
 
@@ -1402,7 +1402,7 @@ background:
 
   gap: 22px;
 
-  margin-top: 65px;
+  margin-top: 40px;
 
 }
 
@@ -1506,7 +1506,7 @@ background:
 
   gap: 24px;
 
-  margin-top: 65px;
+  margin-top: 40px;
 
 }
 
