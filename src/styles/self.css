@@ -182,11 +182,11 @@ body {
      */
     linear-gradient(
       180deg,
-      #07517a 0%,
-      #074f7c 18%,
-      #06436e 38%,
-      #033763 62%,
-      #003767 100%
+      #1e8ac4 0%,
+      #0d71af 18%,
+      #09558b 38%,
+      #05457e 62%,
+      #005f88 100%
     );
 
 }
@@ -417,7 +417,7 @@ body::after {
    * 不再使用原来的深紫色。
    */
 background:
-  rgba(0, 214, 29, 0.03);
+  rgb(32, 127, 185);
 
   border-bottom:
     1px solid
@@ -955,9 +955,9 @@ background:
 
   font-size:
     clamp(
-      64px,
+      32px,
       9vw,
-      120px
+      60px
     );
 
   font-weight: 900;
@@ -1611,20 +1611,81 @@ background:
 
 .self-footer {
 
-  padding:
-    45px 40px;
+  position: relative;
 
-  border-top:
-    1px solid
-    rgba(142, 224, 255, 0.12);
+  padding:
+    45px 40px 50px;
 
   text-align: center;
 
   color:
     var(--self-text-muted);
 
+  /*
+   * 不再单独设置背景，
+   * 让 Footer 直接融入页面的海洋背景。
+   */
   background:
-    rgba(1, 18, 32, 0.35);
+    transparent;
+
+}
+
+
+/*
+ * Footer 分隔线
+ *
+ * 中间较粗、向两端逐渐变细并淡出。
+ */
+.self-footer-line {
+
+  width:
+    min(1200px, 90%);
+
+  height:
+    2px;
+
+  margin:
+    0 auto 28px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(142, 224, 255, 0.08) 10%,
+      rgba(142, 224, 255, 0.28) 25%,
+      rgba(142, 224, 255, 0.52) 50%,
+      rgba(142, 224, 255, 0.28) 75%,
+      rgba(142, 224, 255, 0.08) 90%,
+      transparent 100%
+    );
+
+  border-radius:
+    999px;
+
+  /*
+   * 让线条边缘更加柔和，
+   * 避免出现生硬的 2px 横线。
+   */
+  box-shadow:
+    0 0 10px
+    rgba(102, 217, 255, 0.08);
+
+}
+
+
+.self-footer p {
+
+  margin:
+    0;
+
+  font-size:
+    0.82rem;
+
+  line-height:
+    1.6;
+
+  letter-spacing:
+    0.02em;
 
 }
 
@@ -1634,7 +1695,8 @@ background:
   color:
     var(--self-text);
 
-  font-weight: 750;
+  font-weight:
+    750;
 
 }
 

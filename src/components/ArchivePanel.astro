@@ -66,8 +66,15 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
                     <time class="timeline-date">{post.month}/{post.day}</time>
                     <a class="timeline-title" href={post.href}>{post.title}</a>
                     <span class="timeline-meta">
-                      <a class="chip chip-link" href={archiveCategoryHref(lang, post.category)}>{post.category}</a>
-                      {post.tags.map((tagName) => <span class="chip chip--plain">{tagName}</span>)}
+                     {post.tags.map((tagName) => (
+                       <span class="chip chip--plain">{tagName}</span>
+                     ))}
+                     <a
+                       class="chip chip-link"
+                       href={archiveCategoryHref(lang, post.category)}
+                     >
+                       {post.category}
+                     </a>
                     </span>
                   </li>
                 ))
