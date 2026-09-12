@@ -1,0 +1,17 @@
+# Project icon index
+# You can customize by replacing each .svg file under /public/icon/.
+# All SVGs here are the original inline SVG source used by Header.astro / Footer.astro.
+
+home | /icon/home.svg | top nav | source: inline SVG in Header.astro -> public/icon/home.svg
+archive | /icon/archive.svg | top nav | source: inline SVG in Header.astro -> public/icon/archive.svg
+recipe | /icon/recipe.svg | top nav | source: inline SVG in Header.astro -> public/icon/recipe.svg
+photos | /icon/photos.svg | top nav | source: inline SVG in Header.astro -> public/icon/photos.svg
+friends | /icon/friends.svg | top nav | source: inline SVG in Header.astro -> public/icon/friends.svg
+unknown | /icon/unknown.svg | top nav | source: inline SVG in Header.astro -> public/icon/unknown.svg
+github | /icon/github.svg | footer | source: inline SVG in Footer.astro -> public/icon/github.svg
+email | /icon/email.svg | footer | source: inline SVG in Footer.astro -> public/icon/email.svg
+cloud | /icon/cloud.svg | footer | source: inline SVG in Footer.astro -> public/icon/cloud.svg
+rss | /icon/rss.svg | footer | source: inline SVG in Footer.astro -> public/icon/rss.svg
+link | /icon/link.svg | footer fallback | source: inline SVG in Footer.astro -> public/icon/link.svg
+wechat | /icon/wechat.svg | footer | source: inline SVG in Footer.astro -> public/icon/wechat.svg
+neteasecloudmusic | /icon/neteasecloudmusic.svg | music widget | file: public/icon/neteasecloudmusic.svg

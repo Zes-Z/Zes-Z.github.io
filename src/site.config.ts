@@ -11,7 +11,7 @@ export const siteConfig = {
   /** 主页左下角欢迎文字块(点击进入站内介绍页)。 */
   welcomeText: 'Welcome to this site!',
   /** 主页左下角欢迎文字块的链接目标。 */
-  welcomeHref: (lang: Language) => `/${lang}/about-site`,
+  welcomeHref: (lang: Language) => `/${lang}/welcome-site`,
   /** 主页右下角“About Zes”文字块(后续另建个人展示站后替换 href 即可)。 */
   aboutZes: {
     text: 'About Zes',
@@ -55,9 +55,9 @@ export const siteConfig = {
   nav: [
     { label: { eng: 'Home', cn: '首页', jap: 'ホーム' }, href: (lang: Language) => `/${lang}`, external: false, icon: 'home' },
     { label: { eng: 'Archive', cn: '归档', jap: 'アーカイブ' }, href: (lang: Language) => `/${lang}/archive`, external: false, icon: 'archive' },
-    { label: { eng: 'Recipe', cn: '菜单', jap: '料理' }, href: (lang: Language) => `/${lang}/recipes`, external: false, icon: 'recipe' },
-    { label: { eng: 'Photos', cn: '相册', jap: '写真' }, href: (lang: Language) => `/${lang}/photos`, external: false, icon: 'photos' },
     { label: { eng: 'Friends', cn: '友链', jap: '友達' }, href: (lang: Language) => `/${lang}/links`, external: false, icon: 'friends' },
+    { label: { eng: 'Recipes', cn: '菜单', jap: '料理' }, href: (lang: Language) => `/${lang}/recipes`, external: false, icon: 'recipe' },
+    { label: { eng: 'Photos', cn: '相册', jap: '写真' }, href: (lang: Language) => `/${lang}/photos`, external: false, icon: 'photos' },
     { label: { eng: 'Unknown', cn: '未知', jap: '未知' }, href: (lang: Language) => `/${lang}/unknown`, external: false, icon: 'unknown' },
   ] as const,
 
@@ -105,10 +105,10 @@ export const siteConfig = {
 
   /** Fullscreen hero images (soft crossfade). */
   heroImages: [
-    '/wallpapers/saber花间意.jpg',
-    '/wallpapers/海浪海鸥.jpg',
-    '/wallpapers/碧海蓝天.jpg',
-    '/wallpapers/晴川万里.jpg',
+    // '/wallpaper/saber花间意.jpg',
+    '/wallpaper/治愈田园雪山落日小桥.jpg',
+    '/wallpaper/碧海蓝天.jpg',
+    '/wallpaper/晴川万里.jpg',
 
   ],
  
@@ -119,8 +119,8 @@ export const siteConfig = {
   linksHero: {
     images: [
       // '/images/线条小狗西瓜游泳池.jpg', 
-      '/wallpapers/海绵宝宝自拍合照.jpg',
-      '/wallpapers/郊外旅行线条小狗.jpg',
+      '/wallpaper/海绵宝宝自拍合照.jpg',
+      '/wallpaper/郊外旅行线条小狗.jpg',
     ],
     interval: 4000,
   },
