@@ -118,7 +118,7 @@ export const siteConfig = {
  /** 友链页主图:images = 轮播图片,interval = 切换间隔(毫秒)。 */
   linksHero: {
     images: [
-      // '/images/线条小狗西瓜游泳池.jpg', 
+      '/images/线条小狗 夏日树荫.jpg', 
       '/wallpaper/海绵宝宝自拍合照.jpg',
       '/wallpaper/郊外旅行线条小狗.jpg',
     ],
