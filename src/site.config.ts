@@ -107,7 +107,7 @@ export const siteConfig = {
   heroImages: [
     // '/wallpaper/saber花间意.jpg',
     '/wallpaper/治愈田园雪山落日小桥.jpg',
-    '/wallpaper/碧海蓝天.jpg',
+    '/wallpaper/樱花树风景.jpg',
     '/wallpaper/晴川万里.jpg',
 
   ],
