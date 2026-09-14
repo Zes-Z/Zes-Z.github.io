@@ -72,20 +72,53 @@ draft: false
 
 ---
 
-## 4. 引用与分割 (Quotes)
+## 4. 引用块
 
-### 引用块
+### 普通引用块
 使用 `>` 符号。可以嵌套：
-> 语言是思维的边界。 `> 语言是思维的边界。`
->> —— 维特根斯坦 `>> —— 维特根斯坦`
+```md
+> 语言是思维的边界。
+>> —— 维特根斯坦
+```
+> 语言是思维的边界。
+>> —— 维特根斯坦    
+
+### 特殊引用效果
+```md
+> [!note,特殊引用题头]
+> 语言是思维的边界。
+>> —— 维特根斯坦
+```
+> [!note,特殊引用题头]
+> 语言是思维的边界。 
+>> —— 维特根斯坦
+
 
 ---
 
 ## 5. 线条与表格
-**分割线:** 使用三个或更多的 ` - ` 或 ` * `，效果如下。
+### 分割线
+```md
+--- (三个短横线："-")
+或
+*** (三个星号："*")
+或
+___ (三个短下划线："_")
+```
+效果如下:
 
 ---
-**目录树**
+
+或
+
+***
+
+或
+___
+
+
+---
+### 目录树
 
 Windows ：按住 Alt 键，然后在数字键盘上输入  
 
@@ -216,7 +249,6 @@ print("成功嵌套并换行")
 
 # 注:以下内容(至文末)来自fuwari演示文档
 ## 公式
-[//]: # (![example image]&#40;./demo-banner.png "An exemplary image"&#41;)
 
 Inline math equations go in like so: $\omega = d\phi / dt$. Display
 math should get its own line and be put in in double-dollarsigns:
@@ -236,31 +268,8 @@ And note that you can backslash-escape any punctuation characters
 which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
 
 ---
-## .md文件中插入视频
-```md
----
-title: Markdown基础语法
-published: 2026-03-04
-tags: [Markdown,web]
-category: Coding
-description: Markdown 基础语法参考指北
-draft: false
----
-正文...
-
----
 
 
-## GitHub Repository Cards
-You can add dynamic cards that link to GitHub repositories, on page load, the repository information is pulled from the GitHub API. 
-
-::github{repo="Fabrizz/MMM-OnSpotify"}
-
-Create a GitHub repository card with the code `::github{repo="<owner>/<repo>"}`.
-
-```markdown
-::github{repo="saicaca/fuwari"}
-```
 
 ## Admonitions
 
@@ -312,18 +321,6 @@ This is a note with a custom title.
 :::
 ```
 
-### GitHub Syntax
-
-> [!TIP]
-> [The GitHub syntax](https://github.com/orgs/community/discussions/16925) is also supported.
-
-```text
-> [!NOTE]
-> The GitHub syntax is also supported.
-
-> [!TIP]
-> The GitHub syntax is also supported.
-```
 
 ### Spoiler
 

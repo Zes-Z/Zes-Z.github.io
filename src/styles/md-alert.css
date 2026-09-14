@@ -163,11 +163,6 @@
   --alert-bg: rgba(217, 119, 6, 0.065);
 }
 
-.prose .md-alert-caution {
-  --alert-color: #dc2626;
-  --alert-bg: rgba(220, 38, 38, 0.055);
-}
-
 .prose .md-alert-definition {
   --alert-color: #7c3aed;
   --alert-bg: rgba(124, 58, 237, 0.055);
