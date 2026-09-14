@@ -54,8 +54,9 @@ export const siteConfig = {
    */
   nav: [
     { label: { eng: 'Home', cn: '首页', jap: 'ホーム' }, href: (lang: Language) => `/${lang}`, external: false, icon: 'home' },
-    { label: { eng: 'Archive', cn: '归档', jap: 'アーカイブ' }, href: (lang: Language) => `/${lang}/archive`, external: false, icon: 'archive' },
     { label: { eng: 'Friends', cn: '友链', jap: '友達' }, href: (lang: Language) => `/${lang}/links`, external: false, icon: 'friends' },
+
+    { label: { eng: 'Archive', cn: '归档', jap: 'アーカイブ' }, href: (lang: Language) => `/${lang}/archive`, external: false, icon: 'archive' },
     { label: { eng: 'Recipes', cn: '菜单', jap: '料理' }, href: (lang: Language) => `/${lang}/recipes`, external: false, icon: 'recipe' },
     { label: { eng: 'Photos', cn: '相册', jap: '写真' }, href: (lang: Language) => `/${lang}/photos`, external: false, icon: 'photos' },
     { label: { eng: 'Unknown', cn: '未知', jap: '未知' }, href: (lang: Language) => `/${lang}/unknown`, external: false, icon: 'unknown' },
@@ -130,6 +131,15 @@ export const siteConfig = {
 
   /** Ratio cycle used by the archive masonry cards (3 列时对应实际显示 4/6·9/6·6/6,可密铺)。 */
   masonryRatios: ['3 / 2', '2 / 3', '1 / 1'] as const,
+
+
+
+// 自定义网站主题背景色
+ theme: {
+    light: {
+      bg: '#f1fcff5b',
+    },
+  },
 
 
 //  * 相册"所有"板块的图片:true = 默认淡黑白、悬停变彩色;

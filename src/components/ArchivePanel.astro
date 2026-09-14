@@ -282,16 +282,22 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
     margin-inline: auto;
     padding-left: 26px;
   }
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 4px;
-    top: 12px;
-    bottom: 12px;
-    width: 2px;
-    border-radius: 2px;
-    background: linear-gradient(180deg, var(--border-strong), var(--border));
-  }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(42, 184, 240, 0.99) 0%,
+    rgba(42, 184, 240, 0.73) 30%,
+    rgba(42, 184, 240, 0.48) 60%,
+    rgba(42, 184, 240, 0.0) 100%
+  );
+}
 
   .timeline-year {
     position: relative;
@@ -339,21 +345,36 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
   }
   /* 文章节点(空心圆环,落在竖线上) */
   .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -26px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: var(--surface);
-    border: 2px solid var(--border-strong);
-    box-sizing: border-box;
-  }
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--sky);
+  box-shadow: 0 0 0 0 rgba(42, 168, 240, 0);
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
   .timeline-item:hover {
     background: var(--surface-2);
   }
+  .timeline-item:hover::before {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+  box-shadow:
+    0 0 0 3px rgba(42, 168, 240, 0.16),
+    0 0 10px rgba(42, 168, 240, 0.45);
+  }
+
   .timeline-item:hover::before {
     border-color: var(--sky);
   }

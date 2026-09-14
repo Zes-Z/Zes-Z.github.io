@@ -30,9 +30,16 @@ const pageDescription = description ?? localize(siteConfig.description, lang);
 ---
 
 <!doctype html>
-<html lang={lang} data-lang={lang} data-theme="light" data-code-scheme="light">
+<html
+  lang={lang}
+  data-lang={lang}
+  data-theme="light"
+  data-code-scheme="light"
+  style={`--site-light-bg: ${siteConfig.theme.light.bg};`}
+>
   <head>
     <meta charset="UTF-8" />
+
     <script is:inline>
       // Anti-flash theme bootstrap: runs before anything renders.
       // Sets the theme attributes AND an inline background color so the page
@@ -40,19 +47,33 @@ const pageDescription = description ?? localize(siteConfig.description, lang);
       (function () {
         try {
           var mode = localStorage.getItem('zest-theme') || 'system';
+
           if (mode === 'system') {
-            mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            mode = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
           }
+
           if (mode !== 'light' && mode !== 'dark') mode = 'light';
+
           var root = document.documentElement;
+
           root.setAttribute('data-theme', mode);
-          root.setAttribute('data-code-scheme', mode === 'dark' ? 'dark' : 'light');
-          root.style.backgroundColor = mode === 'dark' ? '#101218e0' : '#eef6ef';
+          root.setAttribute(
+            'data-code-scheme',
+            mode === 'dark' ? 'dark' : 'light'
+          );
+
+          root.style.backgroundColor =
+            mode === 'dark'
+              ? '#101218e0'
+              : root.style.getPropertyValue('--site-light-bg').trim();
         } catch (e) {}
       })();
     </script>
-    <!-- 全局样式内联进 HTML,页面在导航切换时立即以完整样式渲染,不再出现"先乱后好"的抽动 -->
+
     <style is:inline set:html={globalCss} />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={pageDescription} />
