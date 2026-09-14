@@ -92,7 +92,7 @@
 }
 
 .prose .md-alert-note .md-alert-icon::before {
-  content: '📝';
+  content: '💭';
 }
 
 .prose .md-alert-vital .md-alert-icon::before {
@@ -108,11 +108,7 @@
 }
 
 .prose .md-alert-definition .md-alert-icon::before {
-  content: '◇';
-}
-
-.prose .md-alert-theorem .md-alert-icon::before {
-  content: '∎';
+  content: '📝';
 }
 
 .prose .md-alert-lemma .md-alert-icon::before {
@@ -143,7 +139,7 @@
  * Colors
  * ========================================================= */
 
-.prose .md-alert-tip {
+.prose .md-alert-definition {
   --alert-color: #37afff;
   --alert-bg: rgba(37, 99, 235, 0.055);
 }
@@ -163,24 +159,14 @@
   --alert-bg: rgba(217, 119, 6, 0.065);
 }
 
-.prose .md-alert-definition {
-  --alert-color: #7c3aed;
-  --alert-bg: rgba(124, 58, 237, 0.055);
+.prose .md-alert-tip {
+  --alert-color: #17c01f;
+  --alert-bg: rgba(183, 240, 137, 0.168);
 }
 
 .prose .md-alert-theorem {
-  --alert-color: #9333ea;
-  --alert-bg: rgba(147, 51, 234, 0.055);
-}
-
-.prose .md-alert-lemma {
   --alert-color: #c026d3;
-  --alert-bg: rgba(192, 38, 211, 0.055);
-}
-
-.prose .md-alert-proof {
-  --alert-color: #059669;
-  --alert-bg: rgba(5, 150, 105, 0.055);
+  --alert-bg: rgba(147, 51, 234, 0.055);
 }
 
 .prose .md-alert-example {
