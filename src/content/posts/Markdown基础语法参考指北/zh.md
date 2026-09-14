@@ -186,7 +186,7 @@ frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 ### 围栏代码块 (Code Fencing)
 使用```` ``` ````指定编程语言以获得语法高亮，例如:
 
-> \```python  
+> \```python title="main.py  
 \# 使用 Ginza/spaCy 包  
 import spacy  
 nlp = spacy.load("ja_ginza")  

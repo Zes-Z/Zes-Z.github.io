@@ -1,4 +1,4 @@
-import type { Language, LocalizedText } from './types';
+import type { Language, LocalizedText, FriendGroup } from './types';
 
 /**
  * Central site configuration for the Zest theme.
@@ -10,14 +10,17 @@ export const siteConfig = {
 
   /** 主页左下角欢迎文字块(点击进入站内介绍页)。 */
   welcomeText: 'Welcome to this site!',
+
   /** 主页左下角欢迎文字块的链接目标。 */
   welcomeHref: (lang: Language) => `/${lang}/welcome-site`,
+
   /** 主页右下角“About Zes”文字块(后续另建个人展示站后替换 href 即可)。 */
   aboutZes: {
     text: 'About Zes',
     // TODO: 个人展示站上线后替换成对应地址
     href: (lang: Language) => `/${lang}/about`,
   },
+
   /** Site subtitle (supports the three languages). */
   // subtitle: {
   //   eng: 'A fresh trilingual blog theme',
@@ -31,16 +34,18 @@ export const siteConfig = {
     jap: 'Zest — 三言語切り替え・ライト/ダーク配色・正規表現検索・アーカイブを備えた Astro ブログテーマ。',
   } satisfies LocalizedText,
 
-// Production site URL (RSS links, canonical URLs).
+  // Production site URL (RSS links, canonical URLs).
   siteUrl: 'https://zes-z.github.io/',
 
   author: 'Zes',
 
-// Default language: visitors of / are redirected here.
+  // Default language: visitors of / are redirected here.
   defaultLang: 'zh' as Language,
-// Language cycle order for the single-click switcher: zh → en → ja → zh.
+
+  // Language cycle order for the single-click switcher: zh → en → ja → zh.
   langs: ['zh', 'en', 'ja'] as const,
-// 网站小图标，默认存放在public下
+
+  // 网站小图标，默认存放在public下
   favicon: '/favicon.ico',
 
   /**
@@ -53,13 +58,71 @@ export const siteConfig = {
    *   icon     : 导航图标名(home | archive | recipe | photos | friends)
    */
   nav: [
-    { label: { eng: 'Home', cn: '首页', jap: 'ホーム' }, href: (lang: Language) => `/${lang}`, external: false, icon: 'home' },
-    { label: { eng: 'Friends', cn: '友链', jap: '友達' }, href: (lang: Language) => `/${lang}/links`, external: false, icon: 'friends' },
+    {
+      label: {
+        eng: 'Home',
+        cn: '首页',
+        jap: 'ホーム',
+      },
+      href: (lang: Language) => `/${lang}`,
+      external: false,
+      icon: 'home',
+    },
 
-    { label: { eng: 'Archive', cn: '归档', jap: 'アーカイブ' }, href: (lang: Language) => `/${lang}/archive`, external: false, icon: 'archive' },
-    { label: { eng: 'Recipes', cn: '菜单', jap: '料理' }, href: (lang: Language) => `/${lang}/recipes`, external: false, icon: 'recipe' },
-    { label: { eng: 'Photos', cn: '相册', jap: '写真' }, href: (lang: Language) => `/${lang}/photos`, external: false, icon: 'photos' },
-    { label: { eng: 'Unknown', cn: '未知', jap: '未知' }, href: (lang: Language) => `/${lang}/unknown`, external: false, icon: 'unknown' },
+    {
+      label: {
+        eng: 'Friends',
+        cn: '友链',
+        jap: '友達',
+      },
+      href: (lang: Language) => `/${lang}/links`,
+      external: false,
+      icon: 'friends',
+    },
+
+    {
+      label: {
+        eng: 'Archive',
+        cn: '归档',
+        jap: 'アーカイブ',
+      },
+      href: (lang: Language) => `/${lang}/archive`,
+      external: false,
+      icon: 'archive',
+    },
+
+    {
+      label: {
+        eng: 'Recipes',
+        cn: '菜单',
+        jap: '料理',
+      },
+      href: (lang: Language) => `/${lang}/recipes`,
+      external: false,
+      icon: 'recipe',
+    },
+
+    {
+      label: {
+        eng: 'Photos',
+        cn: '相册',
+        jap: '写真',
+      },
+      href: (lang: Language) => `/${lang}/photos`,
+      external: false,
+      icon: 'photos',
+    },
+
+    {
+      label: {
+        eng: 'Unknown',
+        cn: '未知',
+        jap: '未知',
+      },
+      href: (lang: Language) => `/${lang}/unknown`,
+      external: false,
+      icon: 'unknown',
+    },
   ] as const,
 
   /**
@@ -75,32 +138,55 @@ export const siteConfig = {
     {
       icon: 'github',
       href: 'https://github.com/Zes-Z',
-      label: { eng: 'GitHub', cn: 'GitHub', jap: 'GitHub' },
+      label: {
+        eng: 'GitHub',
+        cn: 'GitHub',
+        jap: 'GitHub',
+      },
     },
+
     {
       icon: 'email',
       href: 'mailto:zzs234@yeah.net',
-      label: { eng: 'Email', cn: '邮箱', jap: 'メール' },
+      label: {
+        eng: 'Email',
+        cn: '邮箱',
+        jap: 'メール',
+      },
     },
+
     {
       icon: 'cloud',
       // 云盘链接:换成你自己的网盘地址(如夸克/百度/蓝奏/OD 等)
       href: 'https://www.alipan.com/s/X4GEM51VBnM',
       // 提取码:3z3q
-      label: { eng: 'Cloud Drive', cn: '云盘', jap: 'クラウドドライブ' },
+      label: {
+        eng: 'Cloud Drive',
+        cn: '云盘',
+        jap: 'クラウドドライブ',
+      },
     },
+
     {
       icon: 'wechat',
       // 点击图标后自动复制 wechatId 中配置的微信号,不会跳转
       wechatId: 'Zes234-INTJ',
       href: '#',
-      label: { eng: 'WeChat', cn: '微信', jap: 'WeChat' },
+      label: {
+        eng: 'WeChat',
+        cn: '微信',
+        jap: 'WeChat',
+      },
     },
 
     {
       icon: 'rss',
       href: (lang: Language) => `/${lang}/rss.xml`,
-      label: { eng: 'RSS', cn: 'RSS', jap: 'RSS' },
+      label: {
+        eng: 'RSS',
+        cn: 'RSS',
+        jap: 'RSS',
+      },
     },
   ] as const,
 
@@ -110,16 +196,15 @@ export const siteConfig = {
     '/wallpaper/治愈田园雪山落日小桥.jpg',
     '/wallpaper/樱花树风景.jpg',
     '/wallpaper/山岚晴昼.jpg',
-
   ],
- 
+
   /** 主页轮播主图切换间隔(毫秒)。大约 3000 = 3 秒。 */
   heroInterval: 6000,
 
- /** 友链页主图:images = 轮播图片,interval = 切换间隔(毫秒)。 */
+  /** 友链页主图:images = 轮播图片,interval = 切换间隔(毫秒)。 */
   linksHero: {
     images: [
-      '/wallpaper/线条小狗 夏日树荫.jpg', 
+      '/wallpaper/线条小狗 夏日树荫.jpg',
       '/wallpaper/海绵宝宝自拍合照.jpg',
       '/wallpaper/郊外旅行线条小狗.jpg',
     ],
@@ -133,17 +218,157 @@ export const siteConfig = {
   masonryRatios: ['3 / 2', '2 / 3', '1 / 1'] as const,
 
 
+  
+  // ============================================================
+  // 友链
+  // ============================================================
+  friends: [
+    {
+      name: {
+        eng: 'friends',
+        cn: '朋友',
+        jap: '友達',
+      },
 
-// 自定义网站主题背景色
- theme: {
+      desc: {
+        eng: 'Friendship forever.',
+        cn: '常联系。',
+        jap: '一期一会。',
+      },
+
+      items: [
+        {
+          name: {
+            eng: 'cyou daii',
+            cn: 'cyou daii',
+            jap: 'cyou daii',
+          },
+
+          desc: {
+            eng: 'It takes many.',
+            cn: '感谢他的协作。',
+            jap: '三人寄れば文殊の知恵。',
+          },
+
+          avatar: '/avatar/cyou daii.jpg',
+          link: 'https://davis-blog.vercel.app/',
+        },
+
+        {
+          name: {
+            eng: 'kosame',
+            cn: 'kosame',
+            jap: 'kosame',
+          },
+
+          desc: {
+            eng: 'It starts raining.',
+            cn: '感谢她的倾听。',
+            jap: '言うより聞く。',
+          },
+
+          avatar: '/avatar/kosame.jpg',
+          link: 'https://example.com',
+        },
+
+        {
+          name: {
+            eng: 'cyou shiyu',
+            cn: 'cyou shiyu',
+            jap: 'cyou shiyu',
+          },
+
+          desc: {
+            eng: 'The same wavelength.',
+            cn: '感谢她的同理心。',
+            jap: '情けは人のためならず。',
+          },
+
+          avatar: '/avatar/cyou shiyu.jpg',
+          link: 'https://example.com',
+        },
+
+        {
+          name: {
+            eng: 'kim',
+            cn: 'kim',
+            jap: 'kim',
+          },
+
+          desc: {
+            eng: '.',
+            cn: '感谢她的存在。',
+            jap: '。',
+          },
+
+          avatar: '/',
+          link: 'https://example.com',
+        },
+      ],
+    },
+
+    {
+      name: {
+        eng: 'Tools',
+        cn: '工具',
+        jap: 'ツール',
+      },
+
+      desc: {
+        eng: 'Useful tools worth keeping.',
+        cn: '值得收藏的实用工具。',
+        jap: '手元に置きたい便利なツール。',
+      },
+
+      items: [
+        {
+          name: {
+            eng: 'Astro',
+            cn: 'Astro',
+            jap: 'Astro',
+          },
+
+          desc: {
+            eng: 'The framework this theme is built on.',
+            cn: '本主题所基于的框架。',
+            jap: 'このテーマの土台となったフレームワーク。',
+          },
+
+          avatar: 'https://avatars.githubusercontent.com/u/44914786',
+          link: 'https://astro.build',
+        },
+
+        {
+          name: {
+            eng: 'KaTeX',
+            cn: 'KaTeX',
+            jap: 'KaTeX',
+          },
+
+          desc: {
+            eng: 'Fast math typesetting for the web.',
+            cn: '为 Web 打造的快速数学排版。',
+            jap: 'Web のための高速数式組版。',
+          },
+
+          avatar: 'https://avatars.githubusercontent.com/u/14904029',
+          link: 'https://katex.org',
+        },
+      ],
+    },
+  ] satisfies FriendGroup[],
+
+  // ============================================================
+  // 自定义网站主题背景色
+  // ============================================================
+  theme: {
     light: {
       bg: '#f1fcff5b',
     },
   },
 
-
-//  * 相册"所有"板块的图片:true = 默认淡黑白、悬停变彩色;
-//  * 仅作用于"所有"(photos)板块,作品集板块始终全彩。
+  //  * 相册"所有"板块的图片:true = 默认淡黑白、悬停变彩色;
+  //  * 仅作用于"所有"(photos)板块,作品集板块始终全彩。
   photosGrayscaleHover: true,
 } as const;
 
@@ -156,22 +381,17 @@ export function siteSubtitle(): LocalizedText | undefined {
   return (siteConfig as { subtitle?: LocalizedText }).subtitle;
 }
 
-
-
-
-
-
 // ============================================================
 //   外观/布局参数速查表(调整文件 + 位置)
 // ============================================================
- 
+
 //   以下各项的样式/逻辑不在本文件,而是分散在各 .astro / .ts 中。
-//   需要调整时,直接到对应文件改对应选择器即可。
- 
+//   需要调整时,直接到对应文件改对应选择器即可.
+
 //   1) 顶部导航栏
 //      文件:src/components/Header.astro
 //      - 胶囊尺寸/毛玻璃/悬停展开:`.site-header`、`.header-inner`、`.nav-label`
- 
+
 //   2) 瀑布流(归档/菜单/相册统一)
 //      - 比例集(CSS 宽:高 3/2·2/3·1/1):src/utils/ratio.ts 的 MASONRY_RATIOS
 //        以及 site.config.ts 上方 `masonryRatios`
@@ -186,17 +406,17 @@ export function siteSubtitle(): LocalizedText | undefined {
 //      - 标题与卡片块间距:`.links-group-header` 的 margin-bottom
 //      - 卡片墙宽度/列数/间距:`.links-grid`(grid-template-columns / max-width / gap)
 //      - 卡片高度:`.friend-avatar`(width/height)、`.friend-card`(padding)
- 
+
 //   4) 底部导航栏
 //      文件:src/components/Footer.astro
 //      - 高度/间距/顶部渐变细线:`.site-footer`、`.footer-inner`
- 
+
 //   5) 全站配色/主题变量
 //      文件:src/styles/global.css 的 html[data-theme='light'] / html[data-theme='dark']
 //      - --bg / --text / --sky / --surface / --border / --hover 等
- 
+
 //   6) 文章页
 //      文件:src/pages/[lang]/posts/[slug].astro
 //      - 文章标题字号:`.post-title` 的 font-size
 //      - 代码块:src/utils/markdown.ts(rehypeCodeBlocks)、global.css 的 .code-block
-// ============================================================ */
+// ============================================================

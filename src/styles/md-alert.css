@@ -1,0 +1,270 @@
+/* =========================================================
+ * Markdown Custom Alerts
+ * Syntax:
+ *   > [!tip,电流]
+ *   > 正文
+ * ========================================================= */
+
+.prose .md-alert {
+  --alert-color: #2563eb;
+  --alert-bg: rgba(37, 99, 235, 0.055);
+
+  margin: 1.35rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--alert-color);
+  border-radius: 0 10px 10px 0;
+  background: var(--alert-bg);
+  line-height: 1.75;
+}
+
+.prose .md-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.65rem;
+  color: var(--alert-color);
+}
+
+.prose .md-alert-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.prose .md-alert-title-text {
+  font-size: 1.2rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.prose .md-alert-body {
+  color: inherit;
+}
+
+.prose .md-alert-body > p {
+  margin: 0.65rem 0;
+}
+
+.prose .md-alert-body > p:first-child {
+  margin-top: 0;
+}
+
+.prose .md-alert-body > p:last-child {
+  margin-bottom: 0;
+}
+
+/* Nested blockquotes remain visible as normal secondary quotes. */
+.prose .md-alert-body blockquote {
+  margin: 0.9rem 0;
+  padding: 0.3rem 0 0.3rem 1rem;
+  border-left: 2px solid
+    color-mix(in srgb, var(--alert-color) 45%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.9;
+}
+
+/* Do not inherit the normal blockquote's large margins/background. */
+.prose .md-alert-body blockquote p:first-child {
+  margin-top: 0;
+}
+
+.prose .md-alert-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================================================
+ * Icons
+ * ========================================================= */
+
+.prose .md-alert-icon::before {
+  content: '💡';
+}
+
+.prose .md-alert-tip .md-alert-icon::before {
+  content: '💡';
+}
+
+.prose .md-alert-note .md-alert-icon::before {
+  content: '📝';
+}
+
+.prose .md-alert-vital .md-alert-icon::before {
+  content: '❗';
+}
+
+.prose .md-alert-warning .md-alert-icon::before {
+  content: '⚠️';
+}
+
+.prose .md-alert-caution .md-alert-icon::before {
+  content: '🔴';
+}
+
+.prose .md-alert-definition .md-alert-icon::before {
+  content: '◇';
+}
+
+.prose .md-alert-theorem .md-alert-icon::before {
+  content: '∎';
+}
+
+.prose .md-alert-lemma .md-alert-icon::before {
+  content: '◆';
+}
+
+.prose .md-alert-proof .md-alert-icon::before {
+  content: '∴';
+}
+
+.prose .md-alert-example .md-alert-icon::before {
+  content: '🧪';
+}
+
+.prose .md-alert-formula .md-alert-icon::before {
+  content: 'ƒ';
+}
+
+.prose .md-alert-question .md-alert-icon::before {
+  content: '❓';
+}
+
+.prose .md-alert-remark .md-alert-icon::before {
+  content: '💬';
+}
+
+/* =========================================================
+ * Colors
+ * ========================================================= */
+
+.prose .md-alert-tip {
+  --alert-color: #37afff;
+  --alert-bg: rgba(37, 99, 235, 0.055);
+}
+
+.prose .md-alert-note {
+  --alert-color: #f669dc;
+  --alert-bg: rgba(8, 145, 178, 0.055);
+}
+
+.prose .md-alert-vital {
+  --alert-color: #dc2626;
+  --alert-bg: rgba(220, 38, 38, 0.055);
+}
+
+.prose .md-alert-warning {
+  --alert-color: #d97706;
+  --alert-bg: rgba(217, 119, 6, 0.065);
+}
+
+.prose .md-alert-caution {
+  --alert-color: #dc2626;
+  --alert-bg: rgba(220, 38, 38, 0.055);
+}
+
+.prose .md-alert-definition {
+  --alert-color: #7c3aed;
+  --alert-bg: rgba(124, 58, 237, 0.055);
+}
+
+.prose .md-alert-theorem {
+  --alert-color: #9333ea;
+  --alert-bg: rgba(147, 51, 234, 0.055);
+}
+
+.prose .md-alert-lemma {
+  --alert-color: #c026d3;
+  --alert-bg: rgba(192, 38, 211, 0.055);
+}
+
+.prose .md-alert-proof {
+  --alert-color: #059669;
+  --alert-bg: rgba(5, 150, 105, 0.055);
+}
+
+.prose .md-alert-example {
+  --alert-color: #0891b2;
+  --alert-bg: rgba(8, 145, 178, 0.055);
+}
+
+.prose .md-alert-formula {
+  --alert-color: #475569;
+  --alert-bg: rgba(71, 85, 105, 0.055);
+}
+
+.prose .md-alert-question {
+  --alert-color: #2563eb;
+  --alert-bg: rgba(37, 99, 235, 0.055);
+}
+
+.prose .md-alert-remark {
+  --alert-color: #64748b;
+  --alert-bg: rgba(100, 116, 139, 0.055);
+}
+
+/* =========================================================
+ * Dark mode
+ * ========================================================= */
+
+html[data-theme='dark'] .prose .md-alert-tip {
+  --alert-color: #60a5fa;
+  --alert-bg: rgba(96, 165, 250, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-note {
+  --alert-color: #22d3ee;
+  --alert-bg: rgba(34, 211, 238, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-vital,
+html[data-theme='dark'] .prose .md-alert-caution {
+  --alert-color: #f87171;
+  --alert-bg: rgba(248, 113, 113, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-warning {
+  --alert-color: #fbbf24;
+  --alert-bg: rgba(251, 191, 36, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-definition {
+  --alert-color: #a78bfa;
+  --alert-bg: rgba(167, 139, 250, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-theorem {
+  --alert-color: #c084fc;
+  --alert-bg: rgba(192, 132, 252, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-lemma {
+  --alert-color: #e879f9;
+  --alert-bg: rgba(232, 121, 249, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-proof {
+  --alert-color: #34d399;
+  --alert-bg: rgba(52, 211, 153, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-example {
+  --alert-color: #22d3ee;
+  --alert-bg: rgba(34, 211, 238, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-formula,
+html[data-theme='dark'] .prose .md-alert-remark {
+  --alert-color: #94a3b8;
+  --alert-bg: rgba(148, 163, 184, 0.08);
+}
+
+html[data-theme='dark'] .prose .md-alert-question {
+  --alert-color: #60a5fa;
+  --alert-bg: rgba(96, 165, 250, 0.08);
+}

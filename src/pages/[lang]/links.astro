@@ -3,15 +3,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import { siteConfig } from '../../site.config';
 import { t, localize } from '../../i18n';
-import type { Language, FriendGroup } from '../../types';
-import friends from '../../content/friends.json';
+import type { Language } from '../../types';
 
 export async function getStaticPaths() {
   return siteConfig.langs.map((lang) => ({ params: { lang } }));
 }
 
 const { lang } = Astro.params as { lang: Language };
-const groups = friends as FriendGroup[];
+const groups = siteConfig.friends;
+
 ---
 
 <BaseLayout lang={lang} title={t(lang, 'nav.links')} fullWidth>
