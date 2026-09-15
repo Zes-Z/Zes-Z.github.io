@@ -16,7 +16,6 @@ import { toString } from 'mdast-util-to-string';
 import Slugger from 'github-slugger';
 import type { Image, Root } from 'mdast';
 
-
 /* =========================================================
  * Types
  * ========================================================= */
@@ -33,16 +32,43 @@ export interface MarkdownResult {
 }
 
 export interface RenderOptions {
+  /**
+   * Resolve relative image references.
+   *
+   * Example:
+   *
+   *   ./cover.png
+   */
   resolveImage?: (
     url: string,
   ) => Promise<string | undefined>;
-}
 
+  /**
+   * Resolve relative Markdown links.
+   *
+   * Example:
+   *
+   *   二、进阶电路分析/zh.md
+   *
+   * becomes:
+   *
+   *   /zh/posts/电路学/二、进阶电路分析
+   */
+  resolveLink?: (
+    url: string,
+  ) => string | undefined;
+}
 
 /* =========================================================
  * Image resolver
  * ========================================================= */
 
+/**
+ * Resolve relative image URLs inside a post body.
+ *
+ * Absolute URLs, root-absolute paths, anchors and data URIs
+ * are left untouched.
+ */
 function remarkResolveImages(
   resolveImage?: (
     url: string,
@@ -76,11 +102,69 @@ function remarkResolveImages(
   };
 }
 
+/* =========================================================
+ * Markdown link resolver
+ * ========================================================= */
+
+/**
+ * Resolve relative Markdown links before remark-rehype.
+ *
+ * This is important because normal Markdown links such as:
+ *
+ *   [二、进阶电路分析](二、进阶电路分析/zh.md)
+ *
+ * would otherwise be emitted directly as:
+ *
+ *   href="二、进阶电路分析/zh.md"
+ *
+ * and the browser would resolve that URL relative to the current
+ * browser URL, which is not the URL structure used by Zest.
+ *
+ * The actual resolution logic is supplied by `resolveLink`.
+ */
+function remarkResolveLinks(
+  resolveLink?: (
+    url: string,
+  ) => string | undefined,
+) {
+  return (tree: Root) => {
+    if (!resolveLink) return;
+
+    visit(tree, 'link', (node) => {
+      const url = node.url ?? '';
+
+      /*
+       * Leave external and absolute links untouched.
+       *
+       * Examples:
+       *
+       *   https://example.com
+       *   http://example.com
+       *   mailto:test@example.com
+       *   #section
+       *   /zh/about
+       *   data:...
+       */
+      if (
+        /^(https?:|mailto:|#|\/|data:)/.test(url)
+      ) {
+        return;
+      }
+
+      const resolved = resolveLink(url);
+
+      if (resolved) {
+        node.url = resolved;
+      }
+    });
+  };
+}
 
 /* =========================================================
  * Collect headings
  * ========================================================= */
 
+/** Collect h2–h4 headings for the table of contents. */
 function remarkCollectHeadings() {
   return (
     tree: Root,
@@ -111,7 +195,6 @@ function remarkCollectHeadings() {
   };
 }
 
-
 /* =========================================================
  * Code block metadata
  * ========================================================= */
@@ -131,7 +214,6 @@ function remarkCodeMeta() {
       }
 
       node.data ??= {};
-
       node.data.hProperties ??= {};
 
       node.data.hProperties.dataFilename =
@@ -139,7 +221,6 @@ function remarkCodeMeta() {
     });
   };
 }
-
 
 /* =========================================================
  * CUSTOM ALERT
@@ -174,8 +255,12 @@ const ALERT_TYPES = new Set([
   'remark',
 ]);
 
-function normalizeAlertType(type: string): string {
-  const normalized = type.trim().toLowerCase();
+function normalizeAlertType(
+  type: string,
+): string {
+  const normalized = type
+    .trim()
+    .toLowerCase();
 
   if (ALERT_TYPES.has(normalized)) {
     return normalized;
@@ -190,35 +275,43 @@ function normalizeAlertType(type: string): string {
 
 /**
  * Convert an mdast blockquote whose first paragraph starts with
- * [!type,title] into a customAlert node.
  *
- * This is intentionally done BEFORE remarkRehype. That way the alert
- * marker is handled while it is still Markdown AST, instead of trying
- * to recover it from generated HTML.
+ *   [!type,title]
+ *
+ * into a customAlert node.
+ *
+ * This happens before remarkRehype so nested blockquotes remain
+ * available as normal Markdown blockquote nodes.
  */
 function remarkCustomAlerts() {
   return (tree: Root) => {
     visit(tree, 'blockquote', (node: any) => {
       const first = node.children?.[0];
 
-      if (!first || first.type !== 'paragraph') {
+      if (
+        !first ||
+        first.type !== 'paragraph'
+      ) {
         return;
       }
 
-      // The marker is plain text at the beginning of the first paragraph.
-      // Find the first text node so formatting before the marker is not
-      // accidentally interpreted as an alert.
-      const firstText = first.children?.find(
-        (child: any) => child.type === 'text',
-      );
+      /*
+       * The marker must be in a text node.
+       */
+      const firstText =
+        first.children?.find(
+          (child: any) =>
+            child.type === 'text',
+        );
 
       if (!firstText) {
         return;
       }
 
-      const match = /^\[!([A-Za-z][A-Za-z0-9_-]*),([^\]\r\n]+)\]\s*/.exec(
-        firstText.value ?? '',
-      );
+      const match =
+        /^\[!([A-Za-z][A-Za-z0-9_-]*),([^\]\r\n]+)\]\s*/.exec(
+          firstText.value ?? '',
+        );
 
       if (!match) {
         return;
@@ -231,34 +324,52 @@ function remarkCustomAlerts() {
         return;
       }
 
-      // Remove only the marker from the first text node.
-      firstText.value = (firstText.value ?? '').slice(match[0].length);
+      /*
+       * Remove only the alert marker.
+       */
+      firstText.value =
+        (firstText.value ?? '').slice(
+          match[0].length,
+        );
 
-      // Remove empty text nodes.
-      first.children = first.children.filter(
-        (child: any) =>
-          !(child.type === 'text' && !(child.value ?? '').length),
-      );
+      /*
+       * Remove empty text nodes.
+       */
+      first.children =
+        first.children.filter(
+          (child: any) =>
+            !(
+              child.type === 'text' &&
+              !(child.value ?? '').length
+            ),
+        );
 
-      // If the paragraph now contains no content, remove it.
+      /*
+       * If the paragraph becomes empty,
+       * remove it completely.
+       */
       if (first.children.length === 0) {
         node.children.shift();
       }
 
-      // Keep all original blockquote children. This is important for nested
-      // blockquotes: they will later become real <blockquote> elements inside
-      // .md-alert-body.
+      /*
+       * Keep all remaining children, including nested blockquotes.
+       */
       node.type = 'customAlert';
-      node.alertType = normalizeAlertType(rawType);
+      node.alertType =
+        normalizeAlertType(rawType);
       node.alertTitle = title;
     });
   };
 }
 
 /**
- * remark-rehype handler for the customAlert mdast node.
+ * remark-rehype handler for customAlert.
  */
-function remarkAlertHandler(state: any, node: any) {
+function remarkAlertHandler(
+  state: any,
+  node: any,
+) {
   return {
     type: 'element',
     tagName: 'div',
@@ -273,14 +384,18 @@ function remarkAlertHandler(state: any, node: any) {
         type: 'element',
         tagName: 'div',
         properties: {
-          className: ['md-alert-title'],
+          className: [
+            'md-alert-title',
+          ],
         },
         children: [
           {
             type: 'element',
             tagName: 'span',
             properties: {
-              className: ['md-alert-icon'],
+              className: [
+                'md-alert-icon',
+              ],
               ariaHidden: 'true',
             },
             children: [],
@@ -289,12 +404,15 @@ function remarkAlertHandler(state: any, node: any) {
             type: 'element',
             tagName: 'span',
             properties: {
-              className: ['md-alert-title-text'],
+              className: [
+                'md-alert-title-text',
+              ],
             },
             children: [
               {
                 type: 'text',
-                value: node.alertTitle || '',
+                value:
+                  node.alertTitle || '',
               },
             ],
           },
@@ -304,14 +422,15 @@ function remarkAlertHandler(state: any, node: any) {
         type: 'element',
         tagName: 'div',
         properties: {
-          className: ['md-alert-body'],
+          className: [
+            'md-alert-body',
+          ],
         },
         children: state.all(node),
       },
     ],
   };
 }
-
 
 /* =========================================================
  * Code blocks
@@ -355,7 +474,6 @@ function rehypeCodeBlocks() {
 
     walk(tree);
   };
-
 
   function wrapCodeBlock(
     pre: any,
@@ -413,7 +531,6 @@ function rehypeCodeBlocks() {
       children: [
         {
           type: 'text',
-
           value: '⧉',
         },
       ],
@@ -536,7 +653,6 @@ function rehypeCodeBlocks() {
   }
 }
 
-
 /* =========================================================
  * ::: directives
  * ========================================================= */
@@ -582,7 +698,10 @@ function rehypeNormalizeDirectives() {
   };
 }
 
-
+/**
+ * Turn a directive's first bold paragraph
+ * (`:::tip **Title** ... :::`) into a title.
+ */
 function rehypeDirectiveTitles() {
   return (tree: any) => {
     visit(
@@ -645,7 +764,6 @@ function rehypeDirectiveTitles() {
   };
 }
 
-
 /* =========================================================
  * Markdown renderer
  * ========================================================= */
@@ -667,9 +785,22 @@ export async function renderMarkdown(
 
       .use(remarkDeflist)
 
+      /*
+       * Resolve relative images.
+       */
       .use(
         remarkResolveImages,
         options.resolveImage,
+      )
+
+      /*
+       * Resolve relative Markdown links.
+       *
+       * This must happen while the tree is still mdast.
+       */
+      .use(
+        remarkResolveLinks,
+        options.resolveLink,
       )
 
       .use(
@@ -678,7 +809,10 @@ export async function renderMarkdown(
 
       .use(remarkCodeMeta)
 
-      // Convert [!type,title] blockquotes while they are still mdast.
+      /*
+       * Convert [!type,title] blockquotes
+       * while they are still mdast.
+       */
       .use(remarkCustomAlerts)
 
       .use(
@@ -690,28 +824,29 @@ export async function renderMarkdown(
         {
           allowDangerousHtml: true,
           handlers: {
-            customAlert: remarkAlertHandler,
+            customAlert:
+              remarkAlertHandler,
           },
-        }as any,
+        } as any,
       )
 
       /*
-       * Raw HTML
+       * Raw HTML.
        */
       .use(rehypeRaw)
 
       /*
-       * Math
+       * Math.
        */
       .use(rehypeKatex)
 
       /*
-       * Heading IDs
+       * Heading IDs.
        */
       .use(rehypeSlug)
 
       /*
-       * Existing ::: directives
+       * Existing ::: directives.
        */
       .use(
         rehypeNormalizeDirectives,
@@ -722,12 +857,12 @@ export async function renderMarkdown(
       )
 
       /*
-       * Code blocks
+       * Code blocks.
        */
       .use(rehypeCodeBlocks)
 
       /*
-       * Syntax highlighting
+       * Syntax highlighting.
        */
       .use(
         rehypeShiki,
@@ -745,7 +880,7 @@ export async function renderMarkdown(
       )
 
       /*
-       * HAST -> HTML
+       * HAST -> HTML.
        */
       .use(
         rehypeStringify,
@@ -765,7 +900,6 @@ export async function renderMarkdown(
         []) as MarkdownHeading[],
   };
 }
-
 
 /* =========================================================
  * Markdown -> plain text

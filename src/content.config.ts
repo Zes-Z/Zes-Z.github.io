@@ -1,24 +1,30 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { zestLoader } from './loaders/zest';
 
 /**
- * Zest content collections — one folder per post:
+ * Zest content collections
  *
- *   src/content/posts/<slug>/en.md        English article   (filename = language)
- *   src/content/posts/<slug>/zh.md        Chinese article
- *   src/content/posts/<slug>/ja.md        Japanese article
- *   src/content/posts/<slug>/cover.png    article cover image (./cover.png)
+ * posts:
+ *   src/content/posts/<slug>/{zh,en,ja}.md
  *
- *   src/content/pages/<name>/{en,zh,ja}.md   standalone pages
+ *   顶层 lang.md = 正式文章
+ *   子目录中的 lang.md = 外挂子文档，不进入归档等文章列表
  *
- * Entry ids look like `zh/hello-zest`; the URL slug is the part after
- * the language prefix.
+ * pages:
+ *   src/content/pages/<name>/{zh,en,ja}.md
+ *
+ * portfolios:
+ *   src/content/portfolios/<slug>/{zh,en,ja}.md
+ *
+ * recipes:
+ *   src/content/recipes/<slug>/{zh,en,ja}.md
  */
 
 export const collections = {
-  /** Blog posts. */
   posts: defineCollection({
     loader: zestLoader({ base: './src/content/posts' }),
+
     schema: z.object({
       title: z.string(),
       category: z.string().min(1),
@@ -26,15 +32,21 @@ export const collections = {
       description: z.string().optional(),
       pubDate: z.coerce.date().optional(),
       postImage: z.string().nullable().optional(),
+
       homepined: z.boolean().default(false),
       pinedOrder: z.number().default(0),
       draft: z.boolean().default(false),
+
+      // 由 zestLoader 自动判断：
+      // false = 顶层正式文章
+      // true  = 子级外挂文档
+      isSubpage: z.boolean().default(false),
     }),
   }),
 
-  /** Standalone pages (welcome / about / resume). */
   pages: defineCollection({
     loader: zestLoader({ base: './src/content/pages' }),
+
     schema: z.object({
       title: z.string().optional(),
       description: z.string().optional(),
@@ -42,12 +54,9 @@ export const collections = {
     }),
   }),
 
-  /**
-   * Photo portfolios: one folder per portfolio — `src/content/portfolios/<slug>/{zh,en,ja}.md`
-   * (title + description body) plus the portfolio's photos (main.* cover + numbered photos).
-   */
   portfolios: defineCollection({
     loader: zestLoader({ base: './src/content/portfolios' }),
+
     schema: z.object({
       title: z.string(),
       description: z.string().optional(),
@@ -55,13 +64,9 @@ export const collections = {
     }),
   }),
 
-  /**
-   * Recipes: one folder per recipe — `src/content/recipes/<slug>/{zh,en,ja}.md`
-   * (title + category + description + tags + recipe body) plus the recipe's images.
-   * `tag`/`tags` 保留但暂不展示;`homepined`/`pinedOrder` 暂未使用。
-   */
   recipes: defineCollection({
     loader: zestLoader({ base: './src/content/recipes' }),
+
     schema: z.object({
       title: z.string(),
       categories: z.string().nullable().optional(),
@@ -69,6 +74,7 @@ export const collections = {
       pubDate: z.coerce.date().optional(),
       tags: z.array(z.string()).default([]),
       postImage: z.string().nullable().optional(),
+
       homepined: z.boolean().default(false),
       pinedOrder: z.number().default(0),
       draft: z.boolean().default(false),

@@ -5,7 +5,7 @@ pubDate: "2026-03-04"
 category: "Math & Coding"
 tag: [markdown,introduction]
 
-postImage: "./海滨蓝天白云.jpg"
+postImage: "./码头木桥.jpg"
 homepined: true
 pinedOrder: 2
 draft: false
@@ -179,10 +179,10 @@ blog-root
 ## 7. 图片与视频
 * 图片插入的实现方式与超链接相似，但需要在最前方加一个`!`
 ```
-![方括号里输入图片](圆括号里填入对应链接)
+![方括号里输入图片](圆括号里填入对应链接或相对于本文的路径)
 
 示例：![落日余晖](./落日余晖.jpg)  
-# ./落日余晖.jpg 表示这张图片与本文同级别，名为"落日余晖"，格式为".jpg"
+注： ./落日余晖.jpg 表示这张图片与本文同级别，名为"落日余晖"，格式为".jpg"
 ```
 效果：![落日余晖](./落日余晖.jpg)
 

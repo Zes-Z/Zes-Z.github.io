@@ -1,0 +1,705 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import TableOfContents from '../../../components/TableOfContents.astro';
+import AdjacentNav from '../../../components/AdjacentNav.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '../../../site.config';
+import type { Language } from '../../../types';
+import { getPublishedPosts, slugOf } from '../../../utils/posts';
+import { renderMarkdown } from '../../../utils/markdown';
+import { archiveCategoryHref, postHref } from '../../../utils/paths';
+import {
+  resolvePostAsset,
+  resolvePostImage,
+  postImageRatio,
+} from '../../../utils/images';
+import { getImage } from 'astro:assets';
+
+/* =========================================================
+ * Static paths
+ * ========================================================= */
+
+export async function getStaticPaths() {
+  const paths: {
+    params: {
+      lang: string;
+      slug: string;
+    };
+  }[] = [];
+
+  for (const lang of siteConfig.langs) {
+    const posts = await getCollection(
+      'posts',
+      (post) =>
+        post.id.startsWith(`${lang}/`),
+    );
+
+    for (const post of posts) {
+      if (post.data.draft) {
+        continue;
+      }
+
+      paths.push({
+        params: {
+          lang,
+          slug: slugOf(post, lang),
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+/* =========================================================
+ * Current post
+ * ========================================================= */
+
+const {
+  lang,
+  slug,
+} = Astro.params as {
+  lang: Language;
+  slug: string;
+};
+
+const post = (
+  await getCollection('posts')
+).find(
+  (p) =>
+    p.id === `${lang}/${slug}`,
+);
+
+if (
+  !post ||
+  post.data.draft
+) {
+  return Astro.redirect(
+    `/`,
+  );
+}
+
+const title = post.data.title;
+const description =
+  post.data.description ?? '';
+
+const date =
+  post.data.pubDate ??
+  new Date(0);
+
+const dateText =
+  `${date.getFullYear()}/${
+    date.getMonth() + 1
+  }/${date.getDate()}`;
+
+/* =========================================================
+ * Resolve Markdown links
+ * ========================================================= */
+
+/**
+ * Resolve a relative `.md` link from the current post.
+ *
+ * Current article:
+ *
+ *   电路学
+ *
+ * Link:
+ *
+ *   二、进阶电路分析/zh.md
+ *
+ * Result:
+ *
+ *   /zh/posts/电路学/二、进阶电路分析
+ *
+ * Current article:
+ *
+ *   电路学/一、基本电路观念
+ *
+ * Link:
+ *
+ *   ../二、进阶电路分析/zh.md
+ *
+ * Result:
+ *
+ *   /zh/posts/电路学/二、进阶电路分析
+ */
+function resolvePostLink(
+  url: string,
+): string | undefined {
+  let cleanUrl = url
+    .replaceAll('\\', '/')
+    .replaceAll('{lang}', lang);
+
+  /*
+   * Separate query string / hash from the path.
+   *
+   * Example:
+   *
+   *   child/zh.md#foo
+   *
+   * becomes:
+   *
+   *   path = child/zh.md
+   *   suffix = #foo
+   */
+  const suffixMatch =
+    /([?#].*)$/.exec(cleanUrl);
+
+  const suffix =
+    suffixMatch?.[1] ?? '';
+
+  if (suffix) {
+    cleanUrl =
+      cleanUrl.slice(
+        0,
+        -suffix.length,
+      );
+  }
+
+  /*
+   * Only Markdown content links are
+   * transformed here.
+   */
+  if (
+    !cleanUrl.endsWith('.md')
+  ) {
+    return undefined;
+  }
+
+  /*
+   * Remove leading ./ segments.
+   *
+   *   ./foo/zh.md
+   *   ↓
+   *   foo/zh.md
+   */
+  cleanUrl =
+    cleanUrl.replace(
+      /^(\.\/)+/,
+      '',
+    );
+
+  /*
+   * Current Markdown file is:
+   *
+   *   <slug>/<lang>.md
+   *
+   * Therefore the directory containing
+   * the current file is represented by
+   * the current `slug`.
+   *
+   * Example:
+   *
+   *   slug =
+   *   电路学/一、基本电路观念
+   *
+   * base =
+   *   [
+   *     电路学,
+   *     一、基本电路观念
+   *   ]
+   */
+  const baseParts =
+    slug
+      .split('/')
+      .filter(Boolean);
+
+  /*
+   * Parse the relative target.
+   */
+  const targetParts =
+    cleanUrl
+      .split('/')
+      .filter(Boolean);
+
+  /*
+   * Resolve "." and ".." manually.
+   */
+  const resolvedParts = [
+    ...baseParts,
+  ];
+
+  for (
+    const part of targetParts
+  ) {
+    if (
+      part === '.' ||
+      part === ''
+    ) {
+      continue;
+    }
+
+    if (part === '..') {
+      /*
+       * Do not allow a Markdown link
+       * to escape the posts root.
+       */
+      if (
+        resolvedParts.length === 0
+      ) {
+        return undefined;
+      }
+
+      resolvedParts.pop();
+      continue;
+    }
+
+    resolvedParts.push(part);
+  }
+
+  /*
+   * The final filename is normally:
+   *
+   *   zh.md
+   *   en.md
+   *   ja.md
+   *
+   * Remove the language filename.
+   */
+  const last =
+    resolvedParts.at(-1);
+
+  if (
+    last === 'zh.md' ||
+    last === 'en.md' ||
+    last === 'ja.md'
+  ) {
+    resolvedParts.pop();
+  } else {
+    /*
+     * A Markdown link that ends with an
+     * unexpected filename is not treated
+     * as a post link.
+     */
+    return undefined;
+  }
+
+  if (
+    resolvedParts.length === 0
+  ) {
+    return undefined;
+  }
+
+  const targetSlug =
+    resolvedParts.join('/');
+
+  return (
+    postHref(
+      lang,
+      targetSlug,
+    ) + suffix
+  );
+}
+
+/* =========================================================
+ * Render Markdown
+ * ========================================================= */
+
+const {
+  html: bodyHtml,
+  headings,
+} =
+  await renderMarkdown(
+    post.body ?? '',
+    {
+      /*
+       * Relative image resolver.
+       */
+      resolveImage: async (
+        url,
+      ) => {
+        const meta =
+          await resolvePostAsset(
+            slug,
+            url,
+          );
+
+        if (!meta) {
+          return undefined;
+        }
+
+        try {
+          return (
+            await getImage({
+              src: meta,
+              width: 1000,
+            })
+          ).src;
+        } catch {
+          return undefined;
+        }
+      },
+
+      /*
+       * Relative Markdown link resolver.
+       */
+      resolveLink:
+        resolvePostLink,
+    },
+  );
+
+/* =========================================================
+ * Adjacent navigation
+ * ========================================================= */
+
+/*
+ * Only published top-level posts are returned
+ * by getPublishedPosts().
+ *
+ * Therefore subpages do not appear in
+ * previous/next navigation.
+ */
+const orderedPosts =
+  (
+    await getPublishedPosts(lang)
+  ).sort(
+    (a, b) =>
+      (
+        a.data.pubDate?.getTime() ??
+        0
+      ) -
+      (
+        b.data.pubDate?.getTime() ??
+        0
+      ),
+  );
+
+const currentIndex =
+  orderedPosts.findIndex(
+    (p) =>
+      p.id ===
+      `${lang}/${slug}`,
+  );
+
+const prevPost =
+  currentIndex > 0
+    ? orderedPosts[
+        currentIndex - 1
+      ]
+    : undefined;
+
+const nextPost =
+  currentIndex >= 0 &&
+  currentIndex <
+    orderedPosts.length - 1
+    ? orderedPosts[
+        currentIndex + 1
+      ]
+    : undefined;
+
+async function adjacentCard(
+  post: Awaited<
+    ReturnType<
+      typeof getPublishedPosts
+    >
+  >[number],
+) {
+  const postSlug =
+    slugOf(post, lang);
+
+  const image =
+    await resolvePostImage(
+      postSlug,
+      post.data.postImage,
+      600,
+    );
+
+  const ratio =
+    await postImageRatio(
+      postSlug,
+      post.data.postImage,
+      siteConfig.masonryRatios,
+      '3 / 2',
+    );
+
+  const pub =
+    post.data.pubDate ??
+    new Date(0);
+
+  return {
+    href: postHref(
+      lang,
+      postSlug,
+    ),
+
+    title:
+      post.data.title,
+
+    image,
+
+    ratio,
+
+    date:
+      `${pub.getFullYear()}/${
+        pub.getMonth() + 1
+      }/${pub.getDate()}`,
+
+    tags:
+      post.data.tag ?? [],
+
+    category:
+      post.data.category,
+  };
+}
+
+const prevCard =
+  prevPost
+    ? await adjacentCard(
+        prevPost,
+      )
+    : undefined;
+
+const nextCard =
+  nextPost
+    ? await adjacentCard(
+        nextPost,
+      )
+    : undefined;
+
+/*
+ * No headings → no TOC column.
+ */
+const hasToc =
+  headings.length > 0;
+---
+
+<BaseLayout
+  lang={lang}
+  title={title}
+  description={
+    description || undefined
+  }
+>
+  <div
+    class="reading-progress"
+    aria-hidden="true"
+  >
+    <span
+      data-progress-bar
+    ></span>
+  </div>
+
+  <div
+    class:list={[
+      'post-layout',
+      { 'has-toc': hasToc },
+    ]}
+  >
+    {
+      hasToc && (
+        <TableOfContents
+          {lang}
+          {headings}
+        />
+      )
+    }
+
+    <article class="post">
+      <header class="post-header">
+        <h1 class="post-title">
+          {title}
+        </h1>
+
+        {
+          description && (
+            <p class="post-description">
+              {description}
+            </p>
+          )
+        }
+
+        <div class="post-meta">
+          <time
+            datetime={
+              date.toISOString()
+            }
+          >
+            {dateText}
+          </time>
+
+          <a
+            class="chip chip-link"
+            href={archiveCategoryHref(
+              lang,
+              post.data.category,
+            )}
+          >
+            {post.data.category}
+          </a>
+
+          {
+            post.data.tag?.map(
+              (tagName) => (
+                <span class="chip chip--plain">
+                  # {tagName}
+                </span>
+              ),
+            )
+          }
+        </div>
+      </header>
+
+      <div
+        class="prose post-body"
+        set:html={bodyHtml}
+      />
+
+      <footer class="post-footer">
+        <AdjacentNav
+          prev={prevCard}
+          next={nextCard}
+        />
+      </footer>
+    </article>
+  </div>
+</BaseLayout>
+
+<script>
+  // 顶部细进度条:按阅读进度填充
+  const bar =
+    document.querySelector<HTMLElement>(
+      '[data-progress-bar]',
+    );
+
+  const update = () => {
+    if (!bar) return;
+
+    const root =
+      document.documentElement;
+
+    const total =
+      root.scrollHeight -
+      window.innerHeight;
+
+    bar.style.width =
+      total > 0
+        ? `${Math.min(
+            100,
+            (window.scrollY /
+              total) *
+              100,
+          )}%`
+        : '0%';
+  };
+
+  window.addEventListener(
+    'scroll',
+    update,
+    { passive: true },
+  );
+
+  update();
+</script>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    height: 3px;
+    pointer-events: none;
+  }
+
+  .reading-progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--sky);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .post-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 780px);
+    gap: 2rem;
+    justify-content: center;
+    align-items: start;
+  }
+
+  .post-layout.has-toc {
+    grid-template-columns:
+      220px
+      minmax(0, 780px);
+    gap: 2.5rem;
+    padding-left: 2.5rem;
+  }
+
+  .post {
+    max-width: 780px;
+    padding:
+      clamp(1rem, 3vw, 2.5rem)
+      0;
+  }
+
+  .post-title {
+    margin: 0 0 0.7rem;
+    font-size:
+      clamp(1.45rem, 3.4vw, 2rem);
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .post-description {
+    margin: 0 0 1rem;
+    color: var(--text-soft);
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-bottom: 1.1rem;
+    border-bottom:
+      1px solid var(--border);
+  }
+
+  .post-meta time {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-faint);
+  }
+
+  .post-meta .chip-link {
+    text-decoration: none;
+  }
+
+  .post-meta .chip-link:hover {
+    background:
+      color-mix(
+        in srgb,
+        var(--sky) 24%,
+        transparent
+      );
+    color: var(--hover);
+  }
+
+  .post-body {
+    margin-top: 1.4rem;
+  }
+
+  .post-footer {
+    margin-top: 2.6rem;
+    padding-top: 1.2rem;
+    border-top:
+      1px solid var(--border);
+  }
+
+  @media (max-width: 1024px) {
+    .post-layout,
+    .post-layout.has-toc {
+      grid-template-columns:
+        minmax(0, 780px);
+      padding-left: 0;
+    }
+
+    .toc {
+      display: none;
+    }
+  }
+</style>

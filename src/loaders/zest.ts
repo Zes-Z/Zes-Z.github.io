@@ -5,37 +5,42 @@ import { join, relative } from 'node:path';
 import matter from 'gray-matter';
 
 /**
- * Parse one Zest content file: plain YAML frontmatter + Markdown body.
- * Normalizes `tag` and falls back pubDate to the file creation time
- * ("pubDate 自动读取创建时间").
+ * Parse one Zest Markdown file.
+ *
+ * - Normalize `tag` to string[]
+ * - Use file creation time as the fallback for `pubDate`
  */
-export async function parseZestFile(content: string, filePath: string) {
+export async function parseZestFile(
+  content: string,
+  filePath: string,
+): Promise<{
+  frontmatter: Record<string, unknown>;
+  body: string;
+}> {
   const parsed = matter(content);
   const frontmatter: Record<string, unknown> = parsed.data ?? {};
 
-  // Normalize `tag`: string ("a, b"), array, or missing → string[].
   const rawTag = frontmatter.tag;
-  let tag: string[] = [];
 
-  if (Array.isArray(rawTag)) {
-    tag = rawTag.map((t) => String(t).trim()).filter(Boolean);
-  } else if (typeof rawTag === 'string' && rawTag.trim() !== '') {
-    tag = rawTag
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-  }
+  const tag = Array.isArray(rawTag)
+    ? rawTag.map((t) => String(t).trim()).filter(Boolean)
+    : typeof rawTag === 'string'
+      ? rawTag
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : [];
 
-  // pubDate: frontmatter value, otherwise the file creation time.
   let pubDate: Date | undefined;
   const rawDate = frontmatter.pubDate;
 
   if (rawDate instanceof Date) {
     pubDate = rawDate;
   } else if (typeof rawDate === 'string' && rawDate !== '') {
-    const parsedDate = new Date(rawDate);
-    if (!Number.isNaN(parsedDate.getTime())) {
-      pubDate = parsedDate;
+    const date = new Date(rawDate);
+
+    if (!Number.isNaN(date.getTime())) {
+      pubDate = date;
     }
   }
 
@@ -44,7 +49,7 @@ export async function parseZestFile(content: string, filePath: string) {
       const info = await stat(filePath);
       pubDate = info.birthtime || info.ctime;
     } catch {
-      // schema falls back to epoch
+      // Let the schema handle the missing date.
     }
   }
 
@@ -59,23 +64,30 @@ export async function parseZestFile(content: string, filePath: string) {
 }
 
 /**
- * Custom content loader for Zest `.md` files.
+ * Custom content loader for Zest Markdown files.
  *
- * Layout:
- *   src/content/posts/<slug>/{en,zh,ja}.md
+ * Structure:
  *
- * plus any images used by the post, e.g.:
- *   cover.png
+ *   src/content/posts/<slug>/<lang>.md
+ *   src/content/posts/<slug>/<subdir>/<lang>.md
+ *   src/content/posts/<slug>/<subdir>/<subdir>/<lang>.md
  *
- * referenced from frontmatter/body as:
- *   ./cover.png
+ * Entry IDs:
  *
- * Entry ids are:
- *   <lang>/<slug>
+ *   <lang>/<path>
  *
- * Example:
+ * Examples:
+ *
  *   hello-zest/en.md
  *   → en/hello-zest
+ *
+ *   电路学/一、基本电路观念/zh.md
+ *   → zh/电路学/一、基本电路观念
+ *
+ * `isSubpage` is automatically set to:
+ *
+ *   false → top-level Markdown
+ *   true  → Markdown inside a subdirectory
  */
 export function zestLoader(options: { base: string }): Loader {
   return {
@@ -93,53 +105,33 @@ export function zestLoader(options: { base: string }): Loader {
       );
 
       const rootDir = fileURLToPath(config.root);
-
-      // 已不在磁盘上的条目
-      // （被删除/改名）在本次加载后清除
       const stale = new Set(store.keys());
 
-      /**
-       * Convert an absolute path to a path relative to project root.
-       *
-       * Internally we normalize paths to `/` so that the same logic
-       * works on both Windows and Linux.
-       */
       const relToRoot = (absPath: string) =>
         relative(rootDir, absPath).replaceAll('\\', '/');
 
       /**
-       * File:
+       * Convert:
        *
-       *   <slug>/<lang>.md
+       *   <path>/<lang>.md
        *
-       * becomes:
+       * into:
        *
-       *   <lang>/<slug>
-       *
-       * Example:
-       *
-       *   hello-zest/en.md
-       *   → en/hello-zest
+       *   <lang>/<path>
        */
       const idOf = (rel: string) => {
         const clean = rel
           .replace(/\.md$/, '')
           .replaceAll('\\', '/');
 
-        const parts = clean
-          .split('/')
-          .filter(Boolean);
+        const parts = clean.split('/').filter(Boolean);
 
-        if (parts.length >= 2) {
-          const lang = parts[parts.length - 1];
-          const slug = parts
-            .slice(0, -1)
-            .join('/');
+        if (parts.length < 2) return clean;
 
-          return `${lang}/${slug}`;
-        }
+        const lang = parts.at(-1)!;
+        const slug = parts.slice(0, -1).join('/');
 
-        return clean;
+        return `${lang}/${slug}`;
       };
 
       /**
@@ -148,21 +140,6 @@ export function zestLoader(options: { base: string }): Loader {
       const syncFile = async (relFile: string) => {
         if (!relFile.endsWith('.md')) return;
 
-        // IMPORTANT:
-        //
-        // Do NOT replace `/` with `\` here.
-        //
-        // `path.join()` automatically uses the correct path
-        // separator for the current operating system.
-        //
-        // Windows:
-        //   baseDir + welcome + en.md
-        //   → welcome\en.md
-        //
-        // Linux:
-        //   baseDir + welcome + en.md
-        //   → welcome/en.md
-        //
         const normalizedRelFile = relFile.replaceAll('\\', '/');
 
         const absPath = join(
@@ -170,31 +147,78 @@ export function zestLoader(options: { base: string }): Loader {
           ...normalizedRelFile.split('/'),
         );
 
-        const contents = await readFile(
-          absPath,
-          'utf8',
-        );
-
+        const contents = await readFile(absPath, 'utf8');
         const fileRel = relToRoot(absPath);
 
-        const {
-          frontmatter,
-          body,
-        } = await parseZestFile(
+        const { frontmatter, body } = await parseZestFile(
           contents,
           absPath,
         );
 
-        const id = idOf(relFile);
+        const id = idOf(normalizedRelFile);
 
         stale.delete(id);
 
-        const data =
-          await parseData<Record<string, unknown>>({
-            id,
-            data: frontmatter,
-            filePath: fileRel,
-          });
+        /**
+         * A top-level article has:
+         *
+         *   <slug>/<lang>.md
+         *
+         * A subpage has:
+         *
+         *   <slug>/<subdir>/<lang>.md
+         *
+         * Therefore, more than two path segments means
+         * this Markdown file is a subpage.
+         */
+        const parts = normalizedRelFile
+          .split('/')
+          .filter(Boolean);
+
+        const isSubpage = parts.length > 2;
+
+        /**
+         * Subpages are rendered as independent Markdown pages,
+         * but they are not normal articles.
+         *
+         * The posts collection schema still requires `title`
+         * and `category`, so provide sensible fallback values
+         * for subpages when those fields are omitted from frontmatter.
+         *
+         * Example:
+         *
+         *   电路学/二、进阶电路分析/zh.md
+         *
+         * automatically gets:
+         *
+         *   title: "二、进阶电路分析"
+         *   category: "Subpage"
+         */
+        const data = await parseData<Record<string, unknown>>({
+          id,
+          data: {
+            ...frontmatter,
+
+            ...(isSubpage
+              ? {
+                  title:
+                    typeof frontmatter.title === 'string' &&
+                    frontmatter.title.trim()
+                      ? frontmatter.title
+                      : parts.at(-2) ?? 'Untitled',
+
+                  category:
+                    typeof frontmatter.category === 'string' &&
+                    frontmatter.category.trim()
+                      ? frontmatter.category
+                      : 'Subpage',
+                }
+              : {}),
+
+            isSubpage,
+          },
+          filePath: fileRel,
+        });
 
         store.set({
           id,
@@ -206,34 +230,24 @@ export function zestLoader(options: { base: string }): Loader {
       };
 
       /**
-       * Find all Markdown files.
+       * Find all Markdown files, including subpages.
        */
       const files: string[] = [];
 
-      for await (
-        const file of fsGlob(
-          '**/*.md',
-          { cwd: baseDir },
-        )
-      ) {
+      for await (const file of fsGlob('**/*.md', {
+        cwd: baseDir,
+      })) {
         files.push(String(file));
       }
 
-      /**
-       * Normalize paths before processing.
-       */
       await Promise.all(
         files.map((file) =>
-          syncFile(
-            file.replaceAll('\\', '/'),
-          ),
+          syncFile(file.replaceAll('\\', '/')),
         ),
       );
 
-      // 清理被删除的文章
-      stale.forEach((id) => {
-        store.delete(id);
-      });
+      // Remove deleted or renamed entries.
+      stale.forEach((id) => store.delete(id));
 
       if (!watcher) return;
 
@@ -242,45 +256,36 @@ export function zestLoader(options: { base: string }): Loader {
        */
       watcher.add(baseDir);
 
-      watcher.on(
-        'change',
-        (changedPath: string) => {
-          const relPath = relative(
-            baseDir,
-            changedPath,
-          ).replaceAll('\\', '/');
+      watcher.on('change', (changedPath: string) => {
+        const relPath = relative(
+          baseDir,
+          changedPath,
+        ).replaceAll('\\', '/');
 
-          void syncFile(relPath);
-        },
-      );
+        void syncFile(relPath);
+      });
 
-      watcher.on(
-        'add',
-        (addedPath: string) => {
-          const relPath = relative(
-            baseDir,
-            addedPath,
-          ).replaceAll('\\', '/');
+      watcher.on('add', (addedPath: string) => {
+        const relPath = relative(
+          baseDir,
+          addedPath,
+        ).replaceAll('\\', '/');
 
-          void syncFile(relPath);
-        },
-      );
+        void syncFile(relPath);
+      });
 
-      watcher.on(
-        'unlink',
-        (deletedPath: string) => {
-          const relPath = relative(
-            baseDir,
-            deletedPath,
-          ).replaceAll('\\', '/');
+      watcher.on('unlink', (deletedPath: string) => {
+        const relPath = relative(
+          baseDir,
+          deletedPath,
+        ).replaceAll('\\', '/');
 
-          const id = idOf(relPath);
+        const id = idOf(relPath);
 
-          if (id) {
-            store.delete(id);
-          }
-        },
-      );
+        if (id) {
+          store.delete(id);
+        }
+      });
     },
   };
 }
