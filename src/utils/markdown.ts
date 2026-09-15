@@ -692,7 +692,7 @@ export async function renderMarkdown(
           handlers: {
             customAlert: remarkAlertHandler,
           },
-        },
+        }as any,
       )
 
       /*
