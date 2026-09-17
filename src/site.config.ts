@@ -193,8 +193,9 @@ export const siteConfig = {
   /** Fullscreen hero images (soft crossfade). */
   heroImages: [
     // '/wallpaper/saber花间意.jpg',
-    '/wallpaper/治愈田园雪山落日小桥.jpg',
     '/wallpaper/樱花树风景.jpg',
+    '/wallpaper/治愈田园雪山落日小桥.jpg',
+    
     '/wallpaper/山岚晴昼.jpg',
   ],
 

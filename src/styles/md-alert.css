@@ -1,12 +1,18 @@
 /* =========================================================
  * Markdown Custom Alerts
- * Syntax:
- *   > [!tip,电流]
+ *
+ * Custom block syntax:
+ *   :::tip 标题
+ *   正文
+ *   :::
+ *
+ * GitHub alert syntax is handled by remark-github-alerts:
+ *   > [!TIP]
  *   > 正文
  * ========================================================= */
 
 .prose .md-alert {
-  --alert-color: #2563eb;
+  --alert-color: #407cfcc4;
   --alert-bg: rgba(37, 99, 235, 0.055);
 
   margin: 1.35rem 0;
@@ -37,7 +43,7 @@
 }
 
 .prose .md-alert-title-text {
-  font-size: 1.2rem;
+  font-size: 1.12rem;
   font-weight: 650;
   line-height: 1.4;
 }
@@ -92,10 +98,10 @@
 }
 
 .prose .md-alert-note .md-alert-icon::before {
-  content: '💭';
+  content: '📝';
 }
 
-.prose .md-alert-vital .md-alert-icon::before {
+.prose .md-alert-important .md-alert-icon::before {
   content: '❗';
 }
 
@@ -108,7 +114,11 @@
 }
 
 .prose .md-alert-definition .md-alert-icon::before {
-  content: '📝';
+  content: '◇';
+}
+
+.prose .md-alert-theorem .md-alert-icon::before {
+  content: '∎';
 }
 
 .prose .md-alert-lemma .md-alert-icon::before {
@@ -139,17 +149,17 @@
  * Colors
  * ========================================================= */
 
-.prose .md-alert-definition {
-  --alert-color: #37afff;
+.prose .md-alert-tip {
+  --alert-color: #2563eb;
   --alert-bg: rgba(37, 99, 235, 0.055);
 }
 
 .prose .md-alert-note {
-  --alert-color: #f669dc;
+  --alert-color: #0891b2;
   --alert-bg: rgba(8, 145, 178, 0.055);
 }
 
-.prose .md-alert-vital {
+.prose .md-alert-important {
   --alert-color: #dc2626;
   --alert-bg: rgba(220, 38, 38, 0.055);
 }
@@ -159,14 +169,29 @@
   --alert-bg: rgba(217, 119, 6, 0.065);
 }
 
-.prose .md-alert-tip {
-  --alert-color: #17c01f;
-  --alert-bg: rgba(183, 240, 137, 0.168);
+.prose .md-alert-caution {
+  --alert-color: #dc2626;
+  --alert-bg: rgba(220, 38, 38, 0.055);
+}
+
+.prose .md-alert-definition {
+  --alert-color: #7c3aed;
+  --alert-bg: rgba(124, 58, 237, 0.055);
 }
 
 .prose .md-alert-theorem {
-  --alert-color: #c026d3;
+  --alert-color: #9333ea;
   --alert-bg: rgba(147, 51, 234, 0.055);
+}
+
+.prose .md-alert-lemma {
+  --alert-color: #c026d3;
+  --alert-bg: rgba(192, 38, 211, 0.055);
+}
+
+.prose .md-alert-proof {
+  --alert-color: #059669;
+  --alert-bg: rgba(5, 150, 105, 0.055);
 }
 
 .prose .md-alert-example {
@@ -203,7 +228,7 @@ html[data-theme='dark'] .prose .md-alert-note {
   --alert-bg: rgba(34, 211, 238, 0.08);
 }
 
-html[data-theme='dark'] .prose .md-alert-vital,
+html[data-theme='dark'] .prose .md-alert-important,
 html[data-theme='dark'] .prose .md-alert-caution {
   --alert-color: #f87171;
   --alert-bg: rgba(248, 113, 113, 0.08);
@@ -248,4 +273,172 @@ html[data-theme='dark'] .prose .md-alert-remark {
 html[data-theme='dark'] .prose .md-alert-question {
   --alert-color: #60a5fa;
   --alert-bg: rgba(96, 165, 250, 0.08);
+}
+
+/* =========================================================
+ * Custom ::: blocks
+ *
+ * These styles belong only to the custom ::: syntax.
+ * GitHub > [!TYPE] alerts are styled exclusively by
+ * remark-github-alerts and its bundled stylesheets.
+ * ========================================================= */
+
+.prose .directive {
+  margin: 1.5em 0;
+  padding: 1em 1.25em;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.prose .directive-title {
+  margin: -0.15em 0 0.6em;
+  font-weight: 700;
+  font-size: 1.05em;
+  line-height: 1.4;
+}
+
+.prose .directive > :last-child {
+  margin-bottom: 0;
+}
+
+.prose .directive-tip {
+  border-left-color: #10b981;
+  background: color-mix(in srgb, #10b981 8%, var(--surface));
+}
+
+.prose .directive-note {
+  border-left-color: #3b82f6;
+  background: color-mix(in srgb, #3b82f6 8%, var(--surface));
+}
+
+.prose .directive-important {
+  border-left-color: #8b5cf6;
+  background: color-mix(in srgb, #8b5cf6 8%, var(--surface));
+}
+
+.prose .directive-warning {
+  border-left-color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 8%, var(--surface));
+}
+
+.prose .directive-caution {
+  border-left-color: #ef4444;
+  background: color-mix(in srgb, #ef4444 8%, var(--surface));
+}
+
+.prose .directive-definition {
+  border-left-color: #2563eb;
+  background: color-mix(in srgb, #2563eb 8%, var(--surface));
+}
+
+.prose .directive-theorem {
+  border-left-color: #9333ea;
+  background: color-mix(in srgb, #9333ea 8%, var(--surface));
+}
+
+.prose .directive-lemma {
+  border-left-color: #c026d3;
+  background: color-mix(in srgb, #c026d3 8%, var(--surface));
+}
+
+.prose .directive-proof {
+  border-left-color: #059669;
+  background: color-mix(in srgb, #059669 8%, var(--surface));
+}
+
+.prose .directive-example {
+  border-left-color: #0891b2;
+  background: color-mix(in srgb, #0891b2 8%, var(--surface));
+}
+
+.prose .directive-formula {
+  border-left-color: #475569;
+  background: color-mix(in srgb, #475569 8%, var(--surface));
+}
+
+.prose .directive-question {
+  border-left-color: #2563eb;
+  background: color-mix(in srgb, #2563eb 8%, var(--surface));
+}
+
+.prose .directive-remark {
+  border-left-color: #64748b;
+  background: color-mix(in srgb, #64748b 8%, var(--surface));
+}
+
+.prose .directive-law {
+  border-left-color: #dc2626;
+  background: color-mix(in srgb, #dc2626 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-tip {
+  border-left-color: #34d399;
+  background: color-mix(in srgb, #34d399 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-note {
+  border-left-color: #60a5fa;
+  background: color-mix(in srgb, #60a5fa 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-important {
+  border-left-color: #a78bfa;
+  background: color-mix(in srgb, #a78bfa 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-warning {
+  border-left-color: #fbbf24;
+  background: color-mix(in srgb, #fbbf24 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-caution {
+  border-left-color: #f87171;
+  background: color-mix(in srgb, #f87171 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-definition {
+  border-left-color: #60a5fa;
+  background: color-mix(in srgb, #60a5fa 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-theorem {
+  border-left-color: #c084fc;
+  background: color-mix(in srgb, #c084fc 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-lemma {
+  border-left-color: #e879f9;
+  background: color-mix(in srgb, #e879f9 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-proof {
+  border-left-color: #34d399;
+  background: color-mix(in srgb, #34d399 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-example {
+  border-left-color: #22d3ee;
+  background: color-mix(in srgb, #22d3ee 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-formula {
+  border-left-color: #94a3b8;
+  background: color-mix(in srgb, #94a3b8 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-question {
+  border-left-color: #60a5fa;
+  background: color-mix(in srgb, #60a5fa 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-remark {
+  border-left-color: #94a3b8;
+  background: color-mix(in srgb, #94a3b8 8%, var(--surface));
+}
+
+html[data-theme='dark'] .prose .directive-law {
+  border-left-color: #f87171;
+  background: color-mix(in srgb, #f87171 8%, var(--surface));
 }

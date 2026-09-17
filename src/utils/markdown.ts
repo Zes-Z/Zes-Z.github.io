@@ -2,8 +2,8 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
-import remarkDirective from 'remark-directive';
-import remarkDirectiveRehype from 'remark-directive-rehype';
+import { remarkAlert } from 'remark-github-blockquote-alert';
+import 'remark-github-blockquote-alert/alert.css'
 import remarkDeflist from 'remark-deflist';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
@@ -15,6 +15,7 @@ import { visit } from 'unist-util-visit';
 import { toString } from 'mdast-util-to-string';
 import Slugger from 'github-slugger';
 import type { Image, Root } from 'mdast';
+import '../styles/md-alert.css';
 
 /* =========================================================
  * Types
@@ -223,23 +224,109 @@ function remarkCodeMeta() {
 }
 
 /* =========================================================
- * CUSTOM ALERT
+ * CUSTOM MARKDOWN BLOCK PREPROCESSOR
+ *
+ * CommonMark parses a line such as:
+ *
+ *   :::tip 标题
+ *
+ * as ordinary paragraph text unless the surrounding structure is
+ * separated first. We therefore isolate custom-block marker lines
+ * before remarkParse runs.
+ *
+ * The preprocessor deliberately ignores fenced code blocks so that
+ * literal ::: lines inside code examples are never changed.
+ * ========================================================= */
+
+const CUSTOM_BLOCK_MARKER_RE =
+  /^:::\s*(?:[A-Za-z][A-Za-z0-9_-]*(?:\s+.+)?|)\s*$/;
+
+function preprocessCustomBlocks(
+  source: string,
+): string {
+  const lines = source.replace(/\r\n?/g, '\n').split('\n');
+  const output: string[] = [];
+
+  let fenced = false;
+  let fenceChar = '';
+  let fenceLength = 0;
+
+  for (const line of lines) {
+    const fenceMatch = /^(\s*)(`{3,}|~{3,})(.*)$/.exec(line);
+
+    if (fenceMatch) {
+      const marker = fenceMatch[2];
+
+      if (!fenced) {
+        fenced = true;
+        fenceChar = marker[0];
+        fenceLength = marker.length;
+      } else if (
+        marker[0] === fenceChar &&
+        marker.length >= fenceLength
+      ) {
+        fenced = false;
+        fenceChar = '';
+        fenceLength = 0;
+      }
+
+      output.push(line);
+      continue;
+    }
+
+    if (!fenced && CUSTOM_BLOCK_MARKER_RE.test(line)) {
+      if (output.length > 0 && output[output.length - 1] !== '') {
+        output.push('');
+      }
+
+      output.push(line.trim());
+      output.push('');
+      continue;
+    }
+
+    output.push(line);
+  }
+
+  return output.join('\n');
+}
+
+/* =========================================================
+ * CUSTOM MARKDOWN BLOCK
  *
  * Supported syntax:
  *
- *   > [!tip,电流]
- *   > 电流是电荷的定向移动形成的物理量。
+ *   :::tip 提示
+ *   这是正文。
+ *   :::
  *
- *   > [!important,电压]
- *   > 单位电荷通过物理元件时，功/能量的变化量。
- *   >
- *   > > 这是测试用的二级引用
+ *   :::definition 节点
+ *   由理想导线直接连接的所有点构成同一个节点。
+ *   :::
  *
- * Only the comma syntax is supported.
- * Normal blockquotes remain normal blockquotes.
+ *   :::theorem 欧姆定律
+ *   在一定条件下，通过导体的电流与其两端电压成正比。
+ *
+ *   $$
+ *   V=IR
+ *   $$
+ *   :::
+ *
+ * The body is already parsed by remark, so normal Markdown
+ * syntax remains available inside the custom block:
+ *
+ *   - paragraphs
+ *   - lists
+ *   - blockquotes
+ *   - code blocks
+ *   - math
+ *   - links
+ *   - images
+ *   - nested custom blocks
+ *
+ * Normal Markdown blockquotes (`>`) are completely unaffected.
  * ========================================================= */
 
-const ALERT_TYPES = new Set([
+const CUSTOM_BLOCK_TYPES = new Set([
   'tip',
   'note',
   'important',
@@ -253,16 +340,17 @@ const ALERT_TYPES = new Set([
   'formula',
   'question',
   'remark',
+  'law',
 ]);
 
-function normalizeAlertType(
+function normalizeCustomBlockType(
   type: string,
 ): string {
   const normalized = type
     .trim()
     .toLowerCase();
 
-  if (ALERT_TYPES.has(normalized)) {
+  if (CUSTOM_BLOCK_TYPES.has(normalized)) {
     return normalized;
   }
 
@@ -274,99 +362,189 @@ function normalizeAlertType(
 }
 
 /**
- * Convert an mdast blockquote whose first paragraph starts with
+ * Return the plain text of a paragraph when it consists only of
+ * ordinary text nodes.
  *
- *   [!type,title]
+ * This keeps syntax such as:
  *
- * into a customAlert node.
+ *   :::theorem 欧姆定律
  *
- * This happens before remarkRehype so nested blockquotes remain
- * available as normal Markdown blockquote nodes.
+ * unambiguous. Formatting is intentionally not supported in the
+ * opening/closing marker itself; formatting remains fully supported
+ * in the block body.
  */
-function remarkCustomAlerts() {
-  return (tree: Root) => {
-    visit(tree, 'blockquote', (node: any) => {
-      const first = node.children?.[0];
+function getPlainParagraphText(
+  node: any,
+): string | undefined {
+  if (
+    !node ||
+    node.type !== 'paragraph' ||
+    !Array.isArray(node.children)
+  ) {
+    return undefined;
+  }
 
-      if (
-        !first ||
-        first.type !== 'paragraph'
-      ) {
-        return;
-      }
+  if (
+    node.children.some(
+      (child: any) => child.type !== 'text',
+    )
+  ) {
+    return undefined;
+  }
 
-      /*
-       * The marker must be in a text node.
-       */
-      const firstText =
-        first.children?.find(
-          (child: any) =>
-            child.type === 'text',
-        );
+  return node.children
+    .map((child: any) => child.value ?? '')
+    .join('');
+}
 
-      if (!firstText) {
-        return;
-      }
+/**
+ * Parse a custom block opening marker.
+ *
+ *   :::type title
+ *
+ * Returns null for ordinary paragraphs.
+ */
+function parseCustomBlockOpening(
+  node: any,
+): {
+  type: string;
+  title: string;
+} | undefined {
+  const text =
+    getPlainParagraphText(node);
 
-      const match =
-        /^\[!([A-Za-z][A-Za-z0-9_-]*),([^\]\r\n]+)\]\s*/.exec(
-          firstText.value ?? '',
-        );
+  if (text === undefined) {
+    return undefined;
+  }
 
-      if (!match) {
-        return;
-      }
+  const match =
+    /^:::\s*([A-Za-z][A-Za-z0-9_-]*)(?:\s+(.+?))?\s*$/.exec(
+      text,
+    );
 
-      const [, rawType, rawTitle] = match;
-      const title = rawTitle.trim();
+  if (!match) {
+    return undefined;
+  }
 
-      if (!title) {
-        return;
-      }
+  const [, rawType, rawTitle] = match;
+  const title = (rawTitle ?? '').trim();
 
-      /*
-       * Remove only the alert marker.
-       */
-      firstText.value =
-        (firstText.value ?? '').slice(
-          match[0].length,
-        );
+  if (!title) {
+    return undefined;
+  }
 
-      /*
-       * Remove empty text nodes.
-       */
-      first.children =
-        first.children.filter(
-          (child: any) =>
-            !(
-              child.type === 'text' &&
-              !(child.value ?? '').length
-            ),
-        );
-
-      /*
-       * If the paragraph becomes empty,
-       * remove it completely.
-       */
-      if (first.children.length === 0) {
-        node.children.shift();
-      }
-
-      /*
-       * Keep all remaining children, including nested blockquotes.
-       */
-      node.type = 'customAlert';
-      node.alertType =
-        normalizeAlertType(rawType);
-      node.alertTitle = title;
-    });
+  return {
+    type: normalizeCustomBlockType(rawType),
+    title,
   };
 }
 
 /**
- * remark-rehype handler for customAlert.
+ * Check whether a paragraph is exactly the closing marker:
+ *
+ *   :::
  */
-function remarkAlertHandler(
+function isCustomBlockClosing(
+  node: any,
+): boolean {
+  const text =
+    getPlainParagraphText(node);
+
+  return (
+    text !== undefined &&
+    /^:::\s*$/.test(text)
+  );
+}
+
+/**
+ * Recursively transform one mdast children array.
+ *
+ * The Markdown parser has already parsed the complete body before
+ * this plugin runs. Therefore everything between the opening and
+ * closing markers can remain normal mdast nodes.
+ *
+ * This is what allows Markdown inside ::: blocks to keep its normal
+ * semantics without reparsing the body as a separate Markdown string.
+ */
+function transformCustomBlockChildren(
+  children: any[],
+): any[] {
+  const result: any[] = [];
+
+  for (let i = 0; i < children.length; i++) {
+    const current = children[i];
+    const opening = parseCustomBlockOpening(current);
+
+    if (!opening) {
+      if (Array.isArray(current?.children)) {
+        current.children = transformCustomBlockChildren(current.children);
+      }
+
+      result.push(current);
+      continue;
+    }
+
+    const body: any[] = [];
+    let depth = 1;
+    let foundClosing = false;
+
+    for (let j = i + 1; j < children.length; j++) {
+      const candidate = children[j];
+      const nestedOpening = parseCustomBlockOpening(candidate);
+
+      if (nestedOpening) {
+        depth++;
+        body.push(candidate);
+        continue;
+      }
+
+      if (isCustomBlockClosing(candidate)) {
+        depth--;
+
+        if (depth === 0) {
+          foundClosing = true;
+          i = j;
+          break;
+        }
+
+        body.push(candidate);
+        continue;
+      }
+
+      body.push(candidate);
+    }
+
+    if (!foundClosing) {
+      result.push(current);
+      continue;
+    }
+
+    const customBlock: any = {
+      type: 'customBlock',
+      customBlockType: opening.type,
+      customBlockTitle: opening.title,
+      children: transformCustomBlockChildren(body),
+    };
+
+    result.push(customBlock);
+  }
+
+  return result;
+}
+
+function remarkCustomBlocks() {
+  return (tree: Root) => {
+    tree.children =
+      transformCustomBlockChildren(
+        tree.children,
+      );
+  };
+}
+
+/**
+ * remark-rehype handler for customBlock.
+ */
+function remarkCustomBlockHandler(
   state: any,
   node: any,
 ) {
@@ -375,8 +553,8 @@ function remarkAlertHandler(
     tagName: 'div',
     properties: {
       className: [
-        'md-alert',
-        `md-alert-${node.alertType || 'custom'}`,
+        'directive',
+        `directive-${node.customBlockType || 'custom'}`,
       ],
     },
     children: [
@@ -384,50 +562,16 @@ function remarkAlertHandler(
         type: 'element',
         tagName: 'div',
         properties: {
-          className: [
-            'md-alert-title',
-          ],
+          className: ['directive-title'],
         },
         children: [
           {
-            type: 'element',
-            tagName: 'span',
-            properties: {
-              className: [
-                'md-alert-icon',
-              ],
-              ariaHidden: 'true',
-            },
-            children: [],
-          },
-          {
-            type: 'element',
-            tagName: 'span',
-            properties: {
-              className: [
-                'md-alert-title-text',
-              ],
-            },
-            children: [
-              {
-                type: 'text',
-                value:
-                  node.alertTitle || '',
-              },
-            ],
+            type: 'text',
+            value: node.customBlockTitle || '',
           },
         ],
       },
-      {
-        type: 'element',
-        tagName: 'div',
-        properties: {
-          className: [
-            'md-alert-body',
-          ],
-        },
-        children: state.all(node),
-      },
+      ...state.all(node),
     ],
   };
 }
@@ -654,117 +798,6 @@ function rehypeCodeBlocks() {
 }
 
 /* =========================================================
- * ::: directives
- * ========================================================= */
-
-function rehypeNormalizeDirectives() {
-  const types = [
-    'note',
-    'tip',
-    'important',
-    'warning',
-    'caution',
-  ];
-
-  return (tree: any) => {
-    visit(
-      tree,
-      'element',
-      (node: any) => {
-        if (
-          !types.includes(
-            node.tagName,
-          )
-        ) {
-          return;
-        }
-
-        const type =
-          node.tagName;
-
-        node.tagName =
-          'div';
-
-        node.properties = {
-          ...(node.properties ?? {}),
-
-          className: [
-            'directive',
-            `directive-${type}`,
-          ],
-        };
-      },
-    );
-  };
-}
-
-/**
- * Turn a directive's first bold paragraph
- * (`:::tip **Title** ... :::`) into a title.
- */
-function rehypeDirectiveTitles() {
-  return (tree: any) => {
-    visit(
-      tree,
-      'element',
-      (node: any) => {
-        const classes =
-          node?.properties
-            ?.className;
-
-        if (
-          !Array.isArray(classes) ||
-          !classes.includes(
-            'directive',
-          )
-        ) {
-          return;
-        }
-
-        const first =
-          node.children?.[0];
-
-        if (
-          !first ||
-          first.type !== 'element' ||
-          first.tagName !== 'p'
-        ) {
-          return;
-        }
-
-        const strong =
-          first.children?.find(
-            (child: any) =>
-              child.type ===
-                'element' &&
-              child.tagName ===
-                'strong',
-          );
-
-        if (!strong) {
-          return;
-        }
-
-        node.children[0] = {
-          type: 'element',
-
-          tagName: 'div',
-
-          properties: {
-            className: [
-              'directive-title',
-            ],
-          },
-
-          children:
-            strong.children,
-        };
-      },
-    );
-  };
-}
-
-/* =========================================================
  * Markdown renderer
  * ========================================================= */
 
@@ -781,7 +814,15 @@ export async function renderMarkdown(
 
       .use(remarkMath)
 
-      .use(remarkDirective)
+      /*
+       * GitHub-style alerts:
+       *
+       *   > [!TIP]
+       *   > 正文
+       *
+       * These are handled by remark-github-alerts.
+       */
+      .use(remarkAlert)
 
       .use(remarkDeflist)
 
@@ -810,22 +851,18 @@ export async function renderMarkdown(
       .use(remarkCodeMeta)
 
       /*
-       * Convert [!type,title] blockquotes
+       * Convert :::type title ... ::: blocks
        * while they are still mdast.
        */
-      .use(remarkCustomAlerts)
-
-      .use(
-        remarkDirectiveRehype,
-      )
+      .use(remarkCustomBlocks)
 
       .use(
         remarkRehype,
         {
           allowDangerousHtml: true,
           handlers: {
-            customAlert:
-              remarkAlertHandler,
+            customBlock:
+              remarkCustomBlockHandler,
           },
         } as any,
       )
@@ -844,17 +881,6 @@ export async function renderMarkdown(
        * Heading IDs.
        */
       .use(rehypeSlug)
-
-      /*
-       * Existing ::: directives.
-       */
-      .use(
-        rehypeNormalizeDirectives,
-      )
-
-      .use(
-        rehypeDirectiveTitles,
-      )
 
       /*
        * Code blocks.
@@ -890,7 +916,9 @@ export async function renderMarkdown(
       );
 
   const file =
-    await processor.process(md);
+    await processor.process(
+      preprocessCustomBlocks(md),
+    );
 
   return {
     html: String(file),
