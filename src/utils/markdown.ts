@@ -2,8 +2,13 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+
+import remarkDirective from 'remark-directive';
+import remarkDirectiveRehype from 'remark-directive-rehype';
+
 import { remarkAlert } from 'remark-github-blockquote-alert';
-import 'remark-github-blockquote-alert/alert.css'
+import 'remark-github-blockquote-alert/alert.css';
+
 import remarkDeflist from 'remark-deflist';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
@@ -11,11 +16,13 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import rehypeShiki from '@shikijs/rehype';
 import rehypeStringify from 'rehype-stringify';
+
 import { visit } from 'unist-util-visit';
 import { toString } from 'mdast-util-to-string';
 import Slugger from 'github-slugger';
+
 import type { Image, Root } from 'mdast';
-import '../styles/md-alert.css';
+
 
 /* =========================================================
  * Types
@@ -44,17 +51,7 @@ export interface RenderOptions {
     url: string,
   ) => Promise<string | undefined>;
 
-  /**
-   * Resolve relative Markdown links.
-   *
-   * Example:
-   *
-   *   二、进阶电路分析/zh.md
-   *
-   * becomes:
-   *
-   *   /zh/posts/电路学/二、进阶电路分析
-   */
+
   resolveLink?: (
     url: string,
   ) => string | undefined;
@@ -224,355 +221,79 @@ function remarkCodeMeta() {
 }
 
 /* =========================================================
- * CUSTOM MARKDOWN BLOCK PREPROCESSOR
- *
- * CommonMark parses a line such as:
- *
- *   :::tip 标题
- *
- * as ordinary paragraph text unless the surrounding structure is
- * separated first. We therefore isolate custom-block marker lines
- * before remarkParse runs.
- *
- * The preprocessor deliberately ignores fenced code blocks so that
- * literal ::: lines inside code examples are never changed.
+ * Fuwari-style directives
  * ========================================================= */
 
-const CUSTOM_BLOCK_MARKER_RE =
-  /^:::\s*(?:[A-Za-z][A-Za-z0-9_-]*(?:\s+.+)?|)\s*$/;
-
-function preprocessCustomBlocks(
-  source: string,
-): string {
-  const lines = source.replace(/\r\n?/g, '\n').split('\n');
-  const output: string[] = [];
-
-  let fenced = false;
-  let fenceChar = '';
-  let fenceLength = 0;
-
-  for (const line of lines) {
-    const fenceMatch = /^(\s*)(`{3,}|~{3,})(.*)$/.exec(line);
-
-    if (fenceMatch) {
-      const marker = fenceMatch[2];
-
-      if (!fenced) {
-        fenced = true;
-        fenceChar = marker[0];
-        fenceLength = marker.length;
-      } else if (
-        marker[0] === fenceChar &&
-        marker.length >= fenceLength
-      ) {
-        fenced = false;
-        fenceChar = '';
-        fenceLength = 0;
-      }
-
-      output.push(line);
-      continue;
-    }
-
-    if (!fenced && CUSTOM_BLOCK_MARKER_RE.test(line)) {
-      if (output.length > 0 && output[output.length - 1] !== '') {
-        output.push('');
-      }
-
-      output.push(line.trim());
-      output.push('');
-      continue;
-    }
-
-    output.push(line);
-  }
-
-  return output.join('\n');
-}
-
-/* =========================================================
- * CUSTOM MARKDOWN BLOCK
- *
- * Supported syntax:
- *
- *   :::tip 提示
- *   这是正文。
- *   :::
- *
- *   :::definition 节点
- *   由理想导线直接连接的所有点构成同一个节点。
- *   :::
- *
- *   :::theorem 欧姆定律
- *   在一定条件下，通过导体的电流与其两端电压成正比。
- *
- *   $$
- *   V=IR
- *   $$
- *   :::
- *
- * The body is already parsed by remark, so normal Markdown
- * syntax remains available inside the custom block:
- *
- *   - paragraphs
- *   - lists
- *   - blockquotes
- *   - code blocks
- *   - math
- *   - links
- *   - images
- *   - nested custom blocks
- *
- * Normal Markdown blockquotes (`>`) are completely unaffected.
- * ========================================================= */
-
-const CUSTOM_BLOCK_TYPES = new Set([
-  'tip',
-  'note',
-  'important',
-  'warning',
-  'caution',
-  'definition',
-  'theorem',
-  'lemma',
-  'proof',
-  'example',
-  'formula',
-  'question',
-  'remark',
-  'law',
-]);
-
-function normalizeCustomBlockType(
-  type: string,
-): string {
-  const normalized = type
-    .trim()
-    .toLowerCase();
-
-  if (CUSTOM_BLOCK_TYPES.has(normalized)) {
-    return normalized;
-  }
-
-  const safe = normalized
-    .replace(/[^a-z0-9_-]/g, '')
-    .replace(/^-+/, '');
-
-  return safe || 'custom';
-}
-
 /**
- * Return the plain text of a paragraph when it consists only of
- * ordinary text nodes.
- *
- * This keeps syntax such as:
- *
- *   :::theorem 欧姆定律
- *
- * unambiguous. Formatting is intentionally not supported in the
- * opening/closing marker itself; formatting remains fully supported
- * in the block body.
+ * Mark only an explicit directive label (`:::type[Title]`) as the
+ * directive title. Untitled directives keep their first paragraph as
+ * ordinary content.
  */
-function getPlainParagraphText(
-  node: any,
-): string | undefined {
-  if (
-    !node ||
-    node.type !== 'paragraph' ||
-    !Array.isArray(node.children)
-  ) {
-    return undefined;
-  }
-
-  if (
-    node.children.some(
-      (child: any) => child.type !== 'text',
-    )
-  ) {
-    return undefined;
-  }
-
-  return node.children
-    .map((child: any) => child.value ?? '')
-    .join('');
-}
-
-/**
- * Parse a custom block opening marker.
- *
- *   :::type title
- *
- * Returns null for ordinary paragraphs.
- */
-function parseCustomBlockOpening(
-  node: any,
-): {
-  type: string;
-  title: string;
-} | undefined {
-  const text =
-    getPlainParagraphText(node);
-
-  if (text === undefined) {
-    return undefined;
-  }
-
-  const match =
-    /^:::\s*([A-Za-z][A-Za-z0-9_-]*)(?:\s+(.+?))?\s*$/.exec(
-      text,
-    );
-
-  if (!match) {
-    return undefined;
-  }
-
-  const [, rawType, rawTitle] = match;
-  const title = (rawTitle ?? '').trim();
-
-  if (!title) {
-    return undefined;
-  }
-
-  return {
-    type: normalizeCustomBlockType(rawType),
-    title,
-  };
-}
-
-/**
- * Check whether a paragraph is exactly the closing marker:
- *
- *   :::
- */
-function isCustomBlockClosing(
-  node: any,
-): boolean {
-  const text =
-    getPlainParagraphText(node);
-
-  return (
-    text !== undefined &&
-    /^:::\s*$/.test(text)
-  );
-}
-
-/**
- * Recursively transform one mdast children array.
- *
- * The Markdown parser has already parsed the complete body before
- * this plugin runs. Therefore everything between the opening and
- * closing markers can remain normal mdast nodes.
- *
- * This is what allows Markdown inside ::: blocks to keep its normal
- * semantics without reparsing the body as a separate Markdown string.
- */
-function transformCustomBlockChildren(
-  children: any[],
-): any[] {
-  const result: any[] = [];
-
-  for (let i = 0; i < children.length; i++) {
-    const current = children[i];
-    const opening = parseCustomBlockOpening(current);
-
-    if (!opening) {
-      if (Array.isArray(current?.children)) {
-        current.children = transformCustomBlockChildren(current.children);
-      }
-
-      result.push(current);
-      continue;
-    }
-
-    const body: any[] = [];
-    let depth = 1;
-    let foundClosing = false;
-
-    for (let j = i + 1; j < children.length; j++) {
-      const candidate = children[j];
-      const nestedOpening = parseCustomBlockOpening(candidate);
-
-      if (nestedOpening) {
-        depth++;
-        body.push(candidate);
-        continue;
-      }
-
-      if (isCustomBlockClosing(candidate)) {
-        depth--;
-
-        if (depth === 0) {
-          foundClosing = true;
-          i = j;
-          break;
-        }
-
-        body.push(candidate);
-        continue;
-      }
-
-      body.push(candidate);
-    }
-
-    if (!foundClosing) {
-      result.push(current);
-      continue;
-    }
-
-    const customBlock: any = {
-      type: 'customBlock',
-      customBlockType: opening.type,
-      customBlockTitle: opening.title,
-      children: transformCustomBlockChildren(body),
-    };
-
-    result.push(customBlock);
-  }
-
-  return result;
-}
-
-function remarkCustomBlocks() {
+function remarkDirectiveTitles() {
   return (tree: Root) => {
-    tree.children =
-      transformCustomBlockChildren(
-        tree.children,
-      );
+    visit(tree, 'containerDirective', (node: any) => {
+      const first = node.children?.[0];
+
+      if (
+        !first ||
+        first.type !== 'paragraph' ||
+        first.data?.directiveLabel !== true
+      ) {
+        return;
+      }
+
+      first.data ??= {};
+      first.data.hName = 'div';
+      first.data.hProperties = {
+        className: ['directive-title'],
+      };
+    });
   };
 }
 
 /**
- * remark-rehype handler for customBlock.
+ * Convert directive elements generated by remark-directive-rehype into
+ * the existing `.directive directive-*` CSS structure.
+ *
+ * The Markdown parser itself is still handled entirely by
+ * remark-directive; this is only the final HTML/CSS class adaptation.
  */
-function remarkCustomBlockHandler(
-  state: any,
-  node: any,
-) {
-  return {
-    type: 'element',
-    tagName: 'div',
-    properties: {
-      className: [
-        'directive',
-        `directive-${node.customBlockType || 'custom'}`,
-      ],
-    },
-    children: [
-      {
-        type: 'element',
-        tagName: 'div',
-        properties: {
-          className: ['directive-title'],
-        },
-        children: [
-          {
-            type: 'text',
-            value: node.customBlockTitle || '',
-          },
+function rehypeNormalizeDirectives() {
+  const types = [
+    'note',
+    'tip',
+    'vital',
+    'warning',
+    'caution',
+
+    'definition',
+    'theorem',
+    'lemma',
+    'proof',
+    'example',
+    'formula',
+    'question',
+    'remark',
+    'law',
+  ];
+
+  return (tree: any) => {
+    visit(tree, 'element', (node: any) => {
+      if (!types.includes(node.tagName)) {
+        return;
+      }
+
+      const name = node.tagName;
+
+      node.tagName = 'div';
+      node.properties = {
+        ...(node.properties ?? {}),
+        className: [
+          'directive',
+          `directive-${name}`,
         ],
-      },
-      ...state.all(node),
-    ],
+      };
+    });
   };
 }
 
@@ -808,6 +529,10 @@ export async function renderMarkdown(
   const processor =
     unified()
 
+      /* -----------------------------------------------------
+       * Markdown parser
+       * ----------------------------------------------------- */
+
       .use(remarkParse)
 
       .use(remarkGfm)
@@ -815,15 +540,26 @@ export async function renderMarkdown(
       .use(remarkMath)
 
       /*
-       * GitHub-style alerts:
+       * Fuwari-style ::: directives
        *
-       *   > [!TIP]
-       *   > 正文
+       * Example:
        *
-       * These are handled by remark-github-alerts.
+       *   :::definition[节点]
+       *   内容
+       *   :::
+       *
+       * or:
+       *
+       *   :::definition
+       *   内容
+       *   :::
        */
-      .use(remarkAlert)
+      .use(remarkDirective)
+      .use(remarkDirectiveTitles)
 
+      /*
+       * Definition lists.
+       */
       .use(remarkDeflist)
 
       /*
@@ -844,27 +580,44 @@ export async function renderMarkdown(
         options.resolveLink,
       )
 
+      /*
+       * Collect headings.
+       */
       .use(
         remarkCollectHeadings,
       )
 
+      /*
+       * Read code block metadata.
+       */
       .use(remarkCodeMeta)
 
       /*
-       * Convert :::type title ... ::: blocks
-       * while they are still mdast.
+       * GitHub-style alerts:
+       *
+       *   > [!TIP]
+       *   > 正文
+       *
+       * These remain GitHub alerts.
+       *
+       * They are NOT converted into ::: directives.
        */
-      .use(remarkCustomBlocks)
+      .use(remarkAlert)
 
+      /*
+       * Convert ::: directives from mdast
+       * into HAST elements.
+       */
+      .use(remarkDirectiveRehype)
+
+      /*
+       * Convert normal Markdown AST into HAST.
+       */
       .use(
         remarkRehype,
         {
           allowDangerousHtml: true,
-          handlers: {
-            customBlock:
-              remarkCustomBlockHandler,
-          },
-        } as any,
+        },
       )
 
       /*
@@ -881,6 +634,13 @@ export async function renderMarkdown(
        * Heading IDs.
        */
       .use(rehypeSlug)
+
+      /*
+       * Convert directive elements into the CSS classes used by Zest.
+       * Titles have already been marked in the mdast stage, so an
+       * untitled directive's first paragraph is never mistaken for a title.
+       */
+      .use(rehypeNormalizeDirectives)
 
       /*
        * Code blocks.
@@ -916,9 +676,7 @@ export async function renderMarkdown(
       );
 
   const file =
-    await processor.process(
-      preprocessCustomBlocks(md),
-    );
+    await processor.process(md);
 
   return {
     html: String(file),

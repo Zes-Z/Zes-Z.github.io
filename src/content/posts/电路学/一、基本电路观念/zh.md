@@ -13,7 +13,8 @@ draft: false
 ## 电路变量的定义
 ### 电流
 
-:::tip 电流是每单位时间通过的电荷量
+:::tip
+ 电流是每单位时间通过的电荷量
 $$
 i = \frac{dq}{dt}
 $$
@@ -22,21 +23,24 @@ $$
 
 
 ### 电压
-:::tip 每单位电荷通过物理元件时，功/能量的变化量
+:::tip
+ 每单位电荷通过物理元件时，功/能量的变化量
 $$
 v = \frac{dw}{dq}
 $$
 :::
 
 ### 功率
-:::tip xxx
+:::tip
+功率是
 $$
 P = \frac{dW}{dt} = \frac{dW}{dQ} * \frac{dQ}{dt} = vi
 $$
 :::
 
 ### 能量
-:::tip 功率P对时间t的积分
+:::tip
+ 功率P对时间t的积分
 $$
 W_{ab} = \int_{a}^{b} P(t)\,dt  
 $$
@@ -49,7 +53,7 @@ $$
 
 ## 元件模型
 ### 电阻
-:::tip 欧姆定律
+:::definition[欧姆定律]
 $$
 V=Ri
 $$
@@ -60,6 +64,7 @@ $$
 
 
 ### 电容
+:::note
 由
 $$
 Q = C*V  
@@ -77,9 +82,10 @@ V(t) = \int_{-\infty}^{\tau} \frac{i({\tau})}{C}\,d{\tau}
 =\int_{-\infty}^0 \frac{i({\tau})}{C}\,d{\tau}+\int_0^{\tau} \frac{i({\tau})}{C}\,d{\tau}
 =V(0)+\frac1{C}\int_0^{\tau} i({\tau})\,d{\tau}
 $$
-
+:::
 
 ### 电感
+:::note
 由
 $$
 LI=N\phi 
@@ -97,6 +103,7 @@ i(t) = \int_{-\infty}^{\tau} \frac{V({\tau})}{L}\,d{\tau}
 =\int_{-\infty}^0 \frac{V({\tau})}{L}\,d{\tau}+\int_0^{\tau} \frac{V({\tau})}{L}\,d{\tau}
 =i(0)+\frac1{L}\int_0^{\tau} V({\tau})\,d{\tau}
 $$
+:::
 
 ---
 
@@ -107,33 +114,40 @@ $$
 * 回路数：  L(loop)  
 * 网目数：  M(mesh)  
 
-:::definition 定义
-* 节点是电路中由理想导线直接连接起来的、具有相同电势的一组点。  
+:::definition[节点(node)]
+节点是电路中由理想导线直接连接起来的、具有相同电势的一组点。  
 是“导线直接连通的电气区域”，不是“一个小圆点”，没有经过元件，整条导线都是同一个节点。
 :::
 
-:::tip 注
-* 网目指不可再分解为回路的回路
+:::definition[回路(loop)]
+
+:::
+
+:::definition[网目(mesh)]
+指不可再分解为回路的回路
+:::
+
+:::warning[注]
 * 一个未知电路中若有B个元件，则有2B个电路变量($V_x$和$I_x$)
 * 关系式：$M=B-(N-1)$
 :::
 
 
 ### KCL
-> [!caution]
-> 流出节点的总电流和为0（以流入为负）
-> $$
-> \sum_{x=1}^n I_x=0
-> $$
-
+:::tip
+流出节点的总电流和为0（以流入为负）
+$$
+\sum_{x=1}^n I_x=0
+$$
+:::
 
 ### KVL
-> [!caution]
-> 经过元件的总压降和为0（以压降为正）
-> $$
-> \sum_{x=1}^n V_x=0
-> $$
-
+:::tip
+经过元件的总压降和为0（以压降为正）
+$$
+\sum_{x=1}^n V_x=0
+$$
+:::
 
 
 ---
@@ -142,8 +156,12 @@ $$
 * $M$个网目，可根据$KVL$得到$M$个等式
 * $B$个元件，可根据$component model$得到$B$个等式
 
-:::tip 根据NMB关系式可得总计
+:::tip
+
+根据NMB关系式可得总计 
+
 $N-1+M+B=2B$  
+
 个等式
 :::
 
@@ -152,7 +170,7 @@ $N-1+M+B=2B$
 
 ## 简单电阻网路的速解法 
 ### 理解等效电阻
-:::caution 注
+:::caution
 $$
 R_{eq} = R_1+R_2+...+R_n=R_a\parallel R_b\parallel...\parallel R_z
 $$
@@ -183,9 +201,10 @@ $$
 
 
 ### $\Delta$ 与 $Y$ 电路等效变换
-> [!note] 
-> $\Delta$ 转 $Y$
+:::note
+$\Delta$ 转 $Y$
+:::
 
-
-> [!note] 
-> $Y$ 转 $\Delta$
+:::note 
+$Y$ 转 $\Delta$
+:::
