@@ -16,6 +16,7 @@
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'PingFang SC', 'Hiragino Sans', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+
   --font-mono:
     ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'JetBrains Mono', Consolas, 'Liberation Mono',
     monospace;
@@ -25,52 +26,68 @@
 }
 
 /* ---------- light mode ---------- */
+
 html[data-theme='light'] {
   color-scheme: light;
-  --bg: var(--site-light-bg); /* 非常淡的浅蓝 */
+
+  --bg: var(--site-light-bg);
   --surface: #ffffff;
   --surface-2: #eff7f0;
   --border: #e2efee;
   --border-strong: #ffffff;
-  --text: #374d41; /* 绿色调的正文字 */
+
+  --text: #374d41;
   --text-soft: #64806f;
   --text-faint: #8fa699;
+
   --accent: #2f6bed;
   --accent-soft: rgba(47, 107, 237, 0.1);
   --accent-strong: #1d54c9;
   --accent-contrast: #ffffff;
-  --hover: #5fb371; /* 悬停字色:浅绿 */
-  --gold: #b8860b; /* 当前页面高亮:金色 */
-  --nav-text: #111111; /* 导航栏字色:深黑 */
-  --sky: #2aa8f0; /* 选中态字色:天蓝 */
+
+  --hover: #5fb371;
+  --gold: #b8860b;
+  --nav-text: #111111;
+  --sky: #2aa8f0;
+
   --mark-bg: rgba(255, 213, 79, 0.55);
+
   --shadow: 0 10px 30px rgba(30, 34, 44, 0.08);
   --shadow-strong: 0 18px 50px rgba(30, 34, 44, 0.14);
+
   --hero-veil: rgba(20, 24, 32, 0.25);
 }
 
 /* ---------- dark mode ---------- */
+
 html[data-theme='dark'] {
   color-scheme: dark;
+
   --bg: #111112de;
   --surface: #181b22;
   --surface-2: #1f232c;
   --border: #2a2f3a;
   --border-strong: #3a4150;
+
   --text: #e9ebf1;
   --text-soft: #a7aebb;
   --text-faint: #737c8b;
+
   --accent: #7ba5ff;
   --accent-soft: rgba(123, 165, 255, 0.14);
   --accent-strong: #a3c0ff;
   --accent-contrast: #101218e0;
-  --hover: #9fd4ac; /* 悬停字色:浅绿(暗黑模式) */
-  --gold: #d9a93f; /* 当前页面高亮:金色(暗黑模式) */
-  --nav-text: #e9ebf1; /* 导航栏字色(暗黑模式保持浅色) */
-  --sky: #5cc2ff; /* 选中态字色:天蓝(暗黑模式) */
+
+  --hover: #9fd4ac;
+  --gold: #d9a93f;
+  --nav-text: #e9ebf1;
+  --sky: #5cc2ff;
+
   --mark-bg: rgba(255, 196, 0, 0.3);
+
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   --shadow-strong: 0 18px 50px rgba(0, 0, 0, 0.5);
+
   --hero-veil: rgba(8, 10, 14, 0.35);
 }
 
@@ -89,15 +106,12 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   line-height: 1.7;
-  /* 不使用常驻过渡:避免每次页面加载/导航时底色与文字出现一次脉冲。
-     主题切换时的柔和过渡由 html.theme-anim(ThemeToggle 手动切换时短暂添加)控制 */
 }
 
-/* 顶部导航栏悬浮固定:普通页面预留导航高度;
-   带全屏图的页面(main--full)让图片顶到视口最上方,延伸到导航栏底下 */
 #main {
   padding-top: var(--header-h);
 }
+
 #main.main--full {
   padding-top: 0;
 }
@@ -129,6 +143,7 @@ a {
   text-decoration: none;
   transition: color var(--transition-fast);
 }
+
 a:hover {
   color: var(--hover);
 }
@@ -151,7 +166,6 @@ button {
    Shared primitives
    ============================================================ */
 
-/* 所有板块化对象统一圆角 */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -169,10 +183,10 @@ button {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  margin: 0 0 1.25rem;
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  margin: 0 0 1.25rem;
 }
 
 .section-title::before {
@@ -202,8 +216,10 @@ button {
   color: var(--text-soft);
 }
 
-/* 导航栏圆形图标按钮(搜索/语言/主题):无底纹,与灵动岛导航风格一致,
-   悬停时天蓝字 + 淡天蓝底 */
+/* ============================================================
+   Navigation
+   ============================================================ */
+
 .icon-btn {
   display: grid;
   place-items: center;
@@ -218,31 +234,32 @@ button {
     color var(--transition-fast),
     background var(--transition-fast);
 }
+
 .icon-btn:hover {
   color: var(--sky);
   background: color-mix(in srgb, var(--sky) 10%, transparent);
 }
 
-/* 导航悬浮在大图上方时:导航链接/图标按钮(搜索/语言/主题)/汉堡按钮全部用亮白色。
-   写在这里(全局)才能跨过各组件的作用域,让各图标按钮都生效 */
 .site-header.is-over-hero .nav-link,
 .site-header.is-over-hero .icon-btn,
 .site-header.is-over-hero .hamburger {
   color: #fff;
 }
+
 .site-header.is-over-hero .nav-link:hover,
 .site-header.is-over-hero .icon-btn:hover,
 .site-header.is-over-hero .hamburger:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.16);
 }
+
 .site-header.is-over-hero .nav-link.is-active {
   color: var(--sky);
   background: rgba(255, 255, 255, 0.18);
 }
 
 /* ============================================================
-   Prose (post body / about / welcome)
+   Prose
    ============================================================ */
 
 .prose {
@@ -256,6 +273,8 @@ button {
   margin-top: 0;
 }
 
+/* ---------- headings ---------- */
+
 .prose h1,
 .prose h2,
 .prose h3,
@@ -266,49 +285,71 @@ button {
   margin: 1.9em 0 0.7em;
   scroll-margin-top: calc(var(--header-h) + 14px);
 }
+
 .prose h1 {
   font-size: 1.7rem;
 }
+
 .prose h2 {
+  display: table;
   font-size: 1.42rem;
   padding-bottom: 0.35em;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #d4e302;
 }
+
 .prose h3 {
   font-size: 1.18rem;
+  display: table;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid #d4e302;
 }
+
 .prose h4 {
   font-size: 1.05rem;
+  display: table;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid #d4e302;
 }
 
 .prose p {
   margin: 0.85em 0;
 }
 
+/* ---------- links ---------- */
+
 .prose a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: #38bdf8;
+  text-decoration: none;
 }
+.prose a:hover {
+  color: var(--hover);
+}
+
+/* ---------- lists ---------- */
 
 .prose ul,
 .prose ol {
   padding-left: 1.6em;
   margin: 0.85em 0;
 }
-/* Tailwind preflight 会清除列表样式,这里恢复(Tailwind preflight 会清除列表样式) */
+
 .prose ul {
   list-style: disc;
 }
+
 .prose ol {
   list-style: decimal;
 }
+
 .prose li {
   margin: 0.3em 0;
 }
+
 .prose li::marker {
   color: var(--accent);
 }
+
+/* ---------- blockquote ---------- */
 
 .prose blockquote {
   margin: 1.1em 0;
@@ -319,7 +360,10 @@ button {
   color: var(--text-soft);
 }
 
-/* callout 提示框(:::note / tip / important / warning / caution) */
+/* ============================================================
+   Directives
+   ============================================================ */
+
 .prose .directive {
   margin: 1.2em 0;
   padding: 0.95em 1.15em;
@@ -328,15 +372,19 @@ button {
   border-radius: var(--radius-sm);
   background: var(--surface-2);
 }
+
 .prose .directive > p {
   margin: 0.45em 0;
 }
+
 .prose .directive > p:first-child {
   margin-top: 0;
 }
+
 .prose .directive > p:last-child {
   margin-bottom: 0;
 }
+
 .prose .directive-title {
   display: flex;
   align-items: center;
@@ -345,10 +393,14 @@ button {
   font-weight: 700;
   font-size: 1.02em;
 }
+
+/* ---------- directive colors + icons ---------- */
+
 .prose .directive-note {
   border-left-color: #3b82f6;
   background: color-mix(in srgb, #3b82f6 8%, var(--surface));
 }
+
 .prose .directive-note .directive-title::before {
   content: '📖';
 }
@@ -357,6 +409,7 @@ button {
   border-left-color: #10b981;
   background: color-mix(in srgb, #10b981 8%, var(--surface));
 }
+
 .prose .directive-tip .directive-title::before {
   content: '✨';
 }
@@ -365,6 +418,7 @@ button {
   border-left-color: #8b5cf6;
   background: color-mix(in srgb, #8b5cf6 8%, var(--surface));
 }
+
 .prose .directive-vital .directive-title::before {
   content: '⭐';
 }
@@ -373,6 +427,7 @@ button {
   border-left-color: #f59e0b;
   background: color-mix(in srgb, #f59e0b 8%, var(--surface));
 }
+
 .prose .directive-warning .directive-title::before {
   content: '⚠️';
 }
@@ -381,6 +436,7 @@ button {
   border-left-color: #ef4444;
   background: color-mix(in srgb, #ef4444 8%, var(--surface));
 }
+
 .prose .directive-caution .directive-title::before {
   content: '⛔';
 }
@@ -389,36 +445,50 @@ button {
   border-left-color: #38bdf8;
   background: color-mix(in srgb, #38bdf8 9%, var(--surface));
 }
+
 .prose .directive-definition .directive-title::before {
   content: '📌';
 }
 
-/* 定义列表 */
+/* ============================================================
+   Definition lists
+   ============================================================ */
+
 .prose dl {
   margin: 1em 0;
 }
+
 .prose dl dt {
-  font-weight: 700;
   margin-top: 0.6em;
+  font-weight: 700;
 }
+
 .prose dl dd {
   margin: 0 0 0.4em 1.2em;
   color: var(--text-soft);
 }
 
-/* 任务清单 */
+/* ============================================================
+   Task lists
+   ============================================================ */
+
 .prose ul.contains-task-list {
   padding-left: 0.2em;
 }
+
 .prose .task-list-item {
   list-style: none;
 }
+
 .prose .task-list-item input[type='checkbox'] {
   accent-color: var(--accent);
   margin-right: 0.5em;
 }
 
-/* 脚注 */
+/* ============================================================
+   Footnotes
+   ============================================================ */
+
 .prose .footnotes {
   margin-top: 2em;
   padding-top: 1em;
@@ -426,9 +496,14 @@ button {
   font-size: 0.85em;
   color: var(--text-soft);
 }
+
 .prose .footnotes hr {
   display: none;
 }
+
+/* ============================================================
+   Media
+   ============================================================ */
 
 .prose img {
   display: block;
@@ -439,59 +514,69 @@ button {
 
 .prose video {
   display: block;
+  width: 100%;
   margin: 1.2em auto;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   background: #000;
-  width: 100%;
 }
 
 .prose iframe {
-  border: 0;
-  border-radius: var(--radius);
-  aspect-ratio: 16 / 9;
   width: 100%;
   height: auto;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius);
 }
 
+/* Markdown --- */
 .prose hr {
-  border: 0;
-  height: 1px;
-  margin: 2em 0;
-  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  border-color: #40d400;
 }
+
+/* ============================================================
+   Tables
+   ============================================================ */
 
 .prose table {
   width: 100%;
-  border-collapse: collapse;
   margin: 1.2em 0;
-  font-size: 0.95rem;
+  border-collapse: collapse;
   border-radius: var(--radius-sm);
   overflow: hidden;
+  font-size: 0.95rem;
 }
+
 .prose th,
 .prose td {
   border: 1px solid var(--border);
   padding: 0.5em 0.85em;
 }
+
 .prose th {
   background: var(--surface-2);
   font-weight: 600;
 }
 
+/* ============================================================
+   Inline code
+   ============================================================ */
+
 .prose :not(pre) > code {
-  font-family: var(--font-mono);
-  font-size: 0.88em;
-  padding: 0.15em 0.45em;
+  /* font-family: var(--font-mono); */
+  padding: 0.1em 0.1em;
   border-radius: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--accent-strong);
+  background: #c0f000;
+ 
+  color: #000000;
 }
 
-/* 代码块容器(顶栏 + 代码) */
+/* ============================================================
+   Code blocks
+   ============================================================ */
+
 .prose .code-block {
-  position: relative; /* 供右上角悬浮复制按钮定位 */
+  position: relative;
   margin: 1.3em 0;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -499,7 +584,6 @@ button {
   background: var(--surface-2);
 }
 
-/* 顶栏:语言(左上) + 文件名 + 复制按钮(右上) */
 .prose .code-block-bar {
   display: flex;
   align-items: center;
@@ -511,20 +595,26 @@ button {
   font-size: 0.76rem;
   user-select: none;
 }
+
 .prose .code-block-lang {
   color: var(--accent-strong);
   font-weight: 700;
 }
+
 .prose .code-block-filename {
   color: var(--text-soft);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .prose .code-block-spacer {
   flex: 1;
 }
-.prose .code-block-copy {
+
+/* 所有复制按钮共用 */
+.prose .code-block-copy,
+.prose .code-block-copy--float {
   flex: none;
   display: grid;
   place-items: center;
@@ -542,13 +632,15 @@ button {
     background var(--transition-fast),
     border-color var(--transition-fast);
 }
-.prose .code-block-copy:hover {
+
+.prose .code-block-copy:hover,
+.prose .code-block-copy--float:hover {
   color: var(--hover);
   background: var(--surface);
   border-color: var(--border-strong);
 }
 
-/* 无语言/无文件名的代码块:右上角悬浮复制按钮(悬停代码块时显示) */
+/* 无语言/无文件名代码块的悬浮复制按钮 */
 .prose .code-block-copy--float {
   position: absolute;
   top: 8px;
@@ -563,21 +655,16 @@ button {
     background var(--transition-fast),
     border-color var(--transition-fast);
 }
+
 .prose .code-block:hover .code-block-copy--float {
   opacity: 1;
 }
-.prose .code-block-copy--float:hover {
-  color: var(--hover);
-  background: var(--surface);
-  border-color: var(--border-strong);
-}
 
-/* syntax-highlighted blocks (shiki) + 无语言代码块
-   pre 本身(含没有 shiki 类的裸 pre)统一左侧内边距,与其它代码块对齐 */
+/* ---------- code content ---------- */
+
 .prose .code-block pre,
 .prose pre.shiki {
   margin: 0;
-  /* 左侧留出约 1~2 个字符的距离,不与左边框贴得太近 */
   padding: 1em 1.15em 1em 1.6em;
   border: 0;
   border-radius: 0;
@@ -586,38 +673,44 @@ button {
   font-size: 0.86rem;
   line-height: 1.65;
 }
+
 .prose .code-block pre code,
 .prose pre.shiki code {
   display: block;
   min-width: max-content;
 }
 
-/* dual-theme shiki colors — html[data-code-scheme] is kept in sync with the
-   theme mode by the theme script in BaseLayout */
+/* ---------- Shiki ---------- */
+
 .shiki,
 .shiki span {
   color: var(--shiki-light);
   background-color: var(--shiki-light-bg);
 }
+
 html[data-code-scheme='dark'] .shiki,
 html[data-code-scheme='dark'] .shiki span {
   color: var(--shiki-dark);
   background-color: var(--shiki-dark-bg);
 }
 
-/* math */
+/* ============================================================
+   Math
+   ============================================================ */
+
 .prose .katex-display {
   margin: 1.2em 0;
   padding: 0.5em 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
+
 .prose .katex {
   font-size: 1.05em;
 }
 
 /* ============================================================
-   Search palette result highlight
+   Search palette
    ============================================================ */
 
 mark.search-hit {
@@ -627,12 +720,15 @@ mark.search-hit {
   padding: 0 1px;
 }
 
-/* 相册"所有"板块:默认淡黑白、悬停彩色
-   (site.config.ts 的 photosGrayscaleHover 控制;仅作用于 photos 板块,作品集不受影响) */
+/* ============================================================
+   Photos
+   ============================================================ */
+
 .photos-page.gray-photos [data-photos-view='photos'] .photo-item {
   filter: grayscale(0.8);
   transition: filter 0.6s ease;
 }
+
 .photos-page.gray-photos [data-photos-view='photos'] .photo-item:hover {
   filter: grayscale(0);
 }
@@ -645,6 +741,7 @@ mark.search-hit {
   html {
     scroll-behavior: auto;
   }
+
   *,
   *::before,
   *::after {

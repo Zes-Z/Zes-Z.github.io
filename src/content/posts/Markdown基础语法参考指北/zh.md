@@ -52,7 +52,6 @@ draft: false
 * 计算语言学 (CL) `+ 计算语言学 (CL)`
 
 * 机器学习 (ML) `- 机器学习 (ML)`
-<br>
 
 ### 有序列表 (Ordered List)
 使用 `1.`、`2.`、`3.`等：
@@ -61,7 +60,7 @@ draft: false
 2. 特征提取 (Feature Extraction)    `2. 特征提取 (Feature Extraction)`
 
 3. 模型训练 (Model Training)    `3. 模型训练 (Model Training)` 
-<br>
+
 
 ### 任务列表 (Task Lists)
 * [x] 完成形態素解析 `* [x] 完成形態素解析`  
@@ -104,7 +103,6 @@ xxxfoo
 :::tip
 无题头形式  
 xxxfoo
-sddd
 :::
 
 ```
@@ -116,7 +114,6 @@ xxxfoo
 :::tip[题头]
 有题头形式  
 xxxfoo
-sddd
 :::
 
 ---
@@ -220,7 +217,7 @@ frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 ```
 <iframe width="100%" height="468" src="//player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 
----
+
 ## 8. 脚注
 
 ```
