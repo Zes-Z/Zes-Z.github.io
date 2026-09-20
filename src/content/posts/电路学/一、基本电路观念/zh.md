@@ -13,7 +13,7 @@ draft: false
 ## 电路变量的定义
 ### 电流
 
-:::tip
+:::definition
  电流是每单位时间通过的电荷量
 $$
 i = \frac{dq}{dt}
@@ -23,7 +23,7 @@ $$
 
 
 ### 电压
-:::tip
+:::definition
  每单位电荷通过物理元件时，功/能量的变化量
 $$
 v = \frac{dw}{dq}
@@ -31,7 +31,7 @@ $$
 :::
 
 ### 功率
-:::tip
+:::definition
 功率是
 $$
 P = \frac{dW}{dt} = \frac{dW}{dQ} * \frac{dQ}{dt} = vi
@@ -78,9 +78,11 @@ i(t) = C \frac{dV(t)}{dt}
 $$
 则
 $$
-V(t) = \int_{-\infty}^{\tau} \frac{i({\tau})}{C}\,d{\tau}
-=\int_{-\infty}^0 \frac{i({\tau})}{C}\,d{\tau}+\int_0^{\tau} \frac{i({\tau})}{C}\,d{\tau}
-=V(0)+\frac1{C}\int_0^{\tau} i({\tau})\,d{\tau}
+\begin{aligned}
+V(t) &= \int_{-\infty}^{t} \frac{i({\tau})}{C}\,d{\tau}
+=\int_{-\infty}^0 \frac{i({\tau})}{C}\,d{\tau}+\int_0^{t} \frac{i({\tau})}{C}\,d{\tau}\\
+&=V(0)+\frac1{C}\int_0^{t} i({\tau})\,d{\tau}
+\end{aligned}
 $$
 :::
 
@@ -99,9 +101,11 @@ V(t) = L \frac{di(t)}{dt}
 $$
 则
 $$
-i(t) = \int_{-\infty}^{\tau} \frac{V({\tau})}{L}\,d{\tau}
-=\int_{-\infty}^0 \frac{V({\tau})}{L}\,d{\tau}+\int_0^{\tau} \frac{V({\tau})}{L}\,d{\tau}
-=i(0)+\frac1{L}\int_0^{\tau} V({\tau})\,d{\tau}
+\begin{aligned}
+i(t) &= \int_{-\infty}^{t} \frac{V({\tau})}{L}\,d{\tau}
+=\int_{-\infty}^0 \frac{V({\tau})}{L}\,d{\tau}+\int_0^{t} \frac{V({\tau})}{L}\,d{\tau}\\
+&=i(0)+\frac1{L}\int_0^{t} V({\tau})\,d{\tau}
+\end{aligned}
 $$
 :::
 
@@ -137,7 +141,7 @@ $$
 :::tip
 流出节点的总电流和为0（以流入为负）
 $$
-\sum_{x=1}^n I_x=0
+\sum_{K=1}^n I_K=0
 $$
 :::
 
@@ -145,7 +149,7 @@ $$
 :::tip
 经过元件的总压降和为0（以压降为正）
 $$
-\sum_{x=1}^n V_x=0
+\sum_{K=1}^n V_K=0
 $$
 :::
 
