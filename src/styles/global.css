@@ -55,7 +55,7 @@ html[data-theme='light'] {
   --shadow: 0 10px 30px rgba(30, 34, 44, 0.08);
   --shadow-strong: 0 18px 50px rgba(30, 34, 44, 0.14);
 
-  --hero-veil: rgba(20, 24, 32, 0.25);
+  --hero-veil: rgba(20, 24, 32, 0.12);
 }
 
 /* ---------- dark mode ---------- */
@@ -88,7 +88,7 @@ html[data-theme='dark'] {
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   --shadow-strong: 0 18px 50px rgba(0, 0, 0, 0.5);
 
-  --hero-veil: rgba(8, 10, 14, 0.35);
+  --hero-veil: rgba(8, 10, 14, 0.3);
 }
 
 /* ============================================================

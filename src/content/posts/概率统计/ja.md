@@ -1,28 +1,15 @@
 ---
-title: "電気回路"
+title: "確率統計"
 description: ""
-pubDate: "2026-09-14"
+pubDate: "2026-09-21"
 category: "Math & Coding"
-tag: ["电路"]
+tag: []
 postImage:
 homepined: false
 pinedOrder: 0
 draft: false
 ---
 
-## 
-
-
-
----
-
-## 
-
-
-
----
-
-## 
 
 
 
