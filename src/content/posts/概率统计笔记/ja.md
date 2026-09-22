@@ -1,5 +1,5 @@
 ---
-title: "確率統計"
+title: "確率統計手帳"
 description: ""
 pubDate: "2026-09-21"
 category: "Math & Coding"

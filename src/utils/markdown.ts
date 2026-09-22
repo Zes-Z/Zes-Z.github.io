@@ -104,22 +104,7 @@ function remarkResolveImages(
  * Markdown link resolver
  * ========================================================= */
 
-/**
- * Resolve relative Markdown links before remark-rehype.
- *
- * This is important because normal Markdown links such as:
- *
- *   [二、进阶电路分析](二、进阶电路分析/zh.md)
- *
- * would otherwise be emitted directly as:
- *
- *   href="二、进阶电路分析/zh.md"
- *
- * and the browser would resolve that URL relative to the current
- * browser URL, which is not the URL structure used by Zest.
- *
- * The actual resolution logic is supplied by `resolveLink`.
- */
+
 function remarkResolveLinks(
   resolveLink?: (
     url: string,
@@ -265,8 +250,7 @@ function rehypeNormalizeDirectives() {
     'vital',
     'warning',
     'caution',
-
-    'definition',
+    'defi',
     'theorem',
     'lemma',
     'proof',
@@ -274,7 +258,6 @@ function rehypeNormalizeDirectives() {
     'formula',
     'question',
     'remark',
-    'law',
   ];
 
   return (tree: any) => {
@@ -539,21 +522,7 @@ export async function renderMarkdown(
 
       .use(remarkMath)
 
-      /*
-       * Fuwari-style ::: directives
-       *
-       * Example:
-       *
-       *   :::definition[节点]
-       *   内容
-       *   :::
-       *
-       * or:
-       *
-       *   :::definition
-       *   内容
-       *   :::
-       */
+
       .use(remarkDirective)
       .use(remarkDirectiveTitles)
 
@@ -602,7 +571,7 @@ export async function renderMarkdown(
        *
        * They are NOT converted into ::: directives.
        */
-      .use(remarkAlert)
+      .use(remarkAlert, {legacyTitle: true,})
 
       /*
        * Convert ::: directives from mdast

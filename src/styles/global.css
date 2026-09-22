@@ -396,6 +396,14 @@ button {
 
 /* ---------- directive colors + icons ---------- */
 
+.prose .directive-tip {
+  border-left-color: #10b981;
+  background: color-mix(in srgb, #10b981 8%, var(--surface));
+}
+.prose .directive-tip .directive-title::before {
+  content: '✨';
+}
+
 .prose .directive-note {
   border-left-color: #3b82f6;
   background: color-mix(in srgb, #3b82f6 8%, var(--surface));
@@ -405,13 +413,13 @@ button {
   content: '📖';
 }
 
-.prose .directive-tip {
-  border-left-color: #10b981;
-  background: color-mix(in srgb, #10b981 8%, var(--surface));
+.prose .directive-defi {
+  border-left-color: #38bdf8;
+  background: color-mix(in srgb, #38bdf8 9%, var(--surface));
 }
 
-.prose .directive-tip .directive-title::before {
-  content: '✨';
+.prose .directive-defi .directive-title::before {
+  content: '📌';
 }
 
 .prose .directive-vital {
@@ -441,14 +449,6 @@ button {
   content: '⛔';
 }
 
-.prose .directive-definition {
-  border-left-color: #38bdf8;
-  background: color-mix(in srgb, #38bdf8 9%, var(--surface));
-}
-
-.prose .directive-definition .directive-title::before {
-  content: '📌';
-}
 
 /* ============================================================
    Definition lists

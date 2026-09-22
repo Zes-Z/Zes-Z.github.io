@@ -19,8 +19,8 @@ xxx
 ### 有电压源
 
 :::tip[超节点(supernode)]
-> [!caution]
-> 注：超节点不是简单地将两个未知节点合并，而是合并考虑它们的KCL
+> [!caution/注：]
+> 超节点不是简单地将两个未知节点合并，而是合并考虑它们的KCL
 :::
 
 :::tip[Millman theorem]
@@ -37,7 +37,7 @@ xxx
 
 ### 有电流源
 :::tip[超网目(supermesh)]
-> [!caution]
+> [!caution/注：]
 > 注：超节点不是简单地将两个网目合并，而是合并考虑它们的KVL
 :::
 
@@ -45,7 +45,7 @@ xxx
 ## 重叠定理
 
 
-> [!caution]
+> [!caution/注：]
 > 重叠定理不能用于计算功率
 
 

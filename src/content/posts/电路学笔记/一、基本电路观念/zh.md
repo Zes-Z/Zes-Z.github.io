@@ -13,7 +13,7 @@ draft: false
 ## 电路变量的定义
 ### 电流
 
-:::definition
+:::defi
  电流是每单位时间通过的电荷量
 $$
 i = \frac{dq}{dt}
@@ -23,7 +23,7 @@ $$
 
 
 ### 电压
-:::definition
+:::defi
  每单位电荷通过物理元件时，功/能量的变化量
 $$
 v = \frac{dw}{dq}
@@ -31,7 +31,7 @@ $$
 :::
 
 ### 功率
-:::definition
+:::defi
 功率是
 $$
 P = \frac{dW}{dt} = \frac{dW}{dQ} * \frac{dQ}{dt} = vi
@@ -53,7 +53,7 @@ $$
 
 ## 元件模型
 ### 电阻
-:::definition[欧姆定律]
+:::defi[欧姆定律]
 $$
 V=Ri
 $$
@@ -118,16 +118,16 @@ $$
 * 回路数：  L(loop)  
 * 网目数：  M(mesh)  
 
-:::definition[节点(node)]
+:::defi[节点(node)]
 节点是电路中由理想导线直接连接起来的、具有相同电势的一组点。  
 是“导线直接连通的电气区域”，不是“一个小圆点”，没有经过元件，整条导线都是同一个节点。
 :::
 
-:::definition[回路(loop)]
+:::defi[回路(loop)]
 
 :::
 
-:::definition[网目(mesh)]
+:::defi[网目(mesh)]
 指不可再分解为回路的回路
 :::
 

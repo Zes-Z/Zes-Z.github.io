@@ -27,7 +27,7 @@ C=\sqrt{A^2+B^2} ，\theta=\tan^{-1}\frac{B}{A}
 $$
 :::
 
-:::definition[欧拉公式]
+:::defi[欧拉公式]
 $$
 e^{j\theta}=cos\theta+j sin\theta=1\angle \theta
 $$
@@ -241,7 +241,7 @@ i(t)=I_m cos(\omega t)
 $$
 则
 
-:::definition[瞬时功率 Instantaneous power]
+:::defi[瞬时功率 Instantaneous power]
 $$
 \begin{aligned}
 p(t)&=V(t)i(t) \tag{积化和差}\\
@@ -262,7 +262,7 @@ $$
 > $$
 :::
 
-:::definition[平均功率 Average power (namely, real power)] 
+:::defi[平均功率 Average power (namely, real power)] 
 由
 $$
 p(t)=P+Pcos(2\omega t)-Qsin(2\omega t)
@@ -273,26 +273,26 @@ $$
 $$
 :::
 
-:::definition[虚功率 Reactive power (namely, imaginary power)] 
+:::defi[虚功率 Reactive power (namely, imaginary power)] 
 $$
 Q=\frac{V_m I_m}{2}sin(\theta_v-\theta_i)
 $$
 :::
 
-:::definition[复数功率 Complex power] 
+:::defi[复数功率 Complex power] 
 $$
 \vec{S}=\vec{V}_{rms}\vec{I}_{rms}^*=P+jQ
 $$
 :::
 
-:::definition[视在功率 Apparent power] 
+:::defi[视在功率 Apparent power] 
 
 $$
 |\vec{s}|=\sqrt{P^2+Q^2}
 $$
 :::
 
-:::definition[功率因数 Power factor]
+:::defi[功率因数 Power factor]
 $$
 0\le \frac{P}{|\vec{s}|}=\frac{P}{\sqrt{P^2+Q^2}} \le 1
 $$
@@ -308,7 +308,7 @@ $$
 
 ### 最大功率转移
 
-:::definition
+:::defi
 
 
 
