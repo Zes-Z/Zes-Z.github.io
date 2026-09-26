@@ -1,5 +1,5 @@
 ---
-title: "电路学"
+title: "电路学笔记"
 description: ""
 pubDate: "2026-09-14"
 category: "Math & Coding"

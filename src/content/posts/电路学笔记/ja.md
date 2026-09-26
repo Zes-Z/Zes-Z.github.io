@@ -1,5 +1,5 @@
 ---
-title: "電気回路"
+title: "電気回路手帳"
 description: ""
 pubDate: "2026-09-14"
 category: "Math & Coding"

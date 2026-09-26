@@ -1,5 +1,5 @@
 ---
-title: "Electric circuits"
+title: "Electric circuits note"
 description: ""
 pubDate: "2026-09-14"
 category: "Math & Coding"
