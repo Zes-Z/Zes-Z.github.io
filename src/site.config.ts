@@ -9,7 +9,8 @@ export const siteConfig = {
   title: 'Zest',
 
   /** 主页左下角欢迎文字块(点击进入站内介绍页)。 */
-  welcomeText: 'Welcome to this site!',
+  // welcomeText: 'Welcome to this site!',
+  welcomeText: 'To someone it may concerned.',
 
   /** 主页左下角欢迎文字块的链接目标。 */
   welcomeHref: (lang: Language) => `/${lang}/welcome-site`,

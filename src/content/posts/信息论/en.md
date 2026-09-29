@@ -1,25 +1,28 @@
 ---
-title: "概率统计笔记"
+title: "Information Theory"
 description: ""
-pubDate: "2026-09-21"
+pubDate: "2026-09-29"
 category: "Math & Coding"
 tag: []
 postImage:
 homepined: false
 pinedOrder: 0
-draft: true
+draft: false
 ---
 
-## 一、
+## 
 
 
 
+---
 
-## 二、
+## 
 
 
 
-## 三、
+---
+
+## 
 
 
 
