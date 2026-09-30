@@ -207,7 +207,7 @@ export const siteConfig = {
   linksHero: {
     images: [
       '/wallpaper/线条小狗 夏日树荫.jpg',
-      '/wallpaper/海绵宝宝自拍合照.jpg',
+      '/wallpaper/线条小狗 西瓜游泳池.jpg',
       '/wallpaper/郊外旅行线条小狗.jpg',
     ],
     interval: 4000,

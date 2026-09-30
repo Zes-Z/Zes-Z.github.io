@@ -19,10 +19,10 @@ import rehypeStringify from 'rehype-stringify';
 
 import { visit } from 'unist-util-visit';
 import { toString } from 'mdast-util-to-string';
+import { toHtml } from 'hast-util-to-html';
 import Slugger from 'github-slugger';
 
 import type { Image, Root } from 'mdast';
-
 
 /* =========================================================
  * Types
@@ -32,6 +32,14 @@ export interface MarkdownHeading {
   depth: number;
   slug: string;
   text: string;
+
+  /**
+   * Final rendered HTML of the heading content.
+   *
+   * This is generated after rehypeKatex, so mathematical
+   * expressions can be rendered correctly inside the TOC.
+   */
+  html?: string;
 }
 
 export interface MarkdownResult {
@@ -50,7 +58,6 @@ export interface RenderOptions {
   resolveImage?: (
     url: string,
   ) => Promise<string | undefined>;
-
 
   resolveLink?: (
     url: string,
@@ -104,7 +111,6 @@ function remarkResolveImages(
  * Markdown link resolver
  * ========================================================= */
 
-
 function remarkResolveLinks(
   resolveLink?: (
     url: string,
@@ -144,10 +150,23 @@ function remarkResolveLinks(
 }
 
 /* =========================================================
- * Collect headings
+ * Collect headings from Markdown AST
  * ========================================================= */
 
-/** Collect h2–h4 headings for the table of contents. */
+/**
+ * Collect h2-h4 headings for the table of contents.
+ *
+ * This runs in the MDAST stage.
+ *
+ * At this point mathematical expressions are still represented
+ * as mdast math nodes. Therefore:
+ *
+ *   text  -> plain textual representation
+ *   html  -> generated later in the HAST stage
+ *
+ * Keeping these two stages separate prevents the TOC from
+ * mixing Markdown/LaTeX source with rendered HTML.
+ */
 function remarkCollectHeadings() {
   return (
     tree: Root,
@@ -165,6 +184,13 @@ function remarkCollectHeadings() {
         return;
       }
 
+      /*
+       * mdast-util-to-string gives us a stable plain-text
+       * representation of the heading.
+       *
+       * This value is used for the heading metadata and
+       * slug generation.
+       */
       const text = toString(node);
 
       headings.push({
@@ -175,6 +201,148 @@ function remarkCollectHeadings() {
     });
 
     file.data.headings = headings;
+  };
+}
+
+/* =========================================================
+ * Collect final rendered heading HTML
+ * ========================================================= */
+
+/**
+ * Collect the final HTML of h2-h4 headings after:
+ *
+ *   remarkRehype
+ *   rehypeRaw
+ *   rehypeKatex
+ *   rehypeSlug
+ *
+ * have already run.
+ *
+ * This is the important part for the TOC:
+ *
+ * Markdown:
+ *
+ *   ### 求 $V_{oc}$
+ *
+ * becomes something like:
+ *
+ *   求 <span class="katex">...</span>
+ *
+ * instead of the raw LaTeX source:
+ *
+ *   求 V_{oc}
+ */
+function rehypeCollectHeadings() {
+ 
+  function removeLinks(node: any): any {
+    if (!node) return node;
+
+    /*
+     * If this node is an <a>, remove the <a> itself
+     * but keep its children.
+     */
+    if (
+      node.type === 'element' &&
+      node.tagName === 'a'
+    ) {
+      return (node.children ?? [])
+        .map(removeLinks)
+        .flat();
+    }
+
+    /*
+     * Recursively process child nodes.
+     */
+    if (Array.isArray(node.children)) {
+      return {
+        ...node,
+
+        children: node.children
+          .map(removeLinks)
+          .flat(),
+      };
+    }
+
+    return node;
+  }
+
+  return (
+    tree: any,
+    file: { data: Record<string, unknown> },
+  ) => {
+    const headings =
+      (file.data.headings ?? []) as MarkdownHeading[];
+
+    if (headings.length === 0) {
+      return;
+    }
+
+    let headingIndex = 0;
+
+    visit(tree, 'element', (node: any) => {
+      if (
+        node.tagName !== 'h2' &&
+        node.tagName !== 'h3' &&
+        node.tagName !== 'h4'
+      ) {
+        return;
+      }
+
+      const heading =
+        headings[headingIndex];
+
+      if (!heading) {
+        return;
+      }
+
+      /*
+       * =====================================================
+       * IMPORTANT:
+       *
+       * Do NOT generate the slug again here.
+       *
+       * rehypeSlug has already generated the actual ID of
+       * the heading in the final HAST tree.
+       *
+       * We directly use that ID for the TOC.
+       *
+       * This guarantees:
+       *
+       *   TOC href
+       *       ↓
+       *   actual heading id
+       *
+       * are exactly the same.
+       * =====================================================
+       */
+      const actualId =
+        node.properties?.id;
+
+      if (
+        typeof actualId === 'string' &&
+        actualId.length > 0
+      ) {
+        heading.slug = actualId;
+      }
+
+      /*
+       * Remove only Markdown links.
+       *
+       * Keep KaTeX and every other inline element.
+       */
+      const children =
+        (node.children ?? [])
+          .map(removeLinks)
+          .flat();
+
+      heading.html = children
+        .map((child: any) =>
+          toHtml(child),
+        )
+        .join('');
+
+      headingIndex += 1;
+    });
   };
 }
 
@@ -211,8 +379,8 @@ function remarkCodeMeta() {
 
 /**
  * Mark only an explicit directive label (`:::type[Title]`) as the
- * directive title. Untitled directives keep their first paragraph as
- * ordinary content.
+ * directive title. Untitled directives keep their first paragraph
+ * as ordinary content.
  */
 function remarkDirectiveTitles() {
   return (tree: Root) => {
@@ -522,8 +690,8 @@ export async function renderMarkdown(
 
       .use(remarkMath)
 
-
       .use(remarkDirective)
+
       .use(remarkDirectiveTitles)
 
       /*
@@ -551,6 +719,10 @@ export async function renderMarkdown(
 
       /*
        * Collect headings.
+       *
+       * This happens before Markdown -> HTML conversion so that
+       * the original heading text remains available for stable
+       * slug generation.
        */
       .use(
         remarkCollectHeadings,
@@ -571,7 +743,9 @@ export async function renderMarkdown(
        *
        * They are NOT converted into ::: directives.
        */
-      .use(remarkAlert, {legacyTitle: true,})
+      .use(remarkAlert, {
+        legacyTitle: true,
+      })
 
       /*
        * Convert ::: directives from mdast
@@ -596,6 +770,9 @@ export async function renderMarkdown(
 
       /*
        * Math.
+       *
+       * This must run before rehypeCollectHeadings so that
+       * heading.html contains the final KaTeX markup.
        */
       .use(rehypeKatex)
 
@@ -605,7 +782,19 @@ export async function renderMarkdown(
       .use(rehypeSlug)
 
       /*
+       * Collect the final rendered HTML of h2-h4 headings.
+       *
+       * At this point:
+       *
+       *   $V_{oc}$
+       *
+       * has already been converted into KaTeX HTML.
+       */
+      .use(rehypeCollectHeadings)
+
+      /*
        * Convert directive elements into the CSS classes used by Zest.
+       *
        * Titles have already been marked in the mdast stage, so an
        * untitled directive's first paragraph is never mistaken for a title.
        */
