@@ -7,7 +7,10 @@
 
 
 ### 线性无关与线性相关
-
+:::defi[线性无关或相关的定义]
+* For $k$ vectors $v1$, $v2$, ..., v$k$, if $c1v1$ + $c2v2$ + ...+ $ck vk$ = 0 only  happens when c1 = c2 = ... = $ck$ = 0, the vectors $v1$, $v2$, ..., $vk$ are linearly independent.
+* Otherwise, they are linearly dependent and one of them is a  linear combination of the others. 
+:::
 
 
 
