@@ -94,17 +94,6 @@ export const siteConfig = {
 
     {
       label: {
-        eng: 'Recipes',
-        cn: '菜单',
-        jap: '料理',
-      },
-      href: (lang: Language) => `/${lang}/recipes`,
-      external: false,
-      icon: 'recipe',
-    },
-
-    {
-      label: {
         eng: 'Photos',
         cn: '相册',
         jap: '写真',
@@ -112,6 +101,16 @@ export const siteConfig = {
       href: (lang: Language) => `/${lang}/photos`,
       external: false,
       icon: 'photos',
+    },
+    {
+      label: {
+        eng: 'Recipes',
+        cn: '菜单',
+        jap: '料理',
+      },
+      href: (lang: Language) => `/${lang}/recipes`,
+      external: false,
+      icon: 'recipe',
     },
 
     {
