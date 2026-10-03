@@ -1,6 +1,7 @@
 ---
 import selfCss from '../styles/self.css?inline';
 import { siteConfig } from '../site.config';
+import { withBase } from '../utils/paths';
 import type { Language } from '../types';
 
 interface Props {
@@ -48,6 +49,9 @@ const pageTitle = `${title} · ${siteConfig.title}`;
       name="generator"
       content={Astro.generator}
     />
+
+    {/* 与 BaseLayout 一致:语言前缀路由下禁止浏览器弹翻译提示 */}
+    <meta name="google" content="notranslate" />
 
     <meta
       name="description"
@@ -163,7 +167,7 @@ const pageTitle = `${title} · ${siteConfig.title}`;
 
           <!-- CV 下载 -->
           <a
-            href="/cv.pdf"
+            href={withBase('/cv.pdf')}
             class="self-nav-link self-nav-link--resume"
             download="cv.pdf"
           >

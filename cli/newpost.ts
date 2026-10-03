@@ -40,6 +40,7 @@ import {
 import {
   fileURLToPath,
 } from 'node:url';
+import { siteConfig } from '../src/site.config';
 
 const root = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -477,15 +478,11 @@ description: ${JSON.stringify(file.description)}
  * newreci
  * ======================================================= */
 
-/** 固定分类(与菜单页分类块一致)。 */
-const RECIPE_CATEGORIES = [
-  '蔬菜',
-  '禽类',
-  '海鲜',
-  '猪牛羊',
-  '汤',
-  '黑暗料理',
-];
+/**
+ * 固定分类。来源是 site.config.ts 的 recipeCategories,与菜单页共用同一份,
+ * 避免"菜单页有某分类、CLI 却选不到"这类不一致。
+ */
+const RECIPE_CATEGORIES = siteConfig.recipeCategories;
 
 async function newRecipe() {
   const recipesDir = join(
@@ -585,9 +582,7 @@ async function newRecipe() {
     recursive: true,
   });
 
-  for (const [fileName, title] of Object.entries(
-    files
-  )) {
+  for (const fileName of Object.keys(files)) {
     writeFileSync(
       join(folder, fileName),
 

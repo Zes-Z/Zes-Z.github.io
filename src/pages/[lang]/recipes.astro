@@ -5,6 +5,7 @@ import { siteConfig } from '../../site.config';
 import { t } from '../../i18n';
 import type { Language } from '../../types';
 import { recipeCover } from '../../utils/recipes';
+import { DEFAULT_RATIO } from '../../utils/ratio';
 import { withBase } from '../../utils/paths';
 
 export async function getStaticPaths() {
@@ -13,8 +14,8 @@ export async function getStaticPaths() {
 
 const { lang } = Astro.params as { lang: Language };
 
-/** 固定分类(与归档瀑布流一致,选中一个分类展示该类菜谱)。 */
-const RECIPE_CATEGORIES = ['蔬菜', '禽类', '海鲜', '猪牛羊', '汤', '黑暗料理'];
+/** 固定分类(来源:site.config.ts,与 `pnpm newreci` 共用同一份数据)。 */
+const RECIPE_CATEGORIES = siteConfig.recipeCategories;
 
 const recipes = await Promise.all(
   (await getCollection('recipes', (r) => r.id.startsWith(`${lang}/`)))
@@ -68,9 +69,9 @@ for (const r of recipes) {
                 class="recipe-card"
                 href={r.href}
                 data-categories={r.categories}
-                data-ratio={r.cover?.ratio ?? '6 / 6'}
+                data-ratio={r.cover?.ratio ?? DEFAULT_RATIO}
               >
-                <span class="recipe-media" style={`aspect-ratio: ${r.cover?.ratio ?? '6 / 6'}`}>
+                <span class="recipe-media" style={`aspect-ratio: ${r.cover?.ratio ?? DEFAULT_RATIO}`}>
                   {r.cover ? (
                     <img class="recipe-cover" src={r.cover.src} alt={r.title} loading="lazy" decoding="async" />
                   ) : (
@@ -206,6 +207,9 @@ for (const r of recipes) {
     width: 100%;
     overflow: hidden;
     background: var(--surface-2);
+    /* 封面为原图:跳过屏幕外卡片的渲染 */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 360px;
   }
 
   .recipe-cover {

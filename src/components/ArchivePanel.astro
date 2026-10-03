@@ -36,58 +36,55 @@ const timeline = posts.reduce<Map<number, ArchivePostData[]>>((map, post) => {
 const years = [...timeline.keys()].sort((a, b) => b - a);
 ---
 
-<div class="archive-panel" data-archive-panel data-lang={lang}>
-  <div class="archive-main">
-    <!-- 分类:最上方,横向胶囊单选,居中 -->
-    <div class="archive-categories" role="group" aria-label={t(lang, 'archive.categories')}>
-      <a class="category-pill" data-category="" href={archiveHref(lang)}>
-        <span>{t(lang, 'archive.all')}</span>
-        <span class="filter-count">{posts.length}</span>
-      </a>
-      {
-        categories.map(([name, count]) => (
-          <a class="category-pill" data-category={name} href={archiveCategoryHref(lang, name)}>
-            <span>{name}</span>
-            <span class="filter-count">{count}</span>
-          </a>
-        ))
-      }
-    </div>
-
-    <div class="timeline" data-timeline>
-      {
-        years.map((year) => (
-          <section class="timeline-year">
-            <h2 class="timeline-year-heading">{year}</h2>
-            <ul class="timeline-list">
-              {
-                (timeline.get(year) ?? []).map((post) => (
-                  <li class="timeline-item">
-                    <time class="timeline-date">{post.month}/{post.day}</time>
-                    <a class="timeline-title" href={post.href}>{post.title}</a>
-                    <span class="timeline-meta">
-                     {post.tags.map((tagName) => (
-                       <span class="chip chip--plain">{tagName}</span>
-                     ))}
-                     <a
-                       class="chip chip-link"
-                       href={archiveCategoryHref(lang, post.category)}
-                     >
-                       {post.category}
-                     </a>
-                    </span>
-                  </li>
-                ))
-              }
-            </ul>
-          </section>
-        ))
-      }
-    </div>
-
-    <div class="masonry" data-masonry hidden></div>
-    <p class="masonry-empty" data-masonry-empty hidden>{t(lang, 'archive.noMatch')}</p>
+<div class="archive-panel" data-archive-panel>
+  <div class="archive-categories" role="group" aria-label={t(lang, 'archive.categories')}>
+    <a class="category-pill" data-category="" href={archiveHref(lang)}>
+      <span>{t(lang, 'archive.all')}</span>
+      <span class="filter-count">{posts.length}</span>
+    </a>
+    {
+      categories.map(([name, count]) => (
+        <a class="category-pill" data-category={name} href={archiveCategoryHref(lang, name)}>
+          <span>{name}</span>
+          <span class="filter-count">{count}</span>
+        </a>
+      ))
+    }
   </div>
+
+  <div class="timeline" data-timeline>
+    {
+      years.map((year) => (
+        <section class="timeline-year">
+          <h2 class="timeline-year-heading">{year}</h2>
+          <ul class="timeline-list">
+            {
+              (timeline.get(year) ?? []).map((post) => (
+                <li class="timeline-item">
+                  <time class="timeline-date">{post.month}/{post.day}</time>
+                  <a class="timeline-title" href={post.href}>{post.title}</a>
+                  <span class="timeline-meta">
+                   {post.tags.map((tagName) => (
+                     <span class="chip chip--plain">{tagName}</span>
+                   ))}
+                   <a
+                     class="chip chip-link"
+                     href={archiveCategoryHref(lang, post.category)}
+                   >
+                     {post.category}
+                   </a>
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  <div class="masonry" data-masonry hidden></div>
+  <p class="masonry-empty" data-masonry-empty hidden>{t(lang, 'archive.noMatch')}</p>
 </div>
 
 <script>
@@ -136,7 +133,6 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
     categoryButtons.forEach((button) => {
       const active = button.dataset.category === state.category;
       button.classList.toggle('is-active', active);
-      button.setAttribute('aria-pressed', String(active));
     });
   }
 
@@ -275,7 +271,7 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
     color: var(--hover);
   }
 
-  /* ---------- right: timeline(竖线) / masonry ---------- */
+  /* ---------- timeline(竖线) ---------- */
   .timeline {
     position: relative;
     max-width: 820px;
@@ -509,19 +505,5 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
     background: var(--surface);
     border: 1px dashed var(--border-strong);
     border-radius: var(--radius);
-  }
-
-  @media (max-width: 900px) {
-    .archive-panel {
-      grid-template-columns: 1fr;
-    }
-    .archive-side {
-      position: static;
-      flex-direction: row;
-      flex-wrap: wrap;
-    }
-    .filter-group {
-      flex: 1 1 220px;
-    }
   }
 </style>

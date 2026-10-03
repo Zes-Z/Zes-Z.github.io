@@ -7,8 +7,10 @@ export type Language = 'en' | 'zh' | 'ja';
 
 export const LANGUAGES: readonly Language[] = ['en', 'zh', 'ja'] as const;
 
-/** A field that is either a plain string or a per-language map
- *  (used for site config and friend data; content keys are eng/cn/jap). */
+/** A field that is either a plain string or a per-language map.
+ *  Used for site config (title/description/nav/footer labels) and for friend
+ *  entries, which live in `src/site.config.ts` (`siteConfig.friends`).
+ *  Content keys stay `eng` / `cn` / `jap`. */
 export type LocalizedText =
   | string
   | Partial<Record<'eng' | 'cn' | 'jap', string>>;

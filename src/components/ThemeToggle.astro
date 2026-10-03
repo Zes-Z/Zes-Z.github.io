@@ -18,7 +18,6 @@ const { lang } = Astro.props;
     class="icon-btn"
     type="button"
     aria-label={t(lang, 'theme.dark')}
-    title={t(lang, 'theme.dark')}
     data-theme-toggle-btn
   >
     <span class="theme-icon" data-icon="sun" hidden>
@@ -56,8 +55,16 @@ const { lang } = Astro.props;
   function apply(mode: ThemeMode) {
     root.setAttribute('data-theme', mode);
     root.setAttribute('data-code-scheme', mode === 'dark' ? 'dark' : 'light');
+    // theme-color 与背景色都取自 BaseLayout 内联的两个变量(site.config.ts 里的
+    // theme.light.bg / theme.dark.bg),不再写死颜色,避免两处不同步。
+    const styles = getComputedStyle(root);
     const meta = document.querySelector<HTMLMetaElement>("meta[name='theme-color']");
-    if (meta) meta.content = mode === 'dark' ? '#101218e0' : '#eef6ef';
+    if (meta) {
+      const bg = styles
+        .getPropertyValue(mode === 'dark' ? '--site-dark-bg' : '--site-light-bg')
+        .trim();
+      if (bg) meta.content = bg;
+    }
     // 切换时短暂启用过渡,让颜色柔和变化;页面加载/导航不触发
     root.classList.add('theme-anim');
     window.setTimeout(() => root.classList.remove('theme-anim'), 420);
@@ -74,7 +81,6 @@ const { lang } = Astro.props;
       if (btn) {
         const label = mode === 'dark' ? toggle.dataset.labelDark : toggle.dataset.labelLight;
         btn.setAttribute('aria-label', label ?? '');
-        btn.title = label ?? '';
       }
     });
   }

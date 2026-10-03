@@ -111,6 +111,9 @@ const backHref = withBase(`/${lang}/photos`);
     width: 100%;
     height: auto;
     border-radius: var(--radius);
+    /* 原图很大:让浏览器跳过屏幕外图片的解码与绘制 */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
   }
   .photo-item.is-landscape {
     grid-column: span 2;

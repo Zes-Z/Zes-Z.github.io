@@ -1,5 +1,5 @@
 import type { ImageMetadata } from 'astro';
-import { nearestRatio } from './ratio';
+import { nearestRatio, DEFAULT_RATIO } from './ratio';
 
 /**
  * Photo helpers for the photos page.
@@ -40,7 +40,7 @@ async function resolvePhoto(path: string, loader: () => Promise<unknown>) {
         return {
           src: meta.src,
           landscape: w > h,
-          ratio: w && h ? nearestRatio(w, h) : '6 / 6',
+          ratio: w && h ? nearestRatio(w, h) : DEFAULT_RATIO,
         } as Photo;
       })
       .catch(() => undefined);

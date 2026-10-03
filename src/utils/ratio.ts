@@ -13,6 +13,13 @@
  */
 export const MASONRY_RATIOS = ['3 / 2', '2 / 3', '1 / 1'] as const;
 
+/**
+ * 兜底比例(图片宽高未知时使用)。取 1/1,而不是过去各处硬编码的 '6 / 6'
+ * ('6 / 6' 数值上等于 1/1,但不在 MASONRY_RATIOS 体系里,容易被误读成
+ * "6 列布局"之类的含义)。
+ */
+export const DEFAULT_RATIO: string = MASONRY_RATIOS[2];
+
 /** 把图片真实宽高比(宽/高)映射到最近的 3/2·2/3·1/1。 */
 export function nearestRatio(
   width: number,

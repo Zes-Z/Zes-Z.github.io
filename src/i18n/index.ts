@@ -21,6 +21,9 @@ const en = {
   'search.count': 'results',
   'search.invalidRegex': 'Invalid regular expression',
 
+  'menu.open': 'More links',
+  'menu.label': 'Links',
+
   'home.pinned': 'Pinned',
   'home.allPosts': 'All posts →',
 
@@ -62,6 +65,9 @@ const zh: Record<UiKey, string> = {
   'search.count': '条结果',
   'search.invalidRegex': '正则表达式无效',
 
+  'menu.open': '更多链接',
+  'menu.label': '链接',
+
   'home.pinned': '置顶文章',
   'home.allPosts': '归档 →',
 
@@ -101,6 +107,9 @@ const ja: Record<UiKey, string> = {
   'search.noResults': '一致する記事がありません。',
   'search.count': '件',
   'search.invalidRegex': '正規表現が無効です',
+
+  'menu.open': 'その他のリンク',
+  'menu.label': 'リンク',
 
   'home.pinned': 'ピン留め記事',
   'home.allPosts': 'すべての記事 →',

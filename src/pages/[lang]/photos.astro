@@ -5,6 +5,7 @@ import { siteConfig } from '../../site.config';
 import { t } from '../../i18n';
 import type { Language } from '../../types';
 import { photosPhotos, portfolioCover, portfolioPhotos } from '../../utils/photos';
+import { DEFAULT_RATIO } from '../../utils/ratio';
 import { withBase } from '../../utils/paths';
 
 export async function getStaticPaths() {
@@ -60,14 +61,15 @@ const tabs = [
         photos.length > 0 ? (
           <div class="photo-masonry">
             {
-              photos.map((p) => (
+              /* 相册刻意输出原图(不降质),故首屏几张 eager、其余 lazy */
+              photos.map((p, index) => (
                 <img
                   class="photo-item"
                   style={`aspect-ratio: ${p.ratio}`}
                   data-ratio={p.ratio}
                   src={p.src}
                   alt=""
-                  loading="lazy"
+                  loading={index < 3 ? 'eager' : 'lazy'}
                   decoding="async"
                 />
               ))
@@ -89,7 +91,7 @@ const tabs = [
                 <a
                   class="portfolio-card"
                   href={p.href}
-                  data-ratio={p.cover?.ratio ?? '6 / 6'}
+                  data-ratio={p.cover?.ratio ?? DEFAULT_RATIO}
                 >
                   {p.cover && (
                     <img
@@ -248,6 +250,9 @@ const tabs = [
     border-radius: var(--radius);
     object-fit: cover;
     background: var(--surface-2);
+    /* 原图很大:让浏览器跳过屏幕外图片的解码与绘制 */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
   }
 
   /* 作品集瀑布流(与"分类"同款密铺 masonry) */
@@ -270,6 +275,8 @@ const tabs = [
     width: 100%;
     height: auto;
     object-fit: cover;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
   }
 
   .portfolio-veil {

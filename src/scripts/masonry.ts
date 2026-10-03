@@ -11,6 +11,8 @@
  * Returns a `relayout()` function; call it after the visible card set
  * changes (filtering, tab switch, dynamic render).
  */
+import { DEFAULT_RATIO } from '../utils/ratio';
+
 export function initMasonry(container: HTMLElement): () => void {
   const parseRatio = (s: string): number => {
     const [w, h] = s.split('/').map((n) => parseFloat(n.trim()));
@@ -31,7 +33,7 @@ export function initMasonry(container: HTMLElement): () => void {
 
     for (const card of cards) {
       if (card.hasAttribute('hidden')) continue;
-      const ratio = parseRatio(card.dataset.ratio ?? '6 / 6');
+      const ratio = parseRatio(card.dataset.ratio ?? DEFAULT_RATIO);
       const h = colWidth / ratio;
       const col = heights.indexOf(Math.min(...heights));
       card.style.position = 'absolute';
@@ -39,6 +41,10 @@ export function initMasonry(container: HTMLElement): () => void {
       card.style.left = `${col * (colWidth + gap)}px`;
       card.style.top = `${heights[col]}px`;
       card.style.margin = '0';
+      // 卡片高度可精确算出(比例 + 列宽),交给浏览器跳过屏幕外卡片的
+      // 布局/绘制;contain-intrinsic-size 是跳过前的占位尺寸估计。
+      card.style.containIntrinsicSize = `auto ${Math.round(h)}px`;
+      card.style.contentVisibility = 'auto';
       heights[col] += h + gap;
     }
 

@@ -15,8 +15,8 @@ f(t)=a_0+\sum_{n=1}^{\infty} (a_n\cos(n\omega_0 t)+b_n\sin(n\omega_0 t))
 $$
 其中
 $$
-a_0=\frac{1}{T}\int_T f(t)\,dt，
-a_n=\frac{2}{T}\int_T f(t)\cos(n\omega_0 t)\,dt，
+a_0=\frac{1}{T}\int_T f(t)\,dt\\
+a_n=\frac{2}{T}\int_T f(t)\cos(n\omega_0 t)\,dt\\
 b_n=\frac{2}{T}\int_T f(t)\sin(n\omega_0 t)\,dt
 $$
 :::
@@ -29,8 +29,8 @@ f(t)=A_0+\sum_{n=1}^{\infty} A_n\cos(n\omega_0 t-\theta_n)
 $$
 其中
 $$
-A_0=a_0=\frac{1}{T}\int_T f(t)\,dt，
-A_n=\sqrt{a_n^2+b_n^2}，
+A_0=a_0=\frac{1}{T}\int_T f(t)\,dt\\
+A_n=\sqrt{a_n^2+b_n^2}\\
 \theta_n=\tan^{-1}\frac{b_n}{a_n}
 $$
 :::

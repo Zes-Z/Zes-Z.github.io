@@ -3,6 +3,7 @@ import { siteConfig } from '../site.config';
 import { t, localize } from '../i18n';
 import type { Language } from '../types';
 import { withBase } from '../utils/paths';
+import { panelIcon } from '../icons';
 import LanguagePicker from './LanguagePicker.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
@@ -10,30 +11,79 @@ interface Props {
   lang: Language;
 }
 
-// 导航图标(线性、协调统一)
-const navIcons: Record<string, string> = {
-  home: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 10.5 10 4l6.5 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V17h9V9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  archive: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><ellipse cx="10" cy="5.2" rx="6.5" ry="2.7" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 5.2v9.6c0 1.5 2.9 2.7 6.5 2.7s6.5-1.2 6.5-2.7V5.2" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3.5 10c0 1.5 2.9 2.7 6.5 2.7s6.5-1.2 6.5-2.7" stroke="currentColor" stroke-width="1.7"/></svg>',
-  recipe: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 3v6a1.5 1.5 0 0 0 3 0V3M7.5 9v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M13.5 3v14M13.5 3c1.8.4 2.5 2 2.5 4 0 1.8-.7 3.4-2.5 3.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  photos: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2.5" y="3" width="15" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="8" cy="7.3" r="1.2" stroke="currentColor" stroke-width="1.6"/><path d="M2.5 14.3 8 9.6l3.3 2.9 3.7-2.6 2.5 2.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  friends: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8.33 10.83a4.17 4.17 0 0 0 6.28.45l2.5-2.5a4.17 4.17 0 0 0-5.89-5.89l-1.43 1.43" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.67 9.17a4.17 4.17 0 0 0-6.28-.45l-2.5 2.5a4.17 4.17 0 0 0 5.89 5.89l1.43-1.43" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    unknown: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.7"/><path d="M8 7.5a2 2 0 1 1 2.8 1.8c-.8.4-1.3.8-1.3 1.7v.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1" fill="currentColor" stroke="none"/></svg>',
-};
-
 const { lang } = Astro.props;
 const pathname = Astro.url.pathname;
 
-const resolveHref = (href: string | ((l: Language) => string)) =>
-  typeof href === 'function' ? href(lang) : href;
+type Href = string | ((l: Language) => string);
+
+const resolveHref = (href: Href | undefined) =>
+  href === undefined ? '#' : withBase(typeof href === 'function' ? href(lang) : href);
+
+const isActive = (href: string) =>
+  !href.startsWith('http') && (pathname === href || pathname.startsWith(`${href}/`));
 
 const home = withBase(`/${lang}`);
-const items = siteConfig.nav.map((item) => {
-  const href = withBase(resolveHref(item.href));
-  const isHome = href === home;
-  const active =
-    !item.external && (pathname === href || (!isHome && pathname.startsWith(`${href}/`)));
-  return { label: localize(item.label, lang), href, active, external: item.external, icon: navIcons[item.icon] ?? '' };
+
+/** 是否当前页正好在该条目或其子项上。 */
+function entryActive(href: string | undefined, childHrefs: string[]): boolean {
+  const own = href ? isActive(href) : false;
+  // "首页" 的 isActive 会匹配 site 根,需排除,避免所有页面都高亮首页。
+  const self = href === home ? pathname === home : own;
+  return self || childHrefs.some(isActive);
+}
+
+/* ---------------------------------------------------------
+ * 顶部导航(支持一层分组:带 children 的条目渲染成可展开块)
+ * --------------------------------------------------------- */
+
+type RawChild = {
+  label: unknown;
+  href?: Href;
+  external?: boolean;
+  icon?: string;
+};
+
+type RawItem = RawChild & { children?: readonly RawChild[] };
+
+const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
+  const children = (item.children ?? []).map((child) => {
+    const href = resolveHref(child.href);
+    return {
+      label: localize(child.label as never, lang),
+      href,
+      external: Boolean(child.external),
+      // 面板内用彩色图标(没有彩色变体时自动退回单色)
+      icon: panelIcon(child.icon ?? ''),
+      active: isActive(href),
+    };
+  });
+
+  const href = item.href ? resolveHref(item.href) : undefined;
+
+  return {
+    label: localize(item.label as never, lang),
+    href,
+    external: Boolean(item.external),
+    // 导航栏也改用彩色图标(统一走 panelIcon:优先 color/ 变体)
+    icon: item.icon ? panelIcon(item.icon) : '',
+    children,
+    active: entryActive(href, children.map((c) => c.href)),
+  };
 });
+
+/* ---------------------------------------------------------
+ * 搜索图标右边的可展开块(原页脚条目)
+ * --------------------------------------------------------- */
+
+const menuItems = siteConfig.menu.map((item) => ({
+  label: localize(item.label, lang),
+  href: resolveHref(item.href),
+  external: typeof item.href === 'string' && /^https?:\/\//.test(item.href),
+  icon: panelIcon(item.icon),
+  copyValue: 'wechatId' in item ? item.wechatId : undefined,
+}));
+
+const hasMenu = menuItems.length > 0;
 ---
 
 <header class="site-header" data-header>
@@ -41,16 +91,58 @@ const items = siteConfig.nav.map((item) => {
     <nav class="site-nav" id="site-nav" data-nav>
       <ul>
         {
-          items.map((item) => (
-            <li>
-              <a
-                class:list={['nav-link', { 'is-active': item.active }]}
-                href={item.href}
-                {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              >
-                {item.icon && <span class="nav-icon" set:html={item.icon} />}
-                <span class="nav-label">{item.label}</span>
-              </a>
+          navItems.map((item) => (
+            <li class:list={{ 'has-children': item.children.length > 0 }}>
+              {item.children.length > 0 ? (
+                /* 与「链接」块完全同构:容器(这里是 li / 那里是 .header-menu)
+                   直接包住 button + 面板,所以 menuOf() 能用同一种方式取到面板。
+                   不要在 button 外面再加包裹层,否则面板就不再是它的兄弟节点。 */
+                <button
+                  class:list={[
+                    'icon-btn',
+                    'icon-btn--label',
+                    'nav-group-btn',
+                    { 'is-active': item.active },
+                  ]}
+                  type="button"
+                  aria-label={item.label}
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  data-nav-group
+                >
+                  {item.icon && <span class="nav-icon" set:html={item.icon} />}
+                  <span class="nav-label">{item.label}</span>
+                </button>
+              ) : (
+                <a
+                  class:list={['nav-link', { 'is-active': item.active }]}
+                  href={item.href}
+                  {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  {item.icon && <span class="nav-icon" set:html={item.icon} />}
+                  <span class="nav-label">{item.label}</span>
+                </a>
+              )}
+
+              {item.children.length > 0 && (
+                <ul class="nav-submenu nav-submenu--icons" data-nav-menu hidden>
+                  {item.children.map((child) => (
+                    <li>
+                      <a
+                        class:list={['nav-submenu-link', { 'is-active': child.active }]}
+                        href={child.href}
+                        aria-label={child.label}
+                        {...(child.external
+                          ? { target: '_blank', rel: 'noopener noreferrer' }
+                          : {})}
+                      >
+                        {child.icon && <span class="nav-icon" set:html={child.icon} />}
+                        <span class="sr-only">{child.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))
         }
@@ -58,11 +150,64 @@ const items = siteConfig.nav.map((item) => {
     </nav>
 
     <div class="header-actions">
+      {
+        hasMenu && (
+          <div class="header-menu" data-nav-group-wrap>
+            <button
+              class="icon-btn icon-btn--label"
+              type="button"
+              aria-label={t(lang, 'menu.open')}
+              aria-expanded="false"
+              aria-haspopup="true"
+              data-nav-group
+            >
+              <span class="nav-icon" set:html={panelIcon('link')} />
+              <span class="nav-label">{t(lang, 'menu.label')}</span>
+            </button>
+
+            {/* 图标-only 面板:展开后只出现图标(文字仅供读屏) */}
+            <ul class="nav-submenu nav-submenu--icons" data-nav-menu hidden>
+              {menuItems.map((item) =>
+                item.copyValue ? (
+                  <li>
+                    <button
+                      class="nav-submenu-link"
+                      type="button"
+                      aria-label={item.label}
+                      data-copy-wechat
+                      data-copy-value={item.copyValue}
+                    >
+                      <span class="nav-icon" set:html={item.icon} />
+                      <span class="sr-only">{item.label}</span>
+                    </button>
+                  </li>
+                ) : (
+                  <li>
+                    <a
+                      class="nav-submenu-link"
+                      href={item.href}
+                      aria-label={item.label}
+                      {...(item.external
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                    >
+                      <span class="nav-icon" set:html={item.icon} />
+                      <span class="sr-only">{item.label}</span>
+                    </a>
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+        )
+      }
+
+      <LanguagePicker lang={lang} pathname={pathname} />
+
       <button
         class="icon-btn"
         type="button"
         aria-label={t(lang, 'search.open')}
-        title={t(lang, 'search.open')}
         data-search-open
       >
         <svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -70,7 +215,7 @@ const items = siteConfig.nav.map((item) => {
           <path d="m13.4 13.4 3.8 3.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
         </svg>
       </button>
-      <LanguagePicker lang={lang} pathname={pathname} />
+
       <ThemeToggle lang={lang} />
     </div>
 
@@ -82,8 +227,12 @@ const items = siteConfig.nav.map((item) => {
   </div>
 </header>
 
+<div class="copy-toast" data-copy-toast role="status"></div>
+
 <script>
-  // 汉堡菜单开合
+  /* ---------------------------------------------------------
+   * 汉堡菜单开合
+   * --------------------------------------------------------- */
   const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
   const nav = document.querySelector<HTMLElement>('[data-nav]');
 
@@ -92,13 +241,90 @@ const items = siteConfig.nav.map((item) => {
     toggle.setAttribute('aria-expanded', String(open));
   });
 
-  // 毛玻璃胶囊:滚动一定距离后切换 "not-top"(加底色/边框/阴影),
-  // 始终吸顶显示,不随下滑淡出
+  /* ---------------------------------------------------------
+   * 可向下展开的块(顶栏导航分组 + 搜索右侧条目块)
+   *
+   * 点击父项切换;点击别处或 Esc 关闭;点击面板内的链接后一并关闭。
+   * --------------------------------------------------------- */
+  const groupButtons = [
+    ...document.querySelectorAll<HTMLButtonElement>('[data-nav-group]'),
+  ];
+
+  /**
+   * 找到触发块对应的面板。
+   * 两个块的 DOM 形状一致:容器(li.has-children / .header-menu)里同时有
+   * button 和 [data-nav-menu],所以 button 的父元素就是那个容器。
+   */
+  const menuOf = (btn: HTMLElement) =>
+    btn.parentElement?.querySelector<HTMLElement>('[data-nav-menu]') ?? null;
+
+  const closeGroups = (except?: HTMLElement) => {
+    groupButtons.forEach((btn) => {
+      if (btn === except) return;
+      btn.setAttribute('aria-expanded', 'false');
+      menuOf(btn)?.setAttribute('hidden', '');
+    });
+  };
+
+  const bindGroups = () => {
+    closeGroups();
+
+    groupButtons.forEach((btn) => {
+      if (btn.dataset.groupReady === 'true') return;
+      btn.dataset.groupReady = 'true';
+
+      btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const menu = menuOf(btn);
+        if (!menu) return;
+        // 该块是导航分组时,先收起可能展开的其它块
+        closeGroups(btn);
+        const willOpen = menu.hasAttribute('hidden');
+        if (willOpen) menu.removeAttribute('hidden');
+        else menu.setAttribute('hidden', '');
+        btn.setAttribute('aria-expanded', String(willOpen));
+      });
+    });
+  };
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('[data-nav-group-wrap], .has-children')) return;
+    closeGroups();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeGroups();
+  });
+
+  // 面板内的链接跳转后,把面板收起(返回上一页时不会残留展开状态)
+  document.querySelectorAll<HTMLElement>('[data-nav-menu] a').forEach((link) => {
+    link.addEventListener('click', () => closeGroups());
+  });
+
+  bindGroups();
+
+  /* ---------------------------------------------------------
+   * 毛玻璃胶囊:滚动一定距离后切换 "not-top"(加底色/边框/阴影),
+   * 始终吸顶显示,不随下滑淡出
+   * --------------------------------------------------------- */
   const header = document.querySelector<HTMLElement>('.site-header');
+
+  /**
+   * 展开块不常驻:一旦页面滚动就自动收回。
+   * 用与 not-top 相同的 20px 阈值,避免"刚下滑一点点面板还挂着"的割裂感。
+   * 每次滚动只判断一次、只在需要时改 DOM,不会影响滚动性能。
+   */
+  const syncGroups = () => {
+    if (window.scrollY <= 20) return;
+    if (!groupButtons.some((btn) => btn.getAttribute('aria-expanded') === 'true')) return;
+    closeGroups();
+  };
 
   const syncScroll = () => {
     if (!header) return;
     header.classList.toggle('not-top', window.scrollY > 20);
+    syncGroups();
     syncOverHero();
   };
 
@@ -120,6 +346,7 @@ const items = siteConfig.nav.map((item) => {
   document.addEventListener('astro:page-load', () => {
     nav?.classList.remove('is-open');
     toggle?.setAttribute('aria-expanded', 'false');
+    bindGroups();
     syncScroll();
   });
 </script>
@@ -172,7 +399,8 @@ const items = siteConfig.nav.map((item) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    /* 四大块(导航 / 链接 / 搜索·语言·主题 / 汉堡)之间的距离 */
+    gap: 8px;
     height: 100%;
     padding: 0 10px;
     white-space: nowrap;
@@ -185,7 +413,8 @@ const items = siteConfig.nav.map((item) => {
   .site-nav ul {
     display: flex;
     align-items: center;
-    gap: 2px;
+    /* 块与块之间的距离(与 .header-actions 保持一致) */
+    gap: 4px;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -196,6 +425,8 @@ const items = siteConfig.nav.map((item) => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    /* 与 .icon-btn--label 统一:图标与文字之间固定 5px */
+    gap: 5px;
     padding: 10px 12px;
     border-radius: 999px;
     font-size: 0.88rem;
@@ -220,7 +451,9 @@ const items = siteConfig.nav.map((item) => {
     opacity: 1;
     overflow: hidden;
     white-space: nowrap;
-    margin-left: 6px;
+    /* 文字只在"收起/滑出"时靠 margin-left 做动画,静止间距由上面的 gap 提供;
+       因此这里必须为 0,否则静止时会变成 gap + margin 双重间距。 */
+    margin-left: 0;
     transition:
       max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
       opacity 0.25s ease,
@@ -235,7 +468,7 @@ const items = siteConfig.nav.map((item) => {
   .site-header.not-top:hover .nav-label {
     max-width: 120px;
     opacity: 1;
-    margin-left: 6px;
+    margin-left: 0;
   }
   /* 当前页:天蓝高亮(顶部状态文字常显) */
   .nav-link.is-active {
@@ -245,7 +478,7 @@ const items = siteConfig.nav.map((item) => {
   .nav-link.is-active .nav-label {
     max-width: 120px;
     opacity: 1;
-    margin-left: 6px;
+    margin-left: 0;
   }
   /* 滚动缩小后:即使当前页也收起文字,随悬停滑出 */
   .site-header.not-top .nav-link.is-active .nav-label {
@@ -256,17 +489,165 @@ const items = siteConfig.nav.map((item) => {
   .site-header.not-top:hover .nav-link.is-active .nav-label {
     max-width: 120px;
     opacity: 1;
-    margin-left: 6px;
+    margin-left: 0;
   }
   .nav-link:hover {
     color: var(--sky);
     background: color-mix(in srgb, var(--sky) 10%, transparent);
   }
 
+  /* ---------- 分组父项(可向下展开的块) ---------- */
+
+  .site-nav li.has-children,
+  .header-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  /* 两个触发块都是 button,统一清掉浏览器默认外观 */
+  .nav-group-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .nav-group-btn.is-active {
+    color: var(--sky);
+    background: color-mix(in srgb, var(--sky) 15%, transparent);
+  }
+
+  /* ---------- 顶栏展开块的触发按钮(「生活」与「链接」共用同一套) ---------- */
+
+  /* 高度 38px、图标 + 文字。文字字号/字重/行高与 .nav-link 对齐,保证两种
+     触发块在顶栏里看起来完全一致。 */
+  .icon-btn--label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: 38px;
+    padding: 0 12px;
+    /* 与 .nav-link 统一:图标与文字之间固定 5px */
+    gap: 5px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  /* 与导航文字同一套收起/滑出行为:滚动后只留图标,悬停胶囊时文字滑出
+     (静止间距由 gap 提供,margin-left 只负责动画,故恒为 0) */
+  .site-header.not-top .icon-btn--label .nav-label {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+  }
+  .site-header.not-top:hover .icon-btn--label .nav-label {
+    max-width: 96px;
+    opacity: 1;
+    margin-left: 0;
+  }
+  /* 窄屏:直接只留图标,避免把胶囊挤宽(语言/主题按钮的样式保持不变) */
+  @media (max-width: 700px) {
+    .icon-btn--label {
+      padding: 0;
+      width: 38px;
+    }
+    .icon-btn--label .nav-label {
+      display: none;
+    }
+  }
+
+  /* ---------- 向下弹出的面板 ---------- */
+
+  /* 与顶栏"同源但不同款":
+     同样是一枚胶囊 + 同色系描边 + 毛玻璃,但底色更实一些(--surface 混 --bg)、
+     模糊更强(14px vs 顶栏 12px)、圆角收小到 --radius-lg,让它是"顶栏延伸出来的
+     一层",而不是顶栏的复制品。 */
+  .site-header .nav-submenu {
+    position: absolute;
+    top: calc(100% + 10px);
+    /* 与上方触发块水平居中对齐 */
+    left: 50%;
+    translate: -50% 0;
+    z-index: 45;
+    display: flex;
+    /* 竖向排列 */
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    /* 宽度自适应内容;上限同时防止"居中于触发块"时溢出视口左右边缘 */
+    width: max-content;
+    max-width: min(80vw, calc(100vw - 24px), 240px);
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: color-mix(in srgb, var(--surface) 80%, var(--bg));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-strong);
+    backdrop-filter: blur(14px) saturate(1.35);
+    -webkit-backdrop-filter: blur(14px) saturate(1.35);
+    animation: nav-submenu-in 0.16s ease-out;
+  }
+  .site-header .nav-submenu[hidden] {
+    display: none;
+  }
+  @keyframes nav-submenu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-header .nav-submenu {
+      animation: none;
+    }
+  }
+
+  /* 面板条目:图标-only 的圆形按钮,竖向一列 */
+  .site-header .nav-submenu-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      transform 0.2s;
+  }
+  .site-header .nav-submenu-link .nav-icon {
+    display: block;
+  }
+  .site-header .nav-submenu-link :global(svg) {
+    display: block;
+  }
+  .site-header .nav-submenu-link:hover {
+    background: color-mix(in srgb, var(--sky) 12%, transparent);
+    transform: scale(1.08);
+  }
+  .site-header .nav-submenu-link.is-active {
+    background: color-mix(in srgb, var(--sky) 18%, transparent);
+  }
+
   .header-actions {
     display: flex;
     align-items: center;
-    gap: 2px;
+    /* 与 .site-nav ul 统一:块与块之间的距离 */
+    gap: 4px;
   }
 
   .hamburger {
@@ -320,15 +701,32 @@ const items = siteConfig.nav.map((item) => {
       justify-content: flex-start;
       width: 100%;
     }
-    /* 移动端无悬停:文字常显(单行) */
+    /* 移动端无悬停:文字常显(单行);间距由 .nav-link 的 gap 提供 */
     .nav-label {
       max-width: none;
       opacity: 1;
-      margin-left: 6px;
+      margin-left: 0;
     }
     .site-header:hover .nav-label {
       max-width: none;
-      margin-left: 6px;
+      margin-left: 0;
+    }
+
+    /* 窄屏:面板从"向下浮层"改为就地纵向展开,避免飞出视口 */
+    .site-header .nav-submenu {
+      position: static;
+      left: auto;
+      translate: none;
+      width: auto;
+      max-width: none;
+      margin: 2px 0 2px 12px;
+      padding: 4px;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      animation: none;
     }
   }
 </style>

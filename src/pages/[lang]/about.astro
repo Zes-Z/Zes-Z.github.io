@@ -1,6 +1,7 @@
 ---
 import SelfLayout from '../../layouts/SelfLayout.astro';
 import { siteConfig } from '../../site.config';
+import { withBase, IMAGE_FALLBACK } from '../../utils/paths';
 import type { Language } from '../../types';
 
 export async function getStaticPaths() {
@@ -66,7 +67,8 @@ const { lang } = Astro.params as {
 
           <div class="self-avatar-placeholder">
             <img
-             src="/avatar/about zes.jpg"
+             src={withBase('/avatar/about zes.jpg')}
+             data-fallback={IMAGE_FALLBACK}
              alt="Zes"
             />
           </div>

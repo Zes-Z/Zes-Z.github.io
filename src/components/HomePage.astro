@@ -7,7 +7,7 @@ import { t, localize } from '../i18n';
 import type { Language } from '../types';
 import { getPinnedPosts, slugOf } from '../utils/posts';
 import { archiveHref, postHref } from '../utils/paths';
-import { resolvePostImage } from '../utils/images';
+import { resolvePostImage, postImageCandidates } from '../utils/images';
 
 interface Props {
   lang: Language;
@@ -15,24 +15,41 @@ interface Props {
 
 const { lang } = Astro.props;
 
+/**
+ * 置顶卡片封面:输出多档宽度供浏览器挑选。
+ *
+ * 布局依据(.pin-grid 为 2fr:1fr 两列 + 24px gap):
+ *   ≥860px 视口:大图约 696~720 CSS px,小图约 336px
+ *   <860px 视口:全部单列铺满
+ * 因此大图在 2x 屏上需要约 1400px —— 只给 800px 必然发糊。
+ */
+const PINNED_WIDTHS = [480, 720, 1080, 1440, 1920];
+
 const pinned = await getPinnedPosts(lang);
 const pinnedCards = await Promise.all(
-  pinned.map(async (post) => ({
-    href: postHref(lang, slugOf(post, lang)),
-    title: post.data.title,
-    description: post.data.description ?? '',
-    date: post.data.pubDate
-      ? `${post.data.pubDate.getFullYear()}/${post.data.pubDate.getMonth() + 1}/${post.data.pubDate.getDate()}`
-      : '',
-    image: await resolvePostImage(slugOf(post, lang), post.data.postImage, 800),
-  }))
+  pinned.map(async (post) => {
+    const slug = slugOf(post, lang);
+    const cover = await postImageCandidates(slug, post.data.postImage, PINNED_WIDTHS);
+    return {
+      href: postHref(lang, slug),
+      title: post.data.title,
+      description: post.data.description ?? '',
+      date: post.data.pubDate
+        ? `${post.data.pubDate.getFullYear()}/${post.data.pubDate.getMonth() + 1}/${post.data.pubDate.getDate()}`
+        : '',
+      image: cover?.src,
+      srcset: cover?.srcset,
+      // 第一张是跨两行的大图,其余是小图
+      sizes: '(max-width: 860px) 100vw, 720px',
+    };
+  })
 );
 
 const heroSubtitleText = siteSubtitle();
 const heroSubtitle = heroSubtitleText ? localize(heroSubtitleText, lang) : undefined;
 ---
 
-<BaseLayout lang={lang} fullWidth>
+<BaseLayout lang={lang} fullWidth heroFont={siteConfig.heroFont}>
 <Hero
   images={[...siteConfig.heroImages]}
   height="full"

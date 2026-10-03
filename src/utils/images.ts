@@ -64,6 +64,55 @@ export async function resolvePostImage(
 }
 
 /**
+ * Responsive cover image: a fallback `src` plus a `srcset` of several widths.
+ *
+ * Why this exists: `resolvePostImage` renders ONE width, and an `<img>` with a
+ * single source gives the browser nothing to choose from. On a 2x (Retina)
+ * screen a large card needs roughly twice its CSS width in real pixels, so a
+ * single 800px file gets upscaled and looks soft. Emitting several widths lets
+ * the browser download the sharpest one it actually needs — without forcing
+ * small cards (archive, adjacent nav) to pay for a huge file.
+ *
+ * Callers must also set `sizes` so the browser can pick correctly.
+ */
+export async function postImageCandidates(
+  slug: string,
+  ref: string | undefined | null,
+  widths: number[],
+  /**
+   * `resolvePostImage` 的默认档(widths 未包含它时会额外生成一次,
+   * 用作不支持 srcset 时的回退 src)。
+   */
+  fallbackWidth = 800
+): Promise<{ src: string; srcset?: string } | undefined> {
+  const src = await resolvePostImage(slug, ref, fallbackWidth);
+  if (!src) return undefined;
+
+  // 外链 / 绝对路径无法在构建期派生尺寸,只能原样使用
+  if (!ref || !ref.trim() || /^(https?:|data:|\/)/.test(ref)) return { src };
+
+  const meta = await resolvePostAsset(slug, ref);
+  if (!meta?.width) return { src };
+
+  const unique = [...new Set(widths)].sort((a, b) => a - b);
+  const entries = await Promise.all(
+    unique.map(async (w) => {
+      // 不放大到超过原图宽度,避免生成更大的假尺寸
+      if (w > meta.width) return undefined;
+      try {
+        const optimized = await getImage({ src: meta, width: w });
+        return `${optimized.src} ${w}w`;
+      } catch {
+        return undefined;
+      }
+    })
+  );
+
+  const srcset = entries.filter(Boolean).join(', ');
+  return srcset ? { src, srcset } : { src };
+}
+
+/**
  * Pick the archive masonry card ratio from the ORIGINAL image aspect ratio,
  * mapping it to the nearest of the allowed ratios (e.g. 3/2, 2/3, 1/1).
  * A 3:2 image becomes `3 / 2`; remote/absolute refs fall back.

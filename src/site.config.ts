@@ -55,8 +55,13 @@ export const siteConfig = {
    *   label    : display text (supports three languages)
    *   href     : URL string, or a function of the current language
    *              (e.g. (lang) => `/${lang}/archive`)
+   *              A GROUP entry (one with `children`) has no href of its own —
+   *              clicking it only opens/closes its panel.
    *   external : open in a new tab
-   *   icon     : 导航图标名(home | archive | recipe | photos | friends)
+   *   icon     : 导航图标名(home | archive | recipe | photos | friends | unknown,
+   *              见 src/icons/)
+   *   children : 可选。带 children 的条目渲染成"可向下展开的块",点开后在
+   *              顶栏下方弹出面板列出子项(子项结构与顶层条目相同)。
    */
   nav: [
     {
@@ -92,25 +97,40 @@ export const siteConfig = {
       icon: 'archive',
     },
 
+    /**
+     * 生活:与「链接」块完全同构的一个可向下展开块(button 触发、无箭头图标)。
+     * 点它只开合面板;面板内是"相册 / 菜单"两项(彩色图标,竖向排列)。
+     * 带 children 的条目不参与路由,因此不写 href。
+     */
     {
       label: {
-        eng: 'Photos',
-        cn: '相册',
-        jap: '写真',
+        eng: 'Life',
+        cn: '生活',
+        jap: '暮らし',
       },
-      href: (lang: Language) => `/${lang}/photos`,
-      external: false,
       icon: 'photos',
-    },
-    {
-      label: {
-        eng: 'Recipes',
-        cn: '菜单',
-        jap: '料理',
-      },
-      href: (lang: Language) => `/${lang}/recipes`,
-      external: false,
-      icon: 'recipe',
+      children: [
+        {
+          label: {
+            eng: 'Photos',
+            cn: '相册',
+            jap: '写真',
+          },
+          href: (lang: Language) => `/${lang}/photos`,
+          external: false,
+          icon: 'photos',
+        },
+        {
+          label: {
+            eng: 'Recipes',
+            cn: '菜单',
+            jap: '料理',
+          },
+          href: (lang: Language) => `/${lang}/recipes`,
+          external: false,
+          icon: 'recipe',
+        },
+      ],
     },
 
     {
@@ -126,15 +146,18 @@ export const siteConfig = {
   ] as const,
 
   /**
-   * Footer icon bar (icons only — labels are used for hover/accessibility).
-   * Add / remove / reorder entries freely.
+   * 顶栏右侧「可向下展开的块」内容(位于搜索图标右边)。
    *
-   *   icon : which icon to render (github | email | rss | link)
+   * 原页脚图标栏已移除,这些条目整体搬到这里:顶栏只多出一个图标按钮,
+   * 点开后在顶栏下方弹出面板,纵向列出下列条目。Add / remove / reorder freely.
+   *
+   *   icon : which icon to render (github | email | cloud | wechat | rss | link)
    *   href : URL string, or a function of the current language
    *          (e.g. (lang) => `/${lang}/rss.xml`)
-   *   label: hover title / aria-label (supports three languages)
+   *   label: 面板中显示的条目文字(支持三语)
+   *   wechatId: 仅 `icon: 'wechat'` 使用——点击后复制微信号,不做跳转
    */
-  footer: [
+  menu: [
     {
       icon: 'github',
       href: 'https://github.com/Zes-Z',
@@ -302,7 +325,7 @@ export const siteConfig = {
             jap: '。',
           },
 
-          avatar: '/',
+          avatar: '',
           link: 'https://example.com',
         },
       ],
@@ -362,11 +385,29 @@ export const siteConfig = {
   // ============================================================
   // 自定义网站主题背景色
   // ============================================================
+  //
+  //  这两个值是"首屏防闪屏"的唯一来源:BaseLayout 会在 <head> 最前面把它们
+  //  内联成 CSS 变量,内联脚本再据此设置背景色。改这里的颜色即可,
+  //  不要再把颜色硬编码进 BaseLayout 的脚本里。
   theme: {
     light: {
       bg: '#f1fcff5b',
     },
+    dark: {
+      bg: '#101218e0',
+    },
   },
+
+  /**
+   * 英雄区(Hero)斜体标题使用的圆润艺术字体。
+   *
+   * 设为 false 可整体去掉网页字体请求,退回系统字体栈(少一次外部请求,
+   * 但斜体标题的字形会变成系统默认)。
+   */
+  heroFont: true,
+
+  /** 菜单页的固定分类(与 `pnpm newreci` 的可选项共用同一份数据)。 */
+  recipeCategories: ['蔬菜', '禽类', '海鲜', '猪牛羊', '汤', '黑暗料理'] as const,
 
   //  * 相册"所有"板块的图片:true = 默认淡黑白、悬停变彩色;
   //  * 仅作用于"所有"(photos)板块,作品集板块始终全彩。
@@ -392,6 +433,8 @@ export function siteSubtitle(): LocalizedText | undefined {
 //   1) 顶部导航栏
 //      文件:src/components/Header.astro
 //      - 胶囊尺寸/毛玻璃/悬停展开:`.site-header`、`.header-inner`、`.nav-label`
+//      - 向下弹出的块(导航分组 + 搜索右侧条目块):`.nav-submenu`
+//      - 分组内容:上方 `nav[].children` 与 `menu`
 
 //   2) 瀑布流(归档/菜单/相册统一)
 //      - 比例集(CSS 宽:高 3/2·2/3·1/1):src/utils/ratio.ts 的 MASONRY_RATIOS
@@ -408,9 +451,9 @@ export function siteSubtitle(): LocalizedText | undefined {
 //      - 卡片墙宽度/列数/间距:`.links-grid`(grid-template-columns / max-width / gap)
 //      - 卡片高度:`.friend-avatar`(width/height)、`.friend-card`(padding)
 
-//   4) 底部导航栏
-//      文件:src/components/Footer.astro
-//      - 高度/间距/顶部渐变细线:`.site-footer`、`.footer-inner`
+//   4) 复制反馈提示(顶栏展开块内点击微信号后出现)
+//      文件:src/styles/global.css 的 `.copy-toast`
+//      逻辑:src/layouts/BaseLayout.astro 中的 [data-copy-wechat] 委托监听
 
 //   5) 全站配色/主题变量
 //      文件:src/styles/global.css 的 html[data-theme='light'] / html[data-theme='dark']

@@ -31,18 +31,22 @@ const {
   position = 'center',
   interval = 6000,
 } = Astro.props;
+// site.config.ts 里常把暂时不想用的壁纸注释掉,留下空字符串条目。
+// 直接渲染会产出 <img src=""> 这种必然 404 的请求,所以这里先过滤掉。
+const heroImages = images.filter((src) => Boolean(src?.trim()));
 const hasOverlay = Boolean(title || subtitle);
 const hasRightTitle = Boolean(rightTitle);
 ---
 
 <section class:list={['hero', `hero--${height}`]} data-hero data-hero-interval={interval}>
   {
-    images.map((src, index) => (
+    heroImages.map((src, index) => (
       <img
         class:list={['hero-image', { 'is-active': index === 0 }]}
         src={withBase(src)}
         alt=""
         loading={index === 0 ? 'eager' : 'lazy'}
+        fetchpriority={index === 0 ? 'high' : undefined}
         decoding="async"
       />
     ))

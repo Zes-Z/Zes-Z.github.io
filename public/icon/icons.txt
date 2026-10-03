@@ -1,17 +1,53 @@
-# Project icon index
-# You can customize by replacing each .svg file under /public/icon/.
-# All SVGs here are the original inline SVG source used by Header.astro / Footer.astro.
-
-home | /icon/home.svg | top nav | source: inline SVG in Header.astro -> public/icon/home.svg
-archive | /icon/archive.svg | top nav | source: inline SVG in Header.astro -> public/icon/archive.svg
-recipe | /icon/recipe.svg | top nav | source: inline SVG in Header.astro -> public/icon/recipe.svg
-photos | /icon/photos.svg | top nav | source: inline SVG in Header.astro -> public/icon/photos.svg
-friends | /icon/friends.svg | top nav | source: inline SVG in Header.astro -> public/icon/friends.svg
-unknown | /icon/unknown.svg | top nav | source: inline SVG in Header.astro -> public/icon/unknown.svg
-github | /icon/github.svg | footer | source: inline SVG in Footer.astro -> public/icon/github.svg
-email | /icon/email.svg | footer | source: inline SVG in Footer.astro -> public/icon/email.svg
-cloud | /icon/cloud.svg | footer | source: inline SVG in Footer.astro -> public/icon/cloud.svg
-rss | /icon/rss.svg | footer | source: inline SVG in Footer.astro -> public/icon/rss.svg
-link | /icon/link.svg | footer fallback | source: inline SVG in Footer.astro -> public/icon/link.svg
-wechat | /icon/wechat.svg | footer | source: inline SVG in Footer.astro -> public/icon/wechat.svg
-neteasecloudmusic | /icon/neteasecloudmusic.svg | music widget | file: public/icon/neteasecloudmusic.svg
+# Icon index
+#
+# Two sets, loaded by `src/icons/index.ts` with import.meta.glob(..., { query: '?raw' })
+# and inlined into the HTML (no extra network request):
+#
+#   src/icons/color/*.svg  -> brand-coloured, HARD-CODED fills. Used by the whole
+#                             top bar: nav items, the 「链接」 trigger, both panels.
+#   src/icons/*.svg        -> monochrome, `currentColor`. Fallback set.
+#
+#   The top bar resolves every icon through panelIcon(name), i.e.
+#   `color/<name>.svg` ?? `<name>.svg`.
+#   => To recolour or recolour-away any top bar icon, just add / edit / delete
+#      the file under src/icons/color/. No config or component change needed.
+#
+# ---------------------------------------------------------------------------
+# COLOUR SET — src/icons/color/*.svg   (this is what actually renders)
+#
+#   NAVIGATION (site.config.ts nav[].icon)
+#     home     -> src/icons/color/home.svg      #5FA8F5 / #A8D8FC
+#     archive  -> src/icons/color/archive.svg   #F0A93B / #FFC96B
+#     photos   -> src/icons/color/photos.svg    #6FB2F0 / #A8D4FB   (生活 group)
+#     recipe   -> src/icons/color/recipe.svg    #D9592B / #F5A15C   (生活 > 菜单)
+#     friends  -> src/icons/color/friends.svg   #2FA36B / #7BCB9E
+#     unknown  -> src/icons/color/unknown.svg   #8E86E8
+#
+#   LANGUAGE BUTTON
+#     globe    -> src/icons/color/globe.svg     #79AEF5 / #C6E0FB   (translating A/文 loop)
+#                 Delete this file to fall back to the monochrome arrow icon.
+#
+#   「链接」 PANEL (site.config.ts menu[].icon)
+#     link     -> src/icons/color/link.svg      #4C6FE0 / #7E9BF5   (trigger icon)
+#     github   -> src/icons/color/github.svg    #181717 on white disc
+#     email    -> src/icons/color/email.svg     #2F6BED
+#     cloud    -> src/icons/color/cloud.svg     #FF6A00
+#     wechat   -> src/icons/color/wechat.svg    #07C160  (click copies wechatId)
+#     rss      -> src/icons/color/rss.svg       #F26522
+#
+# ---------------------------------------------------------------------------
+# MONOCHROME FALLBACK SET — src/icons/*.svg   (currentColor)
+#   Only used when no colour variant exists. `link` also serves as the fallback
+#   for an unknown icon name.
+#
+#   home / archive / recipe / photos / friends / unknown
+#   github / email / cloud / wechat / rss / link
+#
+# ---------------------------------------------------------------------------
+# NOT coloured on purpose: the search, theme and hamburger buttons draw their
+# SVGs inline in their own components and stay `currentColor`, so they turn white
+# over a Hero image. (The language button IS coloured now — see `globe` above.)
+#
+# The one exception kept in this directory: the music widget loads its icon via a
+# plain <img src>, so it must stay a real public file.
+neteasecloudmusic | /icon/neteasecloudmusic.svg | music widget | referenced by MusicWidget.astro

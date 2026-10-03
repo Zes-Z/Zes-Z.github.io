@@ -23,7 +23,7 @@ Acos(\omega t)+Bsin(\omega t)= Ccos(\omega t-\theta) = C(cos\omega t cos\theta+s
 $$
 其中 
 $$
-C=\sqrt{A^2+B^2} ，\theta=\tan^{-1}\frac{B}{A}
+C=\sqrt{A^2+B^2} ,\theta=\tan^{-1}\frac{B}{A}
 $$
 :::
 
@@ -45,11 +45,14 @@ $$
 ### 相域中的电阻
 :::caution
 $$
-V(t)=R i(t)，i(t)=\frac{1}{R}V(t)=GV(t)
+V(t)=R i(t),i(t)=\frac{1}{R}V(t)=GV(t)
 $$
+设
+
 $$
-设i(t)=I_m cos(\omega t+\theta)，\vec{I}=I_m \angle \theta
+i(t)=I_m \cos(\omega t+\theta),\qquad \vec{I}=I_m \angle \theta
 $$
+
 则
 $$
 V(t)=R I_m cos(\omega t+\theta)
@@ -69,7 +72,7 @@ $$
 ### 相域中的电感
 :::caution
 $$
-V(t)=L\frac{di(t)}{dt}，i_L(t)= i_L(0)+\frac{1}{L}\int_0^{\tau} V(\tau)\,d\tau
+V(t)=L\frac{di(t)}{dt},i_L(t)= i_L(0)+\frac{1}{L}\int_0^{\tau} V(\tau)\,d\tau
 $$
 本章主要探讨交流`稳态`分析，故：
 $$
@@ -77,7 +80,7 @@ i_L(t)=\frac{1}{L}\int_{-\infin}^{\tau} V(\tau)\,d\tau
 $$
 设
 $$
-i(t)=I_m cos(\omega t+\theta)，\vec{I}=I_m \angle \theta
+i(t)=I_m cos(\omega t+\theta),\vec{I}=I_m \angle \theta
 $$
 则
 $$
@@ -107,7 +110,7 @@ $$
 ### 相域中的电容
 :::caution
 $$
-i_C(t)=C\frac{dV(t)}{dt}，V(t)=V(0)+\frac{1}{C}\int_0^{t}i_C(\tau)\,d\tau
+i_C(t)=C\frac{dV(t)}{dt},V(t)=V(0)+\frac{1}{C}\int_0^{t}i_C(\tau)\,d\tau
 $$
 本章主要探讨交流`稳态`分析，故：
 $$
@@ -115,7 +118,7 @@ V_c(t)=\frac{1}{C}\int_{-\infin}^{t}i_C(\tau)\,d\tau
 $$
 设
 $$
-V(t)=V_m cos(\omega t+\theta)，\vec{V}=V_m \angle \theta
+V(t)=V_m cos(\omega t+\theta),\vec{V}=V_m \angle \theta
 $$
 则
 $$
@@ -178,7 +181,7 @@ $$
 $$
 两边同时进行相域转换
 $$
-\sum_{K=1}^n I_{mK}\angle \theta_K =0+j0，
+\sum_{K=1}^n I_{mK}\angle \theta_K =0+j0
 \text{or } \vec{I}_1+\vec{I}_2+...+\vec{I}_n=0
 $$
 :::
@@ -199,7 +202,7 @@ $$
 $$
 两边同时进行相域转换
 $$
-\sum_{K=1}^n V_{mK}\angle \phi_K =0+j0，
+\sum_{K=1}^n V_{mK}\angle \phi_K =0+j0
 \text{or } \vec{V}_1+\vec{V}_2+...+\vec{V}_n=0
 $$
 :::
@@ -230,10 +233,10 @@ $$
 ### 交流电功率
 若
 $$
-V(t)=V_m cos(\omega t+\theta_v)，\vec{V}=V_m \angle{\theta_v}
+V(t)=V_m cos(\omega t+\theta_v),\vec{V}=V_m \angle{\theta_v}
 $$
 $$
-i(t)=I_m cos(\omega t+\theta_i)，\vec{I}=I_m \angle{\theta_i}
+i(t)=I_m cos(\omega t+\theta_i),\vec{I}=I_m \angle{\theta_i}
 $$
 不妨设
 $$
@@ -247,7 +250,7 @@ $$
 :::defi[瞬时功率 Instantaneous power]
 $$
 \begin{aligned}
-p(t)&=V(t)i(t) \tag{积化和差}\\
+p(t)&=V(t)i(t) \tag{\text{积化和差}}\\
 &=V_m cos(\omega t+\theta_v-\theta_i)I_m cos(\omega t) \\
 &=\frac{V_m I_m}{2}cos(\theta_v-\theta_i)+\frac{V_m I_m}{2}cos(2\omega t+\theta_v-\theta_i)\\
 &=\frac{V_m I_m}{2}cos(\theta_v-\theta_i)+
@@ -257,7 +260,7 @@ $$
 > [!caution]
 > 记
 > $$
-> P=\frac{V_m I_m}{2}cos(\theta_v-\theta_i)，Q=\frac{V_m I_m}{2}sin(\theta_v-\theta_i)
+> P=\frac{V_m I_m}{2}cos(\theta_v-\theta_i),Q=\frac{V_m I_m}{2}sin(\theta_v-\theta_i)
 > $$  
 > 则
 > $$
@@ -336,21 +339,21 @@ $$
 
 :::
 
-### $Y(电源)-Y(负载)连接$
+### $Y$-$Y$ 连接
 
 
 
 
-### $Y(电源)-\Delta(负载)连接$
+### $Y$-$\Delta$ 连接
 
 
 
 
 
-### $\Delta(电源)-Y(负载)连接$
+### $\Delta$-$Y$ 连接
 
 
 
 
-### $\Delta(电源)-\Delta(负载)连接$
+### $\Delta$-$\Delta$ 连接
 

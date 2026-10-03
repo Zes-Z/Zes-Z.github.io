@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import { siteConfig } from '../../site.config';
 import { t, localize } from '../../i18n';
+import { assetHref, IMAGE_FALLBACK } from '../../utils/paths';
 import type { Language } from '../../types';
 
 export async function getStaticPaths() {
@@ -12,9 +13,12 @@ export async function getStaticPaths() {
 const { lang } = Astro.params as { lang: Language };
 const groups = siteConfig.friends;
 
+/** 未配置头像时退回内置占位图,并统一补上部署 base 前缀。 */
+const AVATAR_FALLBACK = IMAGE_FALLBACK;
+
 ---
 
-<BaseLayout lang={lang} title={t(lang, 'nav.links')} fullWidth>
+<BaseLayout lang={lang} title={t(lang, 'nav.links')} fullWidth heroFont={siteConfig.heroFont}>
   <Hero images={[...siteConfig.linksHero.images]} height="medium" interval={siteConfig.linksHero.interval} />
 
   <div class="container-x links-content">
@@ -40,11 +44,11 @@ const groups = siteConfig.friends;
                 <a class="friend-card card" href={friend.link} target="_blank" rel="noopener noreferrer">
                   <img
                     class="friend-avatar"
-                    src={friend.avatar}
+                    src={assetHref(friend.avatar, AVATAR_FALLBACK)}
+                    data-fallback={AVATAR_FALLBACK}
                     alt={localize(friend.name, lang)}
                     loading="lazy"
                     decoding="async"
-                    onerror="this.onerror=null;this.src='/images/avatar-fallback.svg'"
                   />
                   <span class="friend-text">
                     <span class="friend-name">{localize(friend.name, lang)}</span>

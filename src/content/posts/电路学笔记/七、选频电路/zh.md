@@ -14,7 +14,7 @@
 > H(s)=\frac{R}{R+SL}=\frac{\frac{R}{L}}{\frac{R}{L}+S}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{\frac{R}{L}}{\sqrt{(\frac{R}{L})^2+\omega^2}}，\theta(j\omega)=-tan^{-1}(\frac{\omega L}{R})
+> ∣H(j\omega)∣=\frac{\frac{R}{L}}{\sqrt{(\frac{R}{L})^2+\omega^2}},\theta(j\omega)=-tan^{-1}(\frac{\omega L}{R})
 > $$
 
 ### RC电路
@@ -23,7 +23,7 @@
 > H(s)=\frac{\frac{1}{SC}}{R+\frac{1}{SC}}=\frac{\frac{1}{RC}}{S+\frac{1}{RC}}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{\frac{1}{RC}}{\sqrt{(\frac{1}{RC})^2+\omega^2}}，\theta(j\omega)=-tan^{-1}(\omega RC)
+> ∣H(j\omega)∣=\frac{\frac{1}{RC}}{\sqrt{(\frac{1}{RC})^2+\omega^2}},\theta(j\omega)=-tan^{-1}(\omega RC)
 > $$
 
 
@@ -35,7 +35,7 @@
 > H(s)=\frac{R}{R+\frac{1}{SC}}=\frac{S}{S+\frac{1}{RC}}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{1}{RC})^2+\omega^2}}，\theta(j\omega)=90^\circ-tan^{-1}(\omega RC)
+> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{1}{RC})^2+\omega^2}},\theta(j\omega)=90^\circ-tan^{-1}(\omega RC)
 > $$
 
 ### RC电路
@@ -44,7 +44,7 @@
 > H(s)=\frac{SL}{R+SL}=\frac{S}{\frac{R}{L}+S}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{R}{L})^2+\omega^2}}，\theta(j\omega)=90^\circ-tan^{-1}(\frac{\omega L}{R})
+> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{R}{L})^2+\omega^2}},\theta(j\omega)=90^\circ-tan^{-1}(\frac{\omega L}{R})
 > $$
 
 
@@ -70,7 +70,7 @@
 > H(s)=\frac{R}{R+\frac{1}{SC}}=\frac{S}{S+\frac{1}{RC}}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{1}{RC})^2+\omega^2}}，\theta(j\omega)=90^\circ-tan^{-1}(\omega RC)
+> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{1}{RC})^2+\omega^2}},\theta(j\omega)=90^\circ-tan^{-1}(\omega RC)
 > $$
 
 
@@ -80,7 +80,7 @@
 > H(s)=\frac{R}{R+\frac{1}{SC}}=\frac{S}{S+\frac{1}{RC}}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{1}{RC})^2+\omega^2}}，\theta(j\omega)=90^\circ-tan^{-1}(\omega RC)
+> ∣H(j\omega)∣=\frac{\omega}{\sqrt{(\frac{1}{RC})^2+\omega^2}},\theta(j\omega)=90^\circ-tan^{-1}(\omega RC)
 > $$
 
 
@@ -106,7 +106,7 @@
 > H(s)=\frac{}{}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{}{}，\theta(j\omega)=
+> ∣H(j\omega)∣=\frac{}{},\theta(j\omega)=
 > $$
 
 
@@ -116,7 +116,7 @@
 > H(s)=\frac{}{}
 > $$
 > $$
-> ∣H(j\omega)∣=\frac{}{}，\theta(j\omega)=
+> ∣H(j\omega)∣=\frac{}{},\theta(j\omega)=
 > $$
 
 
@@ -128,18 +128,21 @@ $$
 V_i=Acos(\omega t+\phi) =A\angle \phi
 $$ -->
 
-步骤一  
+步骤一：将电路转换为 $s$ 域，计算出 $H(s)$，并带入 $s=j\omega$
+
 $$
-将电路转换为s域，计算出H(s)，并带入s=j\omega
+H(s)\ \longrightarrow\ H(j\omega)
 $$
 
-步骤二
+步骤二：求出 $|H(j\omega)|$ 及其最大值 $H_{max}$
+
 $$
-求出|H(j\omega)|，及其最大值H_{max}
+|H(j\omega)|_{max}=H_{max}
 $$
 
-步骤三
+步骤三：令 $|H(j\omega)|=\frac{1}{\sqrt{2}}H_{max}$，求出上下带宽频率
+
 $$
-令|H(j\omega)|=\frac{1}{\sqrt{2}}H_{max}，求出上下带宽频率
+|H(j\omega)|=\frac{1}{\sqrt{2}}H_{max}
 $$
 :::
