@@ -116,6 +116,21 @@ html {
    */
   scroll-behavior: smooth;
 
+  /*
+   * 隐藏浏览器原生滚动条(about 页用 SelfLayout,不加载 global.css,
+   * 所以这条要在这里单独写一份)。页面仍可正常滚动。
+   * 想恢复滚动条就删掉这一段。
+   */
+  scrollbar-width: none;
+
+}
+
+/*
+ * Chromium / Edge / Safari
+ */
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 

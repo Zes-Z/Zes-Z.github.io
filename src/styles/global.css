@@ -38,6 +38,26 @@
   --transition: 240ms ease;
 }
 
+/* ============================================================
+   页面滚动条(浏览器原生,内容超出视口时才出现)
+
+   默认行为就是浏览器的标准滚动条 —— 若想隐藏,把下面这段的
+   `scrollbar-width` 改为 none,并取消 `::-webkit-scrollbar` 的注释即可:
+   宽度会自动变成 0,页面仍然可以正常滚动(鼠标滚轮/触摸/键盘都照常),
+   只是不再显示位置指示,Windows 上也无法再拖动滑块。
+   ============================================================ */
+
+:root {
+  /* none = 隐藏;thin = 变细 */
+  scrollbar-width: none;
+}
+
+/* Chromium / Edge / Safari */
+:root::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 /* ---------- light mode ---------- */
 
 html[data-theme='light'] {
