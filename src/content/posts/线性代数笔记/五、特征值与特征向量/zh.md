@@ -29,7 +29,7 @@
 
 :::
 
-### 对角化的应用 $A^k$
+### 对角化的应用 A$^k$
 
 #### 差分方程
 :::defi[斐波那契数列]
@@ -62,46 +62,6 @@ $$
 
 ---
 ## 谱定理
-
-### 共轭转置
-
-#### 特殊的复数矩阵
-
-
-
-
-#### 共轭转置矩阵的性质
-
-
-
-#### 反共轭转置矩阵的性质
-
-
-
-#### 共轭转置矩阵的对角化
-
-
-
-
-
-### 矩阵的对称拆解
-
-
-
-
-### 相似矩阵
-
-
-
-### 相似变换
-
-
-
-
-### Schur’s Lemma
-
-
-### 谱定理
 :::defi
 * Every real symmetric matrix can be diagonalized by an orthogonal matrix. 
 $$
@@ -123,10 +83,48 @@ $$
 * 如果$A$是正规的，$AA^H$是厄米矩阵
 :::
 
+### 特殊的复数矩阵
+
+
+
+
+### 共轭转置矩阵的性质
+
+
+
+### 反共轭转置矩阵的性质
+
+
+
+
+### 共轭转置矩阵的对角化
+
+
+
+
+
+### 矩阵的对称拆解
+
+
+
+
+### 相似矩阵与相似变换
+
+
+
+
+### Schur’s Lemma
+
+
+
+
 
 ---
 ## 若尔当形
 
+:::tip
+defective matrix 未必有相同的特征值，但必定有相同的特征向量
+:::
 
 
 
@@ -135,3 +133,31 @@ $$
 
 ---
 ## 正定矩阵
+:::defi[定义]
+$$
+x^TAx>0
+$$
+or
+* All the eigenvalues of A: $λ_i > 0$
+* All the upper left submatrices A$_k$ have positive determinants
+* All the pivots of A: $d_i > 0$, because $d_i=\frac{det(A_i)}{det(A_{i-1})}$
+* There is a matrix R with independent columns generating A = R$^T$R
+:::
+
+
+### 二次型
+
+
+
+
+### $n$维的椭球
+
+
+
+
+### 椭球体和特征值/特征向量
+
+
+
+
+### 半正定矩阵
