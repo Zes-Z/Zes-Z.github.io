@@ -1,7 +1,7 @@
 ---
 title: "微积分笔记"
 description: ""
-pubDate: "2026-09-21"
+pubDate: "2025-03-21"
 category: "Math & Coding"
 tag: []
 postImage:

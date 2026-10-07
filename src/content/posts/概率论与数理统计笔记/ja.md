@@ -1,7 +1,7 @@
 ---
 title: "確率統計手帳"
 description: ""
-pubDate: "2026-09-21"
+pubDate: "2025-11-11"
 category: "Math & Coding"
 tag: []
 postImage:

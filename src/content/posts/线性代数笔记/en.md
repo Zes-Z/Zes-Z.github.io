@@ -1,7 +1,7 @@
 ---
 title: "Linear Algebra note"
 description: ""
-pubDate: "2026-09-21"
+pubDate: "2025-09-21"
 category: "Math & Coding"
 tag: []
 postImage:
