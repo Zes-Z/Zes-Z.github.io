@@ -1,24 +1,28 @@
 ---
-title: "概率论与数理统计笔记"
+title: "計算機オペレーティングシステム"
 description: ""
-pubDate: "2026-09-21"
+pubDate: "2026-10-06"
 category: "Math & Coding"
 tag: []
 postImage:
 homepined: false
 pinedOrder: 0
-draft: true
+draft: false
 ---
 
-## 一、
+## 
 
 
 
-## 二、
+---
+
+## 
 
 
 
-## 三、
+---
+
+## 
 
 
 
