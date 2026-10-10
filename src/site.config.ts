@@ -179,18 +179,6 @@ export const siteConfig = {
     },
 
     {
-      icon: 'cloud',
-      // 云盘链接:换成你自己的网盘地址(如夸克/百度/蓝奏/OD 等)
-      href: 'https://www.alipan.com/s/X4GEM51VBnM',
-      // 提取码:3z3q
-      label: {
-        eng: 'Cloud Drive',
-        cn: '云盘',
-        jap: 'クラウドドライブ',
-      },
-    },
-
-    {
       icon: 'wechat',
       // 点击图标后自动复制 wechatId 中配置的微信号,不会跳转
       wechatId: 'Zes234-INTJ',
@@ -199,6 +187,18 @@ export const siteConfig = {
         eng: 'WeChat',
         cn: '微信',
         jap: 'WeChat',
+      },
+    },
+
+    {
+      icon: 'cloud',
+      // 云盘链接:换成你自己的网盘地址(如夸克/百度/蓝奏/OD 等)
+      href: 'https://www.alipan.com/s/X4GEM51VBnM',
+      // 提取码:3z3q
+      label: {
+        eng: 'Cloud Drive',
+        cn: '云盘',
+        jap: 'クラウドドライブ',
       },
     },
 
