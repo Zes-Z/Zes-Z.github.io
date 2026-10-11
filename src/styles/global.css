@@ -488,7 +488,6 @@ button {
   border-left-color: #3b82f6;
   background: color-mix(in srgb, #3b82f6 8%, var(--surface));
 }
-
 .prose .directive-note .directive-title::before {
   content: '📖';
 }
@@ -497,7 +496,6 @@ button {
   border-left-color: #38bdf8;
   background: color-mix(in srgb, #38bdf8 9%, var(--surface));
 }
-
 .prose .directive-defi .directive-title::before {
   content: '📌';
 }
@@ -506,26 +504,23 @@ button {
   border-left-color: #f6f95b;
   background: color-mix(in srgb, #f6f95b 24%, var(--surface));
 }
-
 .prose .directive-vital .directive-title::before {
   content: '⭐';
 }
 
-.prose .directive-warning {
+.prose .directive-caution {
   border-left-color: #f59e0b;
   background: color-mix(in srgb, #f59e0b 8%, var(--surface));
 }
-
-.prose .directive-warning .directive-title::before {
+.prose .directive-caution .directive-title::before {
   content: '⚠️';
 }
 
-.prose .directive-caution {
+.prose .directive-warning {
   border-left-color: #ef4444;
   background: color-mix(in srgb, #ef4444 8%, var(--surface));
 }
-
-.prose .directive-caution .directive-title::before {
+.prose .directive-warning .directive-title::before {
   content: '⛔';
 }
 

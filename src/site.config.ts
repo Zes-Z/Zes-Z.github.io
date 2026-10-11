@@ -8,12 +8,32 @@ export const siteConfig = {
   /** Site name shown in the footer and <title>. */
   title: 'Zest',
 
-  /** 主页左下角欢迎文字块(点击进入站内介绍页)。 */
-  // welcomeText: 'Welcome to this site!',
-  welcomeText: 'To someone it may concerned.',
+  /**
+   * 主页左下角的欢迎文字块 —— 列表结构。
+   *
+   * 首页会用打字机效果逐条轮播:逐字打出 → 停留 → 逐字删除 → 下一条。
+   * 只有一条时只打一遍,不循环。整块始终是一个链接:
+   * 显示哪一条,点它就跳该条自己的 href。
+   *
+   *   text : 逐字打出的文字
+   *   href : 点击跳转目标(函数则按当前语言生成)
+   */
 
-  /** 主页左下角欢迎文字块的链接目标。 */
-  welcomeHref: (lang: Language) => `/${lang}/welcome-site`,
+welcome: [
+  {
+    text: 'To someone it may concern.',
+    href: (lang: Language) => `/${lang}/welcome-site`,
+  },
+  {
+    text: 'Explore my thoughts.',
+    href: (lang: Language) => `/${lang}/archive`,
+  },
+  {
+    text: 'Friends make life beautiful.',
+    href: (lang: Language) => `/${lang}/links`,
+  },
+] satisfies { text: string; href: (lang: Language) => string }[],
+
 
   /** 主页右下角“About Zes”文字块(后续另建个人展示站后替换 href 即可)。 */
   aboutZes: {

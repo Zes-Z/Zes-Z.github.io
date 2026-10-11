@@ -10,6 +10,12 @@ interface Props {
   subtitle?: string;
 
   titleHref?: string;
+  /**
+   * 左下角欢迎文字块 —— 一组 { text, href }。
+   * 组件用打字机效果逐条轮播:逐字打出 → 停留 → 逐字删除 → 下一条。
+   * 只有一条时只打一遍。整块是一个链接,显示哪条就跳该条的 href。
+   */
+  welcome?: { text: string; href: string }[];
   /** 右下角附加文字链接(如个人展示站 "About Zes")。 */
   rightTitle?: string;
   /** 右下角附加文字链接的目标。 */
@@ -26,6 +32,7 @@ const {
   title,
   subtitle,
   titleHref,
+  welcome,
   rightTitle,
   rightTitleHref,
   position = 'center',
@@ -34,7 +41,12 @@ const {
 // site.config.ts 里常把暂时不想用的壁纸注释掉,留下空字符串条目。
 // 直接渲染会产出 <img src=""> 这种必然 404 的请求,所以这里先过滤掉。
 const heroImages = images.filter((src) => Boolean(src?.trim()));
-const hasOverlay = Boolean(title || subtitle);
+// 丢掉空文本;每条保留自己的 href
+const welcomeItems = (welcome ?? [])
+  .filter((item) => Boolean(item.text?.trim()))
+  .map((item) => ({ text: item.text, href: withBase(item.href) }));
+const hasWelcome = welcomeItems.length > 0;
+const hasOverlay = Boolean((title || subtitle) && !hasWelcome);
 const hasRightTitle = Boolean(rightTitle);
 ---
 
@@ -54,6 +66,35 @@ const hasRightTitle = Boolean(rightTitle);
   <div class="hero-veil"></div>
   <div class="hero-fade-top" aria-hidden="true"></div>
   <div class="hero-fade-bottom" aria-hidden="true"></div>
+
+  {
+    hasWelcome && (
+      <div class="hero-overlay hero-overlay--bottom-left" data-welcome-root>
+        <a
+          class="hero-title hero-title-link hero-welcome"
+          href={welcomeItems[0]!.href}
+          data-welcome
+          data-welcome-hrefs={JSON.stringify(welcomeItems.map((i) => i.href))}
+          aria-label={welcomeItems.map((i) => i.text).join(' / ')}
+        >
+          {/* 打字机:逐字打出/删除。首句静态渲染,保证无 JS 时也能看到并点击。 */}
+          <span class="hero-welcome-text" data-welcome-text>{welcomeItems[0]!.text}</span>
+          <span class="hero-welcome-caret" aria-hidden="true" />
+        </a>
+        {/* 句子列表必须是 <a> 的兄弟节点:
+            HTML 解析器遇到 <a> 内的 <template> 会提前闭合 <a>,导致结构错乱。
+            也刻意不用 data- 属性承载句子,避免换行被规范化成空格。 */}
+        <template data-welcome-sentences>
+          {
+            welcomeItems.map((item) => (
+              <span data-text={item.text} />
+            ))
+          }
+        </template>
+      </div>
+    )
+  }
+
   {hasOverlay && (
     <div class:list={['hero-overlay', `hero-overlay--${position}`]}>
       {title &&
@@ -110,6 +151,101 @@ const hasRightTitle = Boolean(rightTitle);
       const top = heroEl ? heroEl.getBoundingClientRect().top + window.scrollY + heroEl.offsetHeight : 0;
       window.scrollTo({ top: top + 1, behavior: 'smooth' });
     });
+  }
+
+  /* ---------------------------------------------------------
+   * 左下角欢迎文字:打字机效果
+   *   逐字打出 -> 停留 -> 逐字删除 -> 下一条(只有一条时只打一遍)
+   *
+   * 时序参考 https://i.hin.cool 的实现:
+   *   打字 80ms/字 · 停留 2000ms · 删除 40ms/字 · 句间 500ms · 起始延迟 800ms
+   *
+   * 这里刻意不因 prefers-reduced-motion 短路:打字机是内容呈现方式,
+   * 一旦短路,开启"减少动态效果"的用户会完全看不到文字。
+   * 整块始终是链接:切到哪一条,就把该条自己的 href 写到 <a> 上。
+   * --------------------------------------------------------- */
+  const welcomeEl = document.querySelector<HTMLAnchorElement>('[data-welcome]');
+  if (welcomeEl && !welcomeEl.dataset.ready) {
+    welcomeEl.dataset.ready = 'true';
+
+    const textEl = welcomeEl.querySelector<HTMLElement>('[data-welcome-text]');
+
+    /**
+     * 读取句子列表。
+     *
+     * 注意:这些句子放在 <template> 里(它必须是 <a> 的兄弟节点,否则 HTML
+     * 解析器会提前闭合 <a>)。而 <template> 的内容位于独立的 DocumentFragment
+     * —— 不属于文档树,普通 querySelectorAll 永远查不到,必须访问 .content。
+     */
+    const sentenceTemplate =
+      welcomeEl.parentElement?.querySelector<HTMLTemplateElement>('[data-welcome-sentences]') ??
+      null;
+    const sentences = sentenceTemplate
+      ? [...sentenceTemplate.content.querySelectorAll<HTMLElement>('[data-text]')].map(
+          (el) => el.dataset.text ?? ''
+        )
+      : [];
+    const hrefs: string[] = JSON.parse(welcomeEl.dataset.welcomeHrefs ?? '[]');
+
+    if (textEl && sentences.length > 0) {
+      const TYPE_MS = 100;
+      const DELETE_MS = 48;
+      const HOLD_MS = 3000;
+      const BETWEEN_MS = 600;
+      const START_MS = 600;
+
+      let phraseIndex = 0;
+      let charIndex = 0;
+      let isDeleting = false;
+      let timer = 0;
+
+      const applyHref = (i: number) => {
+        welcomeEl.setAttribute('href', hrefs[i % hrefs.length] ?? welcomeEl.href);
+      };
+
+      const loop = () => {
+        const phrase = sentences[phraseIndex]!;
+
+        if (!isDeleting) {
+          charIndex += 1;
+          textEl.textContent = phrase.slice(0, charIndex);
+
+          if (charIndex === phrase.length) {
+            isDeleting = true;
+            timer = window.setTimeout(loop, HOLD_MS);
+            return;
+          }
+          timer = window.setTimeout(loop, TYPE_MS);
+          return;
+        }
+
+        charIndex -= 1;
+        textEl.textContent = phrase.slice(0, charIndex);
+
+        if (charIndex === 0) {
+          isDeleting = false;
+          // 只有一条 -> 停在这里,不再循环
+          if (sentences.length === 1) return;
+          phraseIndex = (phraseIndex + 1) % sentences.length;
+          applyHref(phraseIndex);
+          
+          timer = window.setTimeout(loop, BETWEEN_MS);
+          return;
+        }
+        timer = window.setTimeout(loop, DELETE_MS);
+      };
+
+      // 首句已在 HTML 里(无 JS 回退),这里清空后重新打
+      textEl.textContent = '';
+      applyHref(0);
+      timer = window.setTimeout(loop, START_MS);
+
+      // 切到后台时停表,回来继续,避免后台空转
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) window.clearTimeout(timer);
+        else timer = window.setTimeout(loop, TYPE_MS);
+      });
+    }
   }
 </script>
 
@@ -208,6 +344,61 @@ const hasRightTitle = Boolean(rightTitle);
     font-size: clamp(0.92rem, 1.4vw, 1.05rem);
     max-width: 34em;
     opacity: 0.88;
+  }
+
+  /* ---------- 左下角欢迎块(打字机) ---------- */
+
+  /* 字体完全继承上面的 `.hero-overlay--bottom-left .hero-title-link`
+     (Nunito 斜体 + 同样的字号),与右下角 "About Zes" 统一 —— 这里不覆盖字体。 */
+
+  .hero-welcome {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    line-height: 1.3;
+    max-width: 82vw;
+  }
+
+  .hero-welcome-text {
+    display: inline-block;
+    text-align: left;
+    white-space: pre;
+    /* 打完一句时脚本会锁定宽度,删除阶段整块不抖动 */
+    min-width: 0;
+  }
+
+  /* 打字光标:跟随 currentColor(大图上是白色) */
+  .hero-welcome-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    margin-left: 3px;
+    background: currentColor;
+    opacity: 0.85;
+    animation: hero-caret-blink 1.05s step-end infinite;
+  }
+
+  @keyframes hero-caret-blink {
+    0%,
+    100% {
+      opacity: 0.85;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* 只关掉光标闪烁;打字机本身保留(它是内容,不是装饰动画) */
+    .hero-welcome-caret {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero-welcome-text {
+      white-space: normal;
+    }
   }
 
   .hero-title {

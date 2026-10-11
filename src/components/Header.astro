@@ -516,6 +516,15 @@ const hasMenu = menuItems.length > 0;
     color: var(--sky);
     background: color-mix(in srgb, var(--sky) 15%, transparent);
   }
+  .nav-group-btn:hover {
+  color: var(--sky);
+  background: color-mix(in srgb, var(--sky) 10%, transparent);
+  }
+  /* 首页 Hero 上方的导航使用白色半透明背景 */
+  .site-header.is-over-hero .nav-group-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.16);
+  }
 
   /* ---------- 顶栏展开块的触发按钮(「生活」与「链接」共用同一套) ---------- */
 

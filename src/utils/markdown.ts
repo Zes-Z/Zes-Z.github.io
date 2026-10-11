@@ -650,22 +650,27 @@ function rehypeCodeBlocks() {
       };
     }
 
-    return {
-      type: 'element',
+    copyButton.properties.className = [
+'code-block-copy--float',
+];
 
-      tagName: 'div',
+return {
+type: 'element',
 
-      properties: {
-        className: [
-          'code-block',
-        ],
-      },
+tagName: 'div',
 
-      children: [
-        pre,
-        copyButton,
-      ],
-    };
+properties: {
+  className: [
+    'code-block',
+  ],
+},
+
+children: [
+  pre,
+  copyButton,
+],
+
+};
   }
 }
 
