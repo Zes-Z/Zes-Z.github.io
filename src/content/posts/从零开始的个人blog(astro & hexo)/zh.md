@@ -10,8 +10,8 @@ pinedOrder: 0
 draft: false
 ---
 
-# 安装基础环境并配置镜像源
-## 1. 安装以下工具
+## 安装基础环境并配置镜像源
+### 1. 安装以下工具
 * [x] [vscode](https://code.visualstudio.com/)(或任何其他编辑器)
 
 * [ ] [Node.js](https://nodejs.org/)
@@ -22,20 +22,21 @@ draft: false
 
 * [x] [Netlify](https://www.netlify.com/)(用于网站专属域名,可暂时忽略)
 
----
-> [!note]
+
+> [!caution]
 > 如果你下载并尝试通过`.msi`文件安装软件，可能会遇到安装失败**2503,2502**的问题
 > 解决方式如下:
 > * [x] 点击桌面左下角开始图标并搜索`powershell`
-> * [x] 右键**以管理员身份运行**`powershell`后输入 *msiexec /i ".msi格式的安装包地址"* ，回车
+> * [x] 右键**以管理员身份运行**`powershell`后输入 `*msiexec /i ".msi格式的安装包地址"*` ，回车
 > 
 > 例如:  
 > 我想强制安装D盘All downloads文件夹下的"go1.26.5.windows-amd64.msi" 这个安装包到电脑上  
-> 则应该在`powershell`中输入：*msiexec /i "D:\All downloads\go1.26.5.windows-amd64.msi"*
+> 则应该在`powershell`中输入：  
+> `*msiexec /i "D:\All downloads\go1.26.5.windows-amd64.msi"*`
 
 ---
 
-## 2. 验证版本
+### 2. 验证版本
 * [ ] 安装完成后在 PowerShell 验证：
 
 ```powershell
@@ -46,7 +47,7 @@ npm -v
 git --version
 ```
 
-* 所有命令行,需要回车才能运行噢! 如果能输出版本号说明安装成功。
+* 所有命令行，需要回车才能运行噢! 如果能输出版本号说明安装成功。
 * 运行卡住或无结果，按下Ctrl+C 中止命令。
 * 此外，当你第一次尝试通过以下方式运行一个脚本时，可能会遇到（提示“在此系统上禁止运行脚本”）  
 这是 PowerShell 的执行策略限制，禁止运行脚本文件。
@@ -61,7 +62,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ---
 
 
-## 3. 配置npm镜像源,并下载 pnpm 
+### 3. 配置npm镜像源,并下载 pnpm 
 
 ```powershell
 npm config set registry https://registry.npmmirror.com
@@ -70,8 +71,8 @@ npm install -g pnpm
 ```
 
 ---
-# 基于 Astro 搭建个人博客
-## 本地新建博客项目
+## 基于 Astro 搭建个人博客
+### 本地新建博客项目
 1. 准备工作
 * [x] 在这里挑选一个喜欢的主题 [Jumpstart your next project with a theme](https://astro.build/themes/)  
 * [x] 在D盘创建一个空的博客项目文件夹,例如: D:/MyBlog
@@ -101,7 +102,7 @@ pnpm install
 ```
 
 ---
-## 初始化 git, 关联仓库
+### 初始化 git, 关联仓库
 4. 初始化 git, 并重新定义 main  
 * [ ] 复制以下命令,回车
 ```powershell
@@ -123,7 +124,7 @@ git push -u origin main
 > * 下面我们开始开始把博客部署到网页上,这样大家都能在浏览器中访问你的博客了!
 
 ---
-## 部署仓库到 GitHub Pages (或其他网页)
+### 部署仓库到 GitHub Pages (或其他网页)
 > 如果你有其它网页托管或个人域名，请跳过步骤6
 > 并前往下方 **部署博客到Netlify** 
 
@@ -224,7 +225,7 @@ git push
 ```
 
 
-## 部署博客到Netlify
+### 部署博客到Netlify或Cloudflare
 * [ ] 完成步骤5后, 从此处开始
 * [ ] 登录并注册 [Netlify](https://app.netlify.com/)
 * [ ] 创建一个新项目, 选择从 GitHub仓库 导入
@@ -233,7 +234,7 @@ git push
 * [ ] OK! 完结收工
 
 ---
-## 自定义博客主题设置
+### 自定义博客主题设置
 * [ ] 主题的基础个性化可以在`src/config.yml`配置文件中修改
 * [ ] 主题的其它配置请参照作者的说明文档进行自定义!
 
@@ -276,8 +277,8 @@ git config --global https.proxy http://127.0.0.1:7897
 
 ---
 
-# 基于 Hexo 搭建个人博客
-## 1. 安装 Hexo CLI
+## 基于 Hexo 搭建个人博客
+### 1. 安装 Hexo CLI
 
 Hexo CLI 是 Hexo 的命令行工具。
 
@@ -297,7 +298,7 @@ hexo -v
 
 * * *
 
-## 2.初始化博客项目
+### 2.初始化博客项目
 
 选择一个工作目录，例如：
 
@@ -338,9 +339,9 @@ ZesBlog
 
 * * *
 
-## 3. 本地启动博客
+### 3. 本地启动博客
 
-### 1 生成静态页面
+#### 1 生成静态页面
 
 ```powershell
 hexo g
@@ -350,7 +351,7 @@ hexo g
 
 * * *
 
-### 2 启动本地服务器
+#### 2 启动本地服务器
 
 ```powershell
 hexo s
@@ -366,7 +367,7 @@ http://localhost:4000
 
 * * *
 
-## 4. 创建文章
+### 4. 创建文章
 
 在上一步预览完成后，命令行内输入`Ctrl+C`退出预览  
 输入以下命令以新建文章：
@@ -395,7 +396,7 @@ tags:
 
 * * *
 
-## 5. 创建 GitHub 仓库
+### 5. 创建 GitHub 仓库
 
 登录 GitHub，没有账号现建一个。
 
@@ -408,7 +409,7 @@ SSH 链接复制下来,一会要用
 
 * * *
 
-## 6. 安装部署插件
+### 6. 安装部署插件
 
 Hexo 需要部署插件才能发布到 GitHub Pages。
 
@@ -420,7 +421,7 @@ npm install hexo-deployer-git --save
 
 * * *
 
-## 7. 配置部署
+### 7. 配置部署
 
 * 编辑博客根目录：
 
@@ -442,7 +443,7 @@ branch: main
 
 * * *
 
-## 8. 部署博客
+### 8. 部署博客
 
 * [ ] 执行：
 
@@ -464,11 +465,11 @@ https://username.github.io
 
 * * *
 
-## 9.日常写作工作流
+### 9.日常写作工作流
 
 日常使用 Hexo 的基本流程如下。
 
-### 1 创建文章
+#### 1 创建文章
 
 ```powershell
 hexo new "post title"
@@ -476,7 +477,7 @@ hexo new "post title"
 
 * * *
 
-### 2 本地预览
+#### 2 本地预览
 
 ```powershell
 hexo g
@@ -486,7 +487,7 @@ hexo s
 
 * * *
 
-### 3 发布博客
+#### 3 发布博客
 
 ```powershell
 hexo clean
@@ -498,7 +499,7 @@ hexo d
 
 * * *
 
-## hexo 博客完整流程总结
+### hexo 博客完整流程总结
 
 1. 安装 Node.js，配置镜像源 和 Git
     
@@ -533,7 +534,7 @@ hexo d  # 推送到github
 即可完成写作、预览和发布。
 
 ---
-## 自定义Hexo主题
+### 自定义Hexo主题
 * [ ] 进入[Hexo](https://hexo.io/themes/)官网Themes页面并挑选
 * [ ] 点击**Visit preview site**预览主题
 * [ ] 点击**主题名**链接，进入`github`，根据主题教程克隆并使用此主题
