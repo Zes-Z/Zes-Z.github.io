@@ -21,16 +21,20 @@ export const siteConfig = {
 
 welcome: [
   {
-    text: 'To someone it may concern.',
+    text: '自分はきっと想像以上だ。',
     href: (lang: Language) => `/${lang}/welcome-site`,
   },
   {
-    text: 'Explore my thoughts.',
-    href: (lang: Language) => `/${lang}/archive`,
+    text: 'C\'est la vie.',
+    href: (lang: Language) => `/${lang}/welcome-site`,
   },
   {
-    text: 'Friends make life beautiful.',
-    href: (lang: Language) => `/${lang}/links`,
+    text: '做我想做，说我想说。',
+    href: (lang: Language) => `/${lang}/welcome-site`,
+  },
+  {
+    text: 'To someone it may concern.',
+    href: (lang: Language) => `/${lang}/welcome-site`,
   },
 ] satisfies { text: string; href: (lang: Language) => string }[],
 
