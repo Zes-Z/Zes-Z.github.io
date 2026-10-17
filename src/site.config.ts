@@ -118,14 +118,11 @@ welcome: [
       },
       href: (lang: Language) => `/${lang}/archive`,
       external: false,
-      icon: 'archive',
+      icon: 'database',
     },
 
-    /**
-     * 生活:与「链接」块完全同构的一个可向下展开块(button 触发、无箭头图标)。
-     * 点它只开合面板;面板内是"相册 / 菜单"两项(彩色图标,竖向排列)。
-     * 带 children 的条目不参与路由,因此不写 href。
-     */
+
+
     {
       label: {
         eng: 'Life',
@@ -156,13 +153,14 @@ welcome: [
         },
       ],
     },
+
     {
       label: {
         eng: 'contact',
         cn: '联系',
         jap: '連絡',
       },
-      icon: 'unknown',
+      icon: 'link',
       children: [
         {
           label: {
@@ -194,11 +192,6 @@ welcome: [
         href: '#',
         icon: 'wechat',
         },
-
-      // 点击图标后自动复制  中配置的微信号,不会跳转
-
-      
-
         {
         label: {
         eng: 'Cloud Drive',
