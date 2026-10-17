@@ -41,6 +41,8 @@ type RawChild = {
   href?: Href;
   external?: boolean;
   icon?: string;
+  /** 有该字段时,子项是复制微信号按钮而不是普通链接。 */
+  wechatId?: string;
 };
 
 type RawItem = RawChild & { children?: readonly RawChild[] };
@@ -52,6 +54,7 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
       label: localize(child.label as never, lang),
       href,
       external: Boolean(child.external),
+      wechatId: child.wechatId,
       // 面板内用彩色图标(没有彩色变体时自动退回单色)
       icon: panelIcon(child.icon ?? ''),
       active: isActive(href),
@@ -71,19 +74,6 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
   };
 });
 
-/* ---------------------------------------------------------
- * 搜索图标右边的可展开块(原页脚条目)
- * --------------------------------------------------------- */
-
-const menuItems = siteConfig.menu.map((item) => ({
-  label: localize(item.label, lang),
-  href: resolveHref(item.href),
-  external: typeof item.href === 'string' && /^https?:\/\//.test(item.href),
-  icon: panelIcon(item.icon),
-  copyValue: 'wechatId' in item ? item.wechatId : undefined,
-}));
-
-const hasMenu = menuItems.length > 0;
 ---
 
 <header class="site-header" data-header>
@@ -94,9 +84,7 @@ const hasMenu = menuItems.length > 0;
           navItems.map((item) => (
             <li class:list={{ 'has-children': item.children.length > 0 }}>
               {item.children.length > 0 ? (
-                /* 与「链接」块完全同构:容器(这里是 li / 那里是 .header-menu)
-                   直接包住 button + 面板,所以 menuOf() 能用同一种方式取到面板。
-                   不要在 button 外面再加包裹层,否则面板就不再是它的兄弟节点。 */
+                /* button 与面板放在同一个 li 中，便于 menuOf() 定位对应面板。 */
                 <button
                   class:list={[
                     'icon-btn',
@@ -128,17 +116,30 @@ const hasMenu = menuItems.length > 0;
                 <ul class="nav-submenu nav-submenu--icons" data-nav-menu hidden>
                   {item.children.map((child) => (
                     <li>
-                      <a
-                        class:list={['nav-submenu-link', { 'is-active': child.active }]}
-                        href={child.href}
-                        aria-label={child.label}
-                        {...(child.external
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
-                      >
-                        {child.icon && <span class="nav-icon" set:html={child.icon} />}
-                        <span class="sr-only">{child.label}</span>
-                      </a>
+                      {child.wechatId ? (
+                        <button
+                          class="nav-submenu-link"
+                          type="button"
+                          aria-label={child.label}
+                          data-copy-wechat
+                          data-copy-value={child.wechatId}
+                        >
+                          {child.icon && <span class="nav-icon" set:html={child.icon} />}
+                          <span class="sr-only">{child.label}</span>
+                        </button>
+                      ) : (
+                        <a
+                          class:list={['nav-submenu-link', { 'is-active': child.active }]}
+                          href={child.href}
+                          aria-label={child.label}
+                          {...(child.external
+                            ? { target: '_blank', rel: 'noopener noreferrer' }
+                            : {})}
+                        >
+                          {child.icon && <span class="nav-icon" set:html={child.icon} />}
+                          <span class="sr-only">{child.label}</span>
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -150,58 +151,6 @@ const hasMenu = menuItems.length > 0;
     </nav>
 
     <div class="header-actions">
-      {
-        hasMenu && (
-          <div class="header-menu" data-nav-group-wrap>
-            <button
-              class="icon-btn icon-btn--label"
-              type="button"
-              aria-label={t(lang, 'menu.open')}
-              aria-expanded="false"
-              aria-haspopup="true"
-              data-nav-group
-            >
-              <span class="nav-icon" set:html={panelIcon('link')} />
-              <span class="nav-label">{t(lang, 'menu.label')}</span>
-            </button>
-
-            {/* 图标-only 面板:展开后只出现图标(文字仅供读屏) */}
-            <ul class="nav-submenu nav-submenu--icons" data-nav-menu hidden>
-              {menuItems.map((item) =>
-                item.copyValue ? (
-                  <li>
-                    <button
-                      class="nav-submenu-link"
-                      type="button"
-                      aria-label={item.label}
-                      data-copy-wechat
-                      data-copy-value={item.copyValue}
-                    >
-                      <span class="nav-icon" set:html={item.icon} />
-                      <span class="sr-only">{item.label}</span>
-                    </button>
-                  </li>
-                ) : (
-                  <li>
-                    <a
-                      class="nav-submenu-link"
-                      href={item.href}
-                      aria-label={item.label}
-                      {...(item.external
-                        ? { target: '_blank', rel: 'noopener noreferrer' }
-                        : {})}
-                    >
-                      <span class="nav-icon" set:html={item.icon} />
-                      <span class="sr-only">{item.label}</span>
-                    </a>
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-        )
-      }
-
       <LanguagePicker lang={lang} pathname={pathname} />
 
       <button
@@ -227,7 +176,6 @@ const hasMenu = menuItems.length > 0;
   </div>
 </header>
 
-<div class="copy-toast" data-copy-toast role="status"></div>
 
 <script>
   /* ---------------------------------------------------------
@@ -242,19 +190,15 @@ const hasMenu = menuItems.length > 0;
   });
 
   /* ---------------------------------------------------------
-   * 可向下展开的块(顶栏导航分组 + 搜索右侧条目块)
+   * 顶栏导航分组(例如「生活」)的展开与收起
    *
    * 点击父项切换;点击别处或 Esc 关闭;点击面板内的链接后一并关闭。
    * --------------------------------------------------------- */
   const groupButtons = [
-    ...document.querySelectorAll<HTMLButtonElement>('[data-nav-group]'),
+    ...document.querySelectorAll<HTMLButtonElement>('#site-nav [data-nav-group]'),
   ];
 
-  /**
-   * 找到触发块对应的面板。
-   * 两个块的 DOM 形状一致:容器(li.has-children / .header-menu)里同时有
-   * button 和 [data-nav-menu],所以 button 的父元素就是那个容器。
-   */
+  /** 找到分组按钮对应的展开面板。 */
   const menuOf = (btn: HTMLElement) =>
     btn.parentElement?.querySelector<HTMLElement>('[data-nav-menu]') ?? null;
 
@@ -277,7 +221,7 @@ const hasMenu = menuItems.length > 0;
         event.stopPropagation();
         const menu = menuOf(btn);
         if (!menu) return;
-        // 该块是导航分组时,先收起可能展开的其它块
+        // 先收起其它分组，再切换当前面板
         closeGroups(btn);
         const willOpen = menu.hasAttribute('hidden');
         if (willOpen) menu.removeAttribute('hidden');
@@ -289,7 +233,7 @@ const hasMenu = menuItems.length > 0;
 
   document.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
-    if (target?.closest('[data-nav-group-wrap], .has-children')) return;
+    if (target?.closest('.has-children')) return;
     closeGroups();
   });
 
@@ -399,7 +343,7 @@ const hasMenu = menuItems.length > 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 四大块(导航 / 链接 / 搜索·语言·主题 / 汉堡)之间的距离 */
+    /* 导航、搜索/语言/主题与汉堡按钮之间的距离 */
     gap: 8px;
     height: 100%;
     padding: 0 10px;
@@ -413,7 +357,7 @@ const hasMenu = menuItems.length > 0;
   .site-nav ul {
     display: flex;
     align-items: center;
-    /* 块与块之间的距离(与 .header-actions 保持一致) */
+    /* 导航项之间的距离 */
     gap: 4px;
     list-style: none;
     margin: 0;
@@ -498,14 +442,13 @@ const hasMenu = menuItems.length > 0;
 
   /* ---------- 分组父项(可向下展开的块) ---------- */
 
-  .site-nav li.has-children,
-  .header-menu {
+  .site-nav li.has-children {
     position: relative;
     display: flex;
     align-items: center;
   }
 
-  /* 两个触发块都是 button,统一清掉浏览器默认外观 */
+  /* 分组触发按钮清除浏览器默认外观 */
   .nav-group-btn {
     appearance: none;
     border: 0;
@@ -526,7 +469,7 @@ const hasMenu = menuItems.length > 0;
     background: rgba(255, 255, 255, 0.16);
   }
 
-  /* ---------- 顶栏展开块的触发按钮(「生活」与「链接」共用同一套) ---------- */
+  /* ---------- 顶栏分组触发按钮(例如「生活」) ---------- */
 
   /* 高度 38px、图标 + 文字。文字字号/字重/行高与 .nav-link 对齐,保证两种
      触发块在顶栏里看起来完全一致。 */
@@ -577,7 +520,7 @@ const hasMenu = menuItems.length > 0;
   .site-header .nav-submenu {
     position: absolute;
     top: calc(100% + 10px);
-    /* 与上方触发块水平居中对齐 */
+    /* 与上方分组按钮水平居中对齐 */
     left: 50%;
     translate: -50% 0;
     z-index: 45;

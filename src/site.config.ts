@@ -54,9 +54,9 @@ welcome: [
   // } satisfies LocalizedText,
 
   description: {
-    eng: 'Zest — a trilingual Astro blog theme with light/dark modes, regex search, archives and more.',
-    cn: 'Zest — 一个支持三语切换、明亮/暗黑配色、正则搜索与归档瀑布流的 Astro 博客主题。',
-    jap: 'Zest — 三言語切り替え・ライト/ダーク配色・正規表現検索・アーカイブを備えた Astro ブログテーマ。',
+    eng: 'Zes\'s blog',
+    cn: '在时的博客',
+    jap: '在時のブログ',
   } satisfies LocalizedText,
 
   // Production site URL (RSS links, canonical URLs).
@@ -82,7 +82,7 @@ welcome: [
    *              A GROUP entry (one with `children`) has no href of its own —
    *              clicking it only opens/closes its panel.
    *   external : open in a new tab
-   *   icon     : 导航图标名(home | archive | recipe | photos | friends | unknown,
+   *   icon     : 导航图标名(home | archive | recipe | photos | friends | ,
    *              见 src/icons/)
    *   children : 可选。带 children 的条目渲染成"可向下展开的块",点开后在
    *              顶栏下方弹出面板列出子项(子项结构与顶层条目相同)。
@@ -156,86 +156,76 @@ welcome: [
         },
       ],
     },
-
     {
       label: {
-        eng: 'Unknown',
-        cn: '未知',
-        jap: '未知',
+        eng: 'contact',
+        cn: '联系',
+        jap: '連絡',
       },
-      href: (lang: Language) => `/${lang}/unknown`,
-      external: false,
       icon: 'unknown',
-    },
-  ] as const,
-
-  /**
-   * 顶栏右侧「可向下展开的块」内容(位于搜索图标右边)。
-   *
-   * 原页脚图标栏已移除,这些条目整体搬到这里:顶栏只多出一个图标按钮,
-   * 点开后在顶栏下方弹出面板,纵向列出下列条目。Add / remove / reorder freely.
-   *
-   *   icon : which icon to render (github | email | cloud | wechat | rss | link)
-   *   href : URL string, or a function of the current language
-   *          (e.g. (lang) => `/${lang}/rss.xml`)
-   *   label: 面板中显示的条目文字(支持三语)
-   *   wechatId: 仅 `icon: 'wechat'` 使用——点击后复制微信号,不做跳转
-   */
-  menu: [
-    {
-      icon: 'github',
-      href: 'https://github.com/Zes-Z',
-      label: {
-        eng: 'GitHub',
-        cn: 'GitHub',
-        jap: 'GitHub',
-      },
-    },
-
-    {
-      icon: 'email',
-      href: 'mailto:zzs234@yeah.net',
-      label: {
-        eng: 'Email',
-        cn: '邮箱',
-        jap: 'メール',
-      },
-    },
-
-    {
-      icon: 'wechat',
-      // 点击图标后自动复制 wechatId 中配置的微信号,不会跳转
-      wechatId: 'Zes234-INTJ',
-      href: '#',
-      label: {
+      children: [
+        {
+          label: {
+          eng: 'GitHub',
+          cn: 'GitHub',
+          jap: 'GitHub',
+          },
+          href: 'https://github.com/Zes-Z',
+          external: true,
+          icon: 'github',
+        },
+        {
+          label: {
+          eng: 'Email',
+          cn: '邮箱',
+          jap: 'メール',
+          },
+          href: 'mailto:zzs234@yeah.net',
+          external: true,
+          icon: 'email',
+        },
+        {
+        label: {
         eng: 'WeChat',
         cn: '微信',
         jap: 'WeChat',
-      },
-    },
+        },
+        wechatId: 'Zes234-INTJ',
+        href: '#',
+        icon: 'wechat',
+        },
 
-    {
-      icon: 'cloud',
-      // 云盘链接:换成你自己的网盘地址(如夸克/百度/蓝奏/OD 等)
-      href: 'https://www.alipan.com/s/X4GEM51VBnM',
-      // 提取码:3z3q
-      label: {
+      // 点击图标后自动复制  中配置的微信号,不会跳转
+
+      
+
+        {
+        label: {
         eng: 'Cloud Drive',
         cn: '云盘',
         jap: 'クラウドドライブ',
-      },
-    },
-
-    {
-      icon: 'rss',
-      href: (lang: Language) => `/${lang}/rss.xml`,
-      label: {
+        },
+        // 云盘链接:换成你自己的网盘地址(如夸克/百度/蓝奏/OD 等)
+        href: 'https://www.alipan.com/s/X4GEM51VBnM', // 提取码:3z3q
+        external: true,
+        icon: 'cloud',
+        },
+        {
+        label: {
         eng: 'RSS',
         cn: 'RSS',
         jap: 'RSS',
-      },
+        },
+        href: (lang: Language) => `/${lang}/rss.xml`,
+        external: true,
+        icon: 'rss',
+        },
+      ],
     },
+
   ] as const,
+
+
 
   /** Fullscreen hero images (soft crossfade). */
   heroImages: [
@@ -255,6 +245,7 @@ welcome: [
       '/wallpaper/线条小狗 夏日树荫.jpg',
       '/wallpaper/线条小狗 西瓜游泳池.jpg',
       '/wallpaper/郊外旅行线条小狗.jpg',
+      '/wallpaper/Q版-云朵-卡通.jpg'
     ],
     interval: 4000,
   },
