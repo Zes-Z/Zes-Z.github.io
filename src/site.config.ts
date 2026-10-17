@@ -118,11 +118,11 @@ welcome: [
       },
       href: (lang: Language) => `/${lang}/archive`,
       external: false,
-      icon: 'dbs-files',
+      icon: 'database',
     },
 
 
-
+    // 以下为带有可展开子节点的导航块，如“生活”和“联系”
     {
       label: {
         eng: 'Life',
