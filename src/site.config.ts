@@ -118,7 +118,7 @@ welcome: [
       },
       href: (lang: Language) => `/${lang}/archive`,
       external: false,
-      icon: 'database',
+      icon: 'dbs-files',
     },
 
 
