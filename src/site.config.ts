@@ -339,55 +339,40 @@ welcome: [
       ],
     },
 
-    {
-      name: {
-        eng: 'Tools',
-        cn: '工具',
-        jap: 'ツール',
-      },
+    // // 以下为自定义区块，与“朋友”同级显示
+    // {
+    //   name: {
+    //     eng: '外链',
+    //     cn: '外链',
+    //     jap: '外链',
+    //   },
 
-      desc: {
-        eng: 'Useful tools worth keeping.',
-        cn: '值得收藏的实用工具。',
-        jap: '手元に置きたい便利なツール。',
-      },
+    //   desc: {
+    //     eng: 'Useful pages worth keeping.',
+    //     cn: '值得收藏的网页。',
+    //     jap: '甲斐のあるページ。',
+    //   },
 
-      items: [
-        {
-          name: {
-            eng: 'Astro',
-            cn: 'Astro',
-            jap: 'Astro',
-          },
+    //   items: [
+    //     {
+    //       name: {
+    //         eng: 'Astro',
+    //         cn: 'Astro',
+    //         jap: 'Astro',
+    //       },
+    //       desc: {
+    //         eng: 'The framework this theme is built on.',
+    //         cn: '本主题所基于的框架。',
+    //         jap: 'このテーマの土台となったフレームワーク。',
+    //       },
+    //       avatar: 'https://avatars.githubusercontent.com/u/44914786',
+    //       link: 'https://astro.build',
+    //     },
 
-          desc: {
-            eng: 'The framework this theme is built on.',
-            cn: '本主题所基于的框架。',
-            jap: 'このテーマの土台となったフレームワーク。',
-          },
+    //   ],
+    // },
 
-          avatar: 'https://avatars.githubusercontent.com/u/44914786',
-          link: 'https://astro.build',
-        },
-
-        {
-          name: {
-            eng: 'KaTeX',
-            cn: 'KaTeX',
-            jap: 'KaTeX',
-          },
-
-          desc: {
-            eng: 'Fast math typesetting for the web.',
-            cn: '为 Web 打造的快速数学排版。',
-            jap: 'Web のための高速数式組版。',
-          },
-
-          avatar: 'https://avatars.githubusercontent.com/u/14904029',
-          link: 'https://katex.org',
-        },
-      ],
-    },
+    
   ] satisfies FriendGroup[],
 
   // ============================================================
@@ -399,7 +384,7 @@ welcome: [
   //  不要再把颜色硬编码进 BaseLayout 的脚本里。
   theme: {
     light: {
-      bg: '#f1fcff5b',
+      bg: '#f2fff166',
     },
     dark: {
       bg: '#101218e0',
