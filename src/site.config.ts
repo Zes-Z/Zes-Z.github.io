@@ -393,7 +393,6 @@ welcome: [
 
   /**
    * 英雄区(Hero)斜体标题使用的圆润艺术字体。
-   *
    * 设为 false 可整体去掉网页字体请求,退回系统字体栈(少一次外部请求,
    * 但斜体标题的字形会变成系统默认)。
    */
@@ -415,6 +414,11 @@ welcome: [
 export function siteSubtitle(): LocalizedText | undefined {
   return (siteConfig as { subtitle?: LocalizedText }).subtitle;
 }
+
+
+
+
+
 
 // ============================================================
 //   外观/布局参数速查表(调整文件 + 位置)
