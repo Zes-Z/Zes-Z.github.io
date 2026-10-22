@@ -25,7 +25,7 @@ const en = {
   'menu.label': 'Links',
 
   'home.pinned': 'Pinned',
-  'home.allPosts': 'All posts →',
+
 
   'archive.categories': 'Categories',
   'archive.all': 'All posts',
@@ -69,7 +69,7 @@ const zh: Record<UiKey, string> = {
   'menu.label': '链接',
 
   'home.pinned': '置顶文章',
-  'home.allPosts': '归档 →',
+
 
   'archive.categories': '分类',
   'archive.all': '归档',
@@ -112,7 +112,7 @@ const ja: Record<UiKey, string> = {
   'menu.label': 'リンク',
 
   'home.pinned': 'ピン留め記事',
-  'home.allPosts': 'すべての記事 →',
+
 
   'archive.categories': 'カテゴリ',
   'archive.all': 'すべての記事',
