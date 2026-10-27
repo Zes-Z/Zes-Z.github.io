@@ -12,17 +12,25 @@ const iconSrc = withBase('/icon/neteasecloudmusic.svg');
 ---
 
 <div class="music-widget" data-music-widget>
-  <div class="music-widget__box" data-music-box hidden>
+  <div class="music-widget__box" id="music-widget-box" data-music-box hidden>
     <iframe
       title="一起听"
       width="330"
       height="110"
       data-src={iframeSrc}
       loading="lazy"
+      allow="autoplay; encrypted-media"
       style="border: 0"
     ></iframe>
   </div>
-  <button class="music-widget__toggle" type="button" data-music-toggle aria-label="一起听">
+  <button
+    class="music-widget__toggle"
+    type="button"
+    data-music-toggle
+    aria-label="一起听"
+    aria-controls="music-widget-box"
+    aria-expanded="false"
+  >
     <span class="music-widget__icon">
       <img src={iconSrc} alt="" width="24" height="24" />
     </span>
@@ -30,13 +38,45 @@ const iconSrc = withBase('/icon/neteasecloudmusic.svg');
 </div>
 
 <script>
-  const widget = document.querySelector<HTMLElement>('[data-music-widget]');
-  const toggle = document.querySelector<HTMLButtonElement>('[data-music-toggle]');
-  const box = document.querySelector<HTMLElement>('[data-music-box]');
+  const STORAGE_KEY = 'zest-music-widget-open';
 
-  if (widget && toggle && box) {
+  const initMusicWidget = () => {
+    const widget = document.querySelector<HTMLElement>('[data-music-widget]');
+    if (!widget || widget.dataset.ready === 'true') return;
+    widget.dataset.ready = 'true';
+
+    const toggle = widget.querySelector<HTMLButtonElement>('[data-music-toggle]');
+    const box = widget.querySelector<HTMLElement>('[data-music-box]');
+    if (!toggle || !box) return;
+
     const iframe = box.querySelector<HTMLIFrameElement>('iframe[data-src]');
     let started = false;
+
+    const readOpen = () => {
+      try {
+        return sessionStorage.getItem(STORAGE_KEY) === '1';
+      } catch {
+        return false;
+      }
+    };
+
+    const saveOpen = (open: boolean) => {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, open ? '1' : '0');
+      } catch {
+        /* sessionStorage 不可用时仅本次页面生效 */
+      }
+    };
+
+    /** 首次打开时才注入网易云 iframe;之后保持同一个 iframe,收起只隐藏不重载。 */
+    const loadPlayer = () => {
+      if (started || !iframe) return;
+      const src = iframe.dataset.src;
+      if (!src) return;
+      iframe.src = src;
+      started = true;
+      widget.classList.add('is-playing');
+    };
 
     const sync = (open: boolean) => {
       box.hidden = !open;
@@ -44,16 +84,50 @@ const iconSrc = withBase('/icon/neteasecloudmusic.svg');
       toggle.setAttribute('aria-expanded', String(open));
     };
 
+    // 刷新或站内跳转后恢复展开状态(会话级,关闭标签页即失效)。
+    // 注意:网易云是跨域 iframe,整页加载必然重建播放器,无法恢复播放进度;
+    // 这里保证挂件自身的展开状态不丢,播放器重新挂载后仍可继续操作。
+    const open = readOpen();
+    if (open) loadPlayer();
+    sync(open);
+
     toggle.addEventListener('click', () => {
-      // 首次点击:才注入网易云 iframe,浏览器允许用户手势后自动播放
-      if (!started && iframe && iframe.dataset.src) {
-        iframe.src = iframe.dataset.src;
-        started = true;
-        widget.classList.add('is-playing');
-      }
-      sync(Boolean(box.hidden));
+      const next = box.hidden;
+      if (next) loadPlayer();
+      sync(next);
+      saveOpen(next);
     });
-  }
+
+    // 点击组件之外任意位置收起;捕获阶段监听,避免页面中
+    // stopPropagation 的按钮(如顶栏分组)让这里收不到事件。
+    document.addEventListener(
+      'click',
+      (event) => {
+        // 兼容将来的 ClientRouter:旧页面的监听器不应再操作已被替换的挂件。
+        if (!widget.isConnected || box.hidden) return;
+        const target = event.target as Node | null;
+        if (target && widget.contains(target)) return;
+
+        sync(false);
+
+        // 点击站内链接往往意味着马上要跳转:此时只收起,不写入关闭状态,
+        // 这样下一页仍能恢复播放器,而不是一路上都被收起。
+        const link = (event.target as Element | null)?.closest?.('a[href]');
+        if (!link) saveOpen(false);
+      },
+      true
+    );
+
+    document.addEventListener('keydown', (event) => {
+      if (!widget.isConnected || event.key !== 'Escape' || box.hidden) return;
+      sync(false);
+      saveOpen(false);
+      toggle.focus();
+    });
+  };
+
+  initMusicWidget();
+  document.addEventListener('astro:page-load', initMusicWidget);
 </script>
 
 <style>
