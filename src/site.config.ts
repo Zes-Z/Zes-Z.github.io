@@ -220,25 +220,31 @@ welcome: [
 
 
 
-  /** Fullscreen hero images (soft crossfade). */
+  /** 首页轮播媒体:图片、视频、iPhone Live Photos(柔和淡入淡出)。
+   *  视频按扩展名自动识别(mp4/webm/ogv/ogg/mov/m4v),会静音、内联播放,
+   *  并在结束前 0.3 秒切走,避免最后一帧参与淡出时闪屏。
+   *  Live Photo 用法(静帧 + iPhone 导出的实况 .mov):
+   *    { src: '/wallpaper/IMG_1234.jpg', live: '/wallpaper/IMG_1234.mov' },
+   *  可选 duration(毫秒)自定义停留时间;duration: 0 表示一直停留不自动切。 */
   heroImages: [
-    // '/wallpaper/saber花间意.jpg',
+    '/wallpaper/太阳-房屋-朗朗晴空.mp4',
     '/wallpaper/樱花树风景.jpg',
     '/wallpaper/治愈田园雪山落日小桥.jpg',
     
     '/wallpaper/山岚晴昼.jpg',
   ],
 
-  /** 主页轮播主图切换间隔(毫秒)。大约 3000 = 3 秒。 */
+  /** 首页普通静态图片的轮播间隔(毫秒)。视频/Live Photo 按自身时长播放。 */
   heroInterval: 6000,
 
-  /** 友链页主图:images = 轮播图片,interval = 切换间隔(毫秒)。 */
+  /** 友链页主图:独立于首页,可放其他图片/视频/Live Photo。
+   *  写法与 heroImages 完全一致(共用 Hero 组件),interval 为友链页自己的间隔。 */
   linksHero: {
     images: [
       '/wallpaper/线条小狗 夏日树荫.jpg',
       '/wallpaper/线条小狗 西瓜游泳池.jpg',
       '/wallpaper/郊外旅行线条小狗.jpg',
-      '/wallpaper/Q版-云朵-卡通.jpg'
+      '/wallpaper/Q版-云朵-卡通.jpg',
     ],
     interval: 4000,
   },
@@ -406,11 +412,6 @@ welcome: [
   photosGrayscaleHover: true,
 } as const;
 
-/**
- * Site subtitle, if configured. `subtitle` in siteConfig is optional
- * (it may be commented out by the user); call this helper instead of
- * accessing siteConfig.subtitle directly.
- */
 export function siteSubtitle(): LocalizedText | undefined {
   return (siteConfig as { subtitle?: LocalizedText }).subtitle;
 }

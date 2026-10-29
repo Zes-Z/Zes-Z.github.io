@@ -1,8 +1,18 @@
 ---
 import { withBase } from '../utils/paths';
 
+/**
+ * 单个轮播项:
+ * - 字符串:图片或视频路径(按扩展名自动识别)。
+ * - 对象:Live Photo 用 src(静帧)+ live(实况视频);duration 可自定义停留毫秒数。
+ */
+type HeroMedia =
+  | string
+  | { src: string; live?: string; duration?: number };
+
 interface Props {
-  images: string[];
+  /** 图片、视频,或 iPhone Live Photo 的静帧 + 实况视频。 */
+  images: HeroMedia[];
   /** 'full' = ~92vh home hero, 'medium' = shorter page hero (friends page). */
   height?: 'full' | 'medium';
   /** Optional overlay content (site title / subtitle). */
@@ -22,7 +32,7 @@ interface Props {
   rightTitleHref?: string;
   /** Overlay placement. */
   position?: 'center' | 'bottom-left';
-  /** Crossfade interval in ms. */
+  /** 普通静态图片的切换间隔(ms);视频/Live Photo 按自身时长播放,不受此值截断。 */
   interval?: number;
 }
 
@@ -40,7 +50,29 @@ const {
 } = Astro.props;
 // site.config.ts 里常把暂时不想用的壁纸注释掉,留下空字符串条目。
 // 直接渲染会产出 <img src=""> 这种必然 404 的请求,所以这里先过滤掉。
-const heroImages = images.filter((src) => Boolean(src?.trim()));
+const heroImages = images
+  .map((item) =>
+    typeof item === 'string'
+      ? {
+          src: item.trim(),
+          live: undefined as string | undefined,
+          duration: undefined as number | undefined,
+        }
+      : {
+          src: (item.src ?? '').trim(),
+          live: item.live?.trim() || undefined,
+          duration:
+            typeof item.duration === 'number' &&
+            Number.isFinite(item.duration) &&
+            item.duration >= 0
+              ? item.duration
+              : undefined,
+        }
+  )
+  .filter((item) => Boolean(item.src || item.live));
+// 背景视频/Live Photo 的动态部分:静音、内联播放,满足自动播放策略。
+const VIDEO_PATTERN = /\.(mp4|webm|ogv|ogg|mov|m4v)(?:[?#].*)?$/i;
+const isVideo = (src: string) => VIDEO_PATTERN.test(src);
 // 丢掉空文本;每条保留自己的 href
 const welcomeItems = (welcome ?? [])
   .filter((item) => Boolean(item.text?.trim()))
@@ -52,16 +84,43 @@ const hasRightTitle = Boolean(rightTitle);
 
 <section class:list={['hero', `hero--${height}`]} data-hero data-hero-interval={interval}>
   {
-    heroImages.map((src, index) => (
-      <img
-        class:list={['hero-image', { 'is-active': index === 0 }]}
-        src={withBase(src)}
-        alt=""
-        loading={index === 0 ? 'eager' : 'lazy'}
-        fetchpriority={index === 0 ? 'high' : undefined}
-        decoding="async"
-      />
-    ))
+    heroImages.map((item, index) => {
+      const still = item.src ? withBase(item.src) : undefined;
+      // Live Photo:src 是静帧,live 是 iPhone 导出的 .mov(实况视频)。
+      const motion = item.live
+        ? withBase(item.live)
+        : isVideo(item.src)
+          ? withBase(item.src)
+          : undefined;
+      const poster = item.live && !isVideo(item.src) ? still : undefined;
+      // 设置 duration 时用 loop 撑满自定义停留时间;否则播完就切下一张。
+      const loop = item.duration !== undefined;
+
+      return motion ? (
+        <video
+          class:list={['hero-image', 'hero-video', { 'is-active': index === 0 }]}
+          src={motion}
+          poster={poster}
+          data-slide-duration={item.duration}
+          muted
+          loop={loop}
+          playsinline
+          preload={index === 0 ? 'auto' : 'metadata'}
+          aria-hidden="true"
+          tabindex="-1"
+        />
+      ) : (
+        <img
+          class:list={['hero-image', { 'is-active': index === 0 }]}
+          src={still}
+          data-slide-duration={item.duration}
+          alt=""
+          loading={index === 0 ? 'eager' : 'lazy'}
+          fetchpriority={index === 0 ? 'high' : undefined}
+          decoding="async"
+        />
+      );
+    })
   }
   <div class="hero-veil"></div>
   <div class="hero-fade-top" aria-hidden="true"></div>
@@ -127,19 +186,158 @@ const hasRightTitle = Boolean(rightTitle);
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   if (hero && !hero.dataset.ready) {
     hero.dataset.ready = 'true';
-    const images = [...hero.querySelectorAll<HTMLImageElement>('.hero-image')];
-    const interval = Number(hero.dataset.heroInterval ?? 6000);
+    const media = [...hero.querySelectorAll<HTMLElement>('.hero-image')];
+    const videos = media.filter((el): el is HTMLVideoElement => el instanceof HTMLVideoElement);
+    const rawInterval = Number(hero.dataset.heroInterval ?? 6000);
+    const interval = Number.isFinite(rawInterval) && rawInterval > 0 ? rawInterval : 6000;
+    // 视频在结束前 0.3 秒切走,避免最后一帧/黑屏参与淡出时闪一下。
+    const videoEndOffset = 300;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let current = Math.max(
+      0,
+      media.findIndex((el) => el.classList.contains('is-active'))
+    );
+    let timer: number | undefined;
 
-    if (images.length > 1 && !reducedMotion) {
-      let index = 0;
-      window.setInterval(() => {
-        const current = images[index]!;
-        const next = images[(index + 1) % images.length]!;
-        current.classList.remove('is-active');
-        next.classList.add('is-active');
-        index = (index + 1) % images.length;
-      }, interval);
+    const clearTimer = () => {
+      if (timer === undefined) return;
+      window.clearTimeout(timer);
+      timer = undefined;
+    };
+
+    /** data-slide-duration:自定义停留毫秒数;0 = 一直停留,undefined = 按素材类型。 */
+    const explicitDuration = (el: HTMLElement): number | undefined => {
+      const raw = el.dataset.slideDuration;
+      if (raw === undefined || raw === '') return undefined;
+      const value = Number(raw);
+      return Number.isFinite(value) && value >= 0 ? value : undefined;
+    };
+
+    /** 从第一帧开始播放;自动播放被拒绝时静默忽略(静音视频通常允许)。 */
+    const playVideo = (el: Element | undefined) => {
+      if (!(el instanceof HTMLVideoElement)) return;
+      try {
+        // 只在新进入这张时回到开头。离开时不要重置,否则淡出的仍是第一帧,
+        // 会和刚播放到的画面产生跳变/闪屏。
+        el.currentTime = 0;
+      } catch {
+        /* metadata 尚未加载时忽略 */
+      }
+      void el.play().catch(() => {});
+    };
+
+    const pauseVideo = (el: Element) => {
+      if (!(el instanceof HTMLVideoElement)) return;
+      // 暂停时保留当前帧,让 2.4s 的淡出继续显示最后一帧。
+      el.pause();
+    };
+
+    const resetVideo = (el: Element) => {
+      if (!(el instanceof HTMLVideoElement)) return;
+      el.pause();
+      try {
+        el.currentTime = 0;
+      } catch {
+        /* metadata 尚未加载时忽略 */
+      }
+    };
+
+    const schedule = (delay: number) => {
+      clearTimer();
+      // 只有一张时无需轮播;视频仍然会正常播放。
+      if (media.length <= 1) return;
+      if (!Number.isFinite(delay) || delay < 0) return;
+      timer = window.setTimeout(advance, Math.max(250, delay));
+    };
+
+    const scheduleFor = (el: HTMLElement) => {
+      const explicit = explicitDuration(el);
+      if (explicit !== undefined) {
+        // 0 表示这张不自动切走。
+        if (explicit === 0) {
+          clearTimer();
+          return;
+        }
+        // 视频同样提前 0.3 秒切走;普通图片的自定义时长保持原样。
+        const offset = el instanceof HTMLVideoElement ? videoEndOffset : 0;
+        schedule(Math.max(0, explicit - offset));
+        return;
+      }
+
+      if (el instanceof HTMLVideoElement) {
+        // 视频按自身时长播放,提前 0.3 秒切走,不受普通图片间隔影响。
+        const duration = el.duration;
+        if (Number.isFinite(duration) && duration > 0) {
+          schedule(Math.max(0, duration * 1000 - videoEndOffset));
+          return;
+        }
+        // 元数据还没到:等 loadedmetadata 后再决定;长时间没有就按普通间隔兜底。
+        const onMetadata = () => {
+          if (el !== media[current]) return;
+          const known = el.duration;
+          schedule(
+            Number.isFinite(known) && known > 0
+              ? Math.max(0, known * 1000 - videoEndOffset)
+              : interval
+          );
+        };
+        el.addEventListener('loadedmetadata', onMetadata, { once: true });
+        window.setTimeout(() => {
+          if (el !== media[current] || explicitDuration(el) !== undefined) return;
+          const known = el.duration;
+          if (!Number.isFinite(known) || known <= 0) schedule(interval);
+        }, interval);
+        return;
+      }
+
+      // 普通图片照旧:按全局间隔轮播。
+      schedule(interval);
+    };
+
+    const startCurrent = () => {
+      const el = media[current];
+      if (!el) return;
+      if (el instanceof HTMLVideoElement) playVideo(el);
+      scheduleFor(el);
+    };
+
+    const advance = () => {
+      clearTimer();
+      if (media.length === 0) return;
+
+      const leaving = media[current];
+      if (leaving) {
+        leaving.classList.remove('is-active');
+        pauseVideo(leaving);
+      }
+
+      current = (current + 1) % media.length;
+      media.forEach((el, index) => el.classList.toggle('is-active', index === current));
+
+      const next = media[current];
+      if (!next) return;
+      if (next instanceof HTMLVideoElement) playVideo(next);
+      scheduleFor(next);
+    };
+
+    // 没有自定义时长时,视频播完立即切下一张(比 duration 兜底计时器更准)。
+    videos.forEach((video) => {
+      video.addEventListener('ended', () => {
+        if (video !== media[current]) return;
+        if (explicitDuration(video) !== undefined) return;
+        advance();
+      });
+    });
+
+    if (reducedMotion) {
+      // 减少动态效果时保留首帧,不自动播放背景视频。
+      videos.forEach(resetVideo);
+    } else {
+      // 只为当前媒体解码,避免多个视频/Live Photo 同时播放。
+      videos.forEach((video) => {
+        if (video !== media[current]) pauseVideo(video);
+      });
+      startCurrent();
     }
   }
 
@@ -261,8 +459,8 @@ const hasRightTitle = Boolean(rightTitle);
     min-height: 480px;
   }
   .hero--medium {
-    height: min(68vh, 520px);
-    min-height: 320px;
+    height: min(72vh, 600px);
+    min-height: 360px;
   }
 
   .hero-image {
@@ -277,6 +475,10 @@ const hasRightTitle = Boolean(rightTitle);
   }
   .hero-image.is-active {
     opacity: 1;
+  }
+  /* 背景视频只是装饰,不拦截点击/滚动;自动静音、循环、内联播放 */
+  .hero-video {
+    pointer-events: none;
   }
 
   .hero-veil {

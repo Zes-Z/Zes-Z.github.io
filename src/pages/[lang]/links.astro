@@ -19,7 +19,12 @@ const AVATAR_FALLBACK = IMAGE_FALLBACK;
 ---
 
 <BaseLayout lang={lang} title={t(lang, 'nav.links')} fullWidth heroFont={siteConfig.heroFont}>
-  <Hero images={[...siteConfig.linksHero.images]} height="medium" interval={siteConfig.linksHero.interval} />
+  {/* 与主页共用 Hero 组件,但使用友链页自己的媒体列表;height="medium" 保持原有比例 */}
+  <Hero
+    images={[...siteConfig.linksHero.images]}
+    height="medium"
+    interval={siteConfig.linksHero.interval}
+  />
 
   <div class="container-x links-content">
     {
@@ -69,7 +74,7 @@ const AVATAR_FALLBACK = IMAGE_FALLBACK;
     display: flex;
     flex-direction: column;
     gap: 2.4rem;
-    margin-top: 2.6rem;
+    margin-top: 1.2rem;
     margin-bottom: 2rem;
   }
 
