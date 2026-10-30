@@ -227,7 +227,7 @@ welcome: [
    *    { src: '/wallpaper/IMG_1234.jpg', live: '/wallpaper/IMG_1234.mov' },
    *  可选 duration(毫秒)自定义停留时间;duration: 0 表示一直停留不自动切。 */
   heroImages: [
-    '/wallpaper/太阳-房屋-朗朗晴空.mp4',
+    // '/wallpaper/太阳-房屋-朗朗晴空.mp4',
     '/wallpaper/樱花树风景.jpg',
     '/wallpaper/治愈田园雪山落日小桥.jpg',
     
