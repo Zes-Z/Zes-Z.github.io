@@ -1,9 +1,12 @@
+
 ---
 import '../styles/global.css';
 import '../styles/katex.css';
+
 import Header from '../components/Header.astro';
 import SearchPalette from '../components/SearchPalette.astro';
 import MusicWidget from '../components/MusicWidget.astro';
+
 import { siteConfig, siteSubtitle } from '../site.config';
 import { localize } from '../i18n';
 import type { Language } from '../types';
@@ -13,12 +16,15 @@ interface Props {
   lang: Language;
   title?: string;
   description?: string;
-  /** Omit the horizontal container so a page can go full-bleed (e.g. hero). */
-  fullWidth?: boolean;
+
   /**
-   * Whether this page renders a Hero with an overlay title. Only then are the
-   * web-font (Nunito) preconnects emitted, so ordinary pages never pay for a
-   * font request they do not use. Defaults to false — pages with a Hero opt in.
+   * Omit the horizontal container so a page can go full-bleed.
+   */
+  fullWidth?: boolean;
+
+  /**
+   * Whether this page renders a Hero with an overlay title.
+   * Only then are the web fonts loaded.
    */
   heroFont?: boolean;
 }
@@ -30,13 +36,17 @@ const {
   fullWidth = false,
   heroFont = false,
 } = Astro.props;
+
 const subtitleText = siteSubtitle();
+
 const pageTitle = title
   ? `${title} · ${siteConfig.title}`
   : subtitleText
     ? `${siteConfig.title} — ${localize(subtitleText, lang)}`
     : siteConfig.title;
-const pageDescription = description ?? localize(siteConfig.description, lang);
+
+const pageDescription =
+  description ?? localize(siteConfig.description, lang);
 ---
 
 <!doctype html>
@@ -49,36 +59,40 @@ const pageDescription = description ?? localize(siteConfig.description, lang);
   <head>
     <meta charset="UTF-8" />
 
-    {/* Critical, cache-unfriendly bits only: the two page-background colors,
-        read by the anti-flash script below. Everything else lives in the
-        external global.css so browsers can cache it.
-        NOTE: `set:html` is required — with `is:inline` Astro does NOT evaluate
-        template literals, so the values would be emitted as literal JS text. */}
+    <!-- Critical background colors -->
     <style
       is:inline
-      set:html={`:root{--site-light-bg:${siteConfig.theme.light.bg};--site-dark-bg:${siteConfig.theme.dark.bg}}`}
+      set:html={`
+        :root {
+          --site-light-bg: ${siteConfig.theme.light.bg};
+          --site-dark-bg: ${siteConfig.theme.dark.bg};
+        }
+      `}
     />
 
+    <!-- Anti-flash theme bootstrap -->
     <script is:inline>
-      // Anti-flash theme bootstrap: runs before anything renders.
-      // Sets the theme attributes AND an inline background color so the page
-      // never flashes white (or the wrong theme) on navigation.
       (function () {
         try {
           var mode = localStorage.getItem('zest-theme') || 'system';
 
           if (mode === 'system') {
-            mode = window.matchMedia('(prefers-color-scheme: dark)').matches
+            mode = window.matchMedia(
+              '(prefers-color-scheme: dark)'
+            ).matches
               ? 'dark'
               : 'light';
           }
 
-          if (mode !== 'light' && mode !== 'dark') mode = 'light';
+          if (mode !== 'light' && mode !== 'dark') {
+            mode = 'light';
+          }
 
           var root = document.documentElement;
           var styles = getComputedStyle(root);
 
           root.setAttribute('data-theme', mode);
+
           root.setAttribute(
             'data-code-scheme',
             mode === 'dark' ? 'dark' : 'light'
@@ -92,26 +106,50 @@ const pageDescription = description ?? localize(siteConfig.description, lang);
       })();
     </script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+
     <meta name="generator" content={Astro.generator} />
-    {/* 站内语言前缀路由会让 Chrome 每次切语言都判定为"外语页"并弹翻译提示。
-        这里明确声明本页已是正确语言、不需要机器翻译。 */}
+
     <meta name="google" content="notranslate" />
+
     <meta name="description" content={pageDescription} />
-    <link rel="icon" type="image/svg+xml" href={withBase(siteConfig.favicon)} />
-    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={withBase(`/${lang}/rss.xml`)} />
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href={withBase(siteConfig.favicon)}
+    />
+
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={siteConfig.title}
+      href={withBase(`/${lang}/rss.xml`)}
+    />
+
+    <!-- Hero fonts: only loaded when needed -->
     {
-      /* 圆润艺术字体只服务英雄区斜体标题:仅在使用 Hero 的页面请求,
-         其余页面完全不产生字体请求。 */
       heroFont && (
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+        />
       )
     }
+
     {
       heroFont && (
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin
+        />
       )
     }
+
     {
       heroFont && (
         <link
@@ -120,106 +158,185 @@ const pageDescription = description ?? localize(siteConfig.description, lang);
         />
       )
     }
-    <meta name="theme-color" content={siteConfig.theme.light.bg} />
+
+    <meta
+      name="theme-color"
+      content={siteConfig.theme.light.bg}
+    />
+
     <title>{pageTitle}</title>
   </head>
+
   <body>
-    <a class="skip-link" href="#main">跳到主要内容</a>
+    <a class="skip-link" href="#main">
+      跳到主要内容
+    </a>
+
     <Header lang={lang} />
-    <main id="main" tabindex="-1" class:list={{ 'main--full': fullWidth }}>
-      {fullWidth ? <slot /> : <div class="container-x"><slot /></div>}
+
+    <main
+      id="main"
+      tabindex="-1"
+      class:list={{ 'main--full': fullWidth }}
+    >
+      {
+        fullWidth
+          ? <slot />
+          : <div class="container-x"><slot /></div>
+      }
     </main>
+
     <SearchPalette lang={lang} />
+
+    <!-- Restore original MusicWidget behavior -->
     <MusicWidget />
 
-    {/* 复制反馈(微信号等),由下方脚本控制显隐 */}
-    <div class="copy-toast" data-copy-toast role="status"></div>
+    <!-- Copy feedback -->
+    <div
+      class="copy-toast"
+      data-copy-toast
+      role="status"
+    ></div>
   </body>
 </html>
 
 <script>
-  // 代码块右上角"复制"按钮:复制整段代码到剪贴板
-  const copyFallback = (text: string, done: () => void) => {
+  // ---------------------------------------------------
+  // Code block copy
+  // ---------------------------------------------------
+
+  const copyFallback = (
+    text: string,
+    done: () => void
+  ) => {
     const ta = document.createElement('textarea');
+
     ta.value = text;
     ta.style.position = 'fixed';
     ta.style.opacity = '0';
+
     document.body.appendChild(ta);
     ta.select();
+
     try {
       document.execCommand('copy');
       done();
     } catch {
-      /* ignore */
+      // Ignore fallback errors.
     }
+
     ta.remove();
   };
 
   const bindCopyButtons = () => {
-    document.querySelectorAll<HTMLButtonElement>('[data-copy-code]').forEach((btn) => {
-      if (btn.dataset.ready === 'true') return;
-      btn.dataset.ready = 'true';
-      btn.addEventListener('click', () => {
-        const block = btn.closest('.code-block');
-        const code = block?.querySelector('pre code');
-        if (!code) return;
-        const text = code.textContent ?? '';
-        const done = () => {
-          btn.textContent = '✓';
-          window.setTimeout(() => {
-            btn.textContent = '⧉';
-          }, 1400);
-        };
-        if (navigator.clipboard?.writeText) {
-          navigator.clipboard.writeText(text).then(done).catch(() => copyFallback(text, done));
-        } else {
-          copyFallback(text, done);
-        }
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-copy-code]')
+      .forEach((btn) => {
+        if (btn.dataset.ready === 'true') return;
+
+        btn.dataset.ready = 'true';
+
+        btn.addEventListener('click', () => {
+          const block = btn.closest('.code-block');
+          const code = block?.querySelector('pre code');
+
+          if (!code) return;
+
+          const text = code.textContent ?? '';
+
+          const done = () => {
+            btn.textContent = '✓';
+
+            window.setTimeout(() => {
+              btn.textContent = '⧉';
+            }, 1400);
+          };
+
+          if (navigator.clipboard?.writeText) {
+            navigator.clipboard
+              .writeText(text)
+              .then(done)
+              .catch(() => copyFallback(text, done));
+          } else {
+            copyFallback(text, done);
+          }
+        });
       });
-    });
   };
 
   bindCopyButtons();
-  document.addEventListener('astro:page-load', bindCopyButtons);
 
-  // 图片加载失败时的统一兜底:任何带 data-fallback 的 <img> 都会换成占位图。
-  // 用捕获阶段监听(图片的 error 事件不冒泡),并以 data-fallback-active
-  // 标记保证幂等——占位图自身失败也不会造成死循环。
+  document.addEventListener(
+    'astro:page-load',
+    bindCopyButtons
+  );
+
+  // ---------------------------------------------------
+  // Image fallback
+  // ---------------------------------------------------
+
   document.addEventListener(
     'error',
     (event) => {
       const el = event.target as HTMLElement | null;
+
       if (!el || el.tagName !== 'IMG') return;
+
       const img = el as HTMLImageElement;
+
       if (img.dataset.fallbackActive === 'true') return;
+
       const fallback = img.dataset.fallback;
-      if (!fallback || img.getAttribute('src') === fallback) return;
+
+      if (
+        !fallback ||
+        img.getAttribute('src') === fallback
+      ) {
+        return;
+      }
+
       img.dataset.fallbackActive = 'true';
       img.src = fallback;
     },
     true
   );
 
-  // 复制类按钮(顶栏展开块里的微信号等):委托监听,兼容视图切换。
-  // 文案与字号沿用原来页脚时的表现,只在有 data-copy-toast 时提示。
+  // ---------------------------------------------------
+  // WeChat copy
+  // ---------------------------------------------------
+
   let toastTimer: number | undefined;
 
   document.addEventListener('click', (event) => {
-    const btn = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-copy-wechat]');
+    const btn = (
+      event.target as HTMLElement | null
+    )?.closest<HTMLElement>('[data-copy-wechat]');
+
     if (!btn) return;
+
     const value = btn.dataset.copyValue ?? '';
-    const toast = document.querySelector<HTMLElement>('[data-copy-toast]');
+
+    const toast = document.querySelector<HTMLElement>(
+      '[data-copy-toast]'
+    );
+
     void navigator.clipboard
       ?.writeText(value)
       .then(() => {
         if (!toast) return;
+
         toast.textContent = `已复制微信号:${value}`;
+
         toast.classList.add('is-visible');
+
         window.clearTimeout(toastTimer);
-        toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 1800);
+
+        toastTimer = window.setTimeout(() => {
+          toast.classList.remove('is-visible');
+        }, 1800);
       })
       .catch(() => {
-        /* clipboard unavailable */
+        // Clipboard unavailable.
       });
   });
 </script>

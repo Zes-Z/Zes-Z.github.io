@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "items": { "blue-sky": {
+      "type": "photo",
+      "file": "碧海蓝天.jpg",
+      "category": "landscape",
+      "en": {
+        "title": "Blue Sea and Sky"
+      },
+      "zh": {
+        "title": "碧海蓝天"
+      },
+      "ja": {
+        "title": "青い海と空"
+      }
+    }
+  }
+}

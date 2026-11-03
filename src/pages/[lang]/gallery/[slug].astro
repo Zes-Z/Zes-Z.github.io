@@ -1,0 +1,1101 @@
+
+---
+import { getCollection, getEntry } from 'astro:content';
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+import { siteConfig } from '../../../site.config';
+
+import type { Language } from '../../../types';
+
+import {
+  resolveGalleryLocale,
+  type GalleryLanguage,
+  type GalleryLocalizedData,
+} from '../../../utils/gallery-locale';
+
+import { getGalleryAssetUrl } from '../../../utils/gallery-assets';
+import { withBase } from '../../../utils/paths';
+
+// =====================================================
+// 1. Static paths
+// =====================================================
+
+export async function getStaticPaths() {
+  const galleryItems = await getCollection('gallery');
+
+  return siteConfig.langs.flatMap((lang) =>
+    galleryItems.map((item) => ({
+      params: {
+        lang,
+        slug: item.id,
+      },
+    })),
+  );
+}
+
+// =====================================================
+// 2. Current route
+// =====================================================
+
+const lang = Astro.params.lang as Language;
+const slug = Astro.params.slug ?? '';
+
+const entry = await getEntry('gallery', slug);
+
+if (!entry) {
+  throw new Error(`[Gallery] Entry not found: ${slug}`);
+}
+
+const data = entry.data;
+
+// =====================================================
+// 3. Language configuration
+// =====================================================
+
+const localeKey: GalleryLanguage = lang;
+
+const fallbackOrder: GalleryLanguage[] = [
+  ...siteConfig.langs,
+];
+
+function resolveLocale(value: unknown) {
+  return resolveGalleryLocale(
+    value as GalleryLocalizedData,
+    localeKey,
+    fallbackOrder,
+  );
+}
+
+const localized = resolveLocale(data);
+
+// =====================================================
+// 4. Page translations
+// =====================================================
+
+const messages = {
+  en: {
+    gallery: 'Gallery',
+    photo: 'Photography',
+    video: 'Video',
+    portfolio: 'Portfolio',
+    back: 'Back to Gallery',
+    about: 'About this work',
+    details: 'Details',
+    date: 'Date',
+    location: 'Location',
+    category: 'Category',
+    creator: 'Photographer',
+    contents: 'Portfolio',
+    related: 'Related Works',
+    play: 'Play video',
+  },
+
+  zh: {
+    gallery: '画廊',
+    photo: '摄影作品',
+    video: '视频',
+    portfolio: '作品集',
+    back: '返回画廊',
+    about: '作品介绍',
+    details: '作品信息',
+    date: '日期',
+    location: '地点',
+    category: '分类',
+    creator: '创作者',
+    contents: '作品内容',
+    related: '相关作品',
+    play: '播放视频',
+  },
+
+  ja: {
+    gallery: 'ギャラリー',
+    photo: '写真作品',
+    video: '動画',
+    portfolio: 'ポートフォリオ',
+    back: 'ギャラリーに戻る',
+    about: '作品について',
+    details: '作品情報',
+    date: '日付',
+    location: '撮影場所',
+    category: 'カテゴリー',
+    creator: 'クリエイター',
+    contents: '作品内容',
+    related: '関連作品',
+    play: '動画を再生',
+  },
+} as const;
+
+const copy = messages[localeKey];
+
+// =====================================================
+// 5. Category labels
+// =====================================================
+
+const categoryLabels: Record<
+  GalleryLanguage,
+  Record<string, string>
+> = {
+  en: {
+    architecture: 'Architecture',
+    art: 'Art',
+    automotive: 'Automotive',
+    fashion: 'Fashion',
+    food: 'Food',
+    furniture: 'Furniture',
+    interior: 'Interior',
+    landscape: 'Landscape',
+    nature: 'Nature',
+    portrait: 'Portrait',
+    space: 'Space',
+    street: 'Street',
+    technology: 'Technology',
+    travel: 'Travel',
+    urban: 'Urban',
+    wildlife: 'Wildlife',
+  },
+
+  zh: {
+    architecture: '建筑',
+    art: '艺术',
+    automotive: '汽车',
+    fashion: '时尚',
+    food: '美食',
+    furniture: '家具',
+    interior: '室内',
+    landscape: '风景',
+    nature: '自然',
+    portrait: '人像',
+    space: '宇宙',
+    street: '街头',
+    technology: '科技',
+    travel: '旅行',
+    urban: '城市',
+    wildlife: '野生动物',
+  },
+
+  ja: {
+    architecture: '建築',
+    art: 'アート',
+    automotive: '自動車',
+    fashion: 'ファッション',
+    food: '料理',
+    furniture: '家具',
+    interior: 'インテリア',
+    landscape: '風景',
+    nature: '自然',
+    portrait: 'ポートレート',
+    space: '宇宙',
+    street: 'ストリート',
+    technology: 'テクノロジー',
+    travel: '旅行',
+    urban: '都市',
+    wildlife: '野生動物',
+  },
+};
+
+function getCategoryLabel(category: string) {
+  return (
+    categoryLabels[localeKey][category] ??
+    category.replaceAll('-', ' ')
+  );
+}
+
+// =====================================================
+// 6. Date formatting
+// =====================================================
+
+function formatDate(value?: string) {
+  if (!value) return '';
+
+  const [year, month, day] = value.split('-').map(Number);
+
+  const date = new Date(
+    year,
+    month - 1,
+    day,
+  );
+
+  const dateLocale =
+    localeKey === 'zh'
+      ? 'zh-CN'
+      : localeKey === 'ja'
+        ? 'ja-JP'
+        : 'en-US';
+
+  return new Intl.DateTimeFormat(
+    dateLocale,
+    { dateStyle: 'long' },
+  ).format(date);
+}
+
+const formattedDate = formatDate(data.date);
+
+// =====================================================
+// 7. Content metadata
+// =====================================================
+
+const isPortfolio = data.type === 'portfolio';
+
+const typeLabel =
+  data.type === 'photo'
+    ? copy.photo
+    : data.type === 'video'
+      ? copy.video
+      : copy.portfolio;
+
+const categoryLabel = getCategoryLabel(
+  data.category,
+);
+
+// Independent photo/video URL.
+
+const standaloneMedia =
+  data.type === 'portfolio'
+    ? null
+    : data;
+
+const standaloneUrl = standaloneMedia
+  ? getGalleryAssetUrl(standaloneMedia.assetPath)
+  : undefined;
+
+const standalonePoster =
+  standaloneMedia?.type === 'video' &&
+  standaloneMedia.posterAssetPath
+    ? getGalleryAssetUrl(
+        standaloneMedia.posterAssetPath,
+      )
+    : undefined;
+
+// =====================================================
+// 8. Portfolio media
+// =====================================================
+
+const portfolioItems =
+  data.type === 'portfolio'
+    ? data.items.map((item) => {
+        const itemLocale = resolveLocale(item);
+
+        return {
+          id: item.id,
+          type: item.type,
+
+          title: itemLocale.title || item.id,
+          location: itemLocale.location,
+          desc: itemLocale.desc,
+          text: itemLocale.text,
+
+          date: formatDate(item.date),
+
+          src: getGalleryAssetUrl(
+            item.assetPath,
+          ),
+
+          poster:
+            item.type === 'video' &&
+            item.posterAssetPath
+              ? getGalleryAssetUrl(
+                  item.posterAssetPath,
+                )
+              : undefined,
+        };
+      })
+    : [];
+
+// =====================================================
+// 9. Related works
+// =====================================================
+
+const allGalleryEntries = await getCollection('gallery');
+
+const relatedItems = allGalleryEntries
+  .filter(
+    (candidate) =>
+      candidate.id !== entry.id &&
+      candidate.data.category === data.category,
+  )
+  .slice(0, 4)
+  .map((candidate) => {
+    const candidateLocale = resolveLocale(
+      candidate.data,
+    );
+
+    const preview =
+      candidate.data.type === 'portfolio'
+        ? candidate.data.cover
+        : candidate.data;
+
+    return {
+      id: candidate.id,
+      type: candidate.data.type,
+
+      title: candidateLocale.title || candidate.id,
+
+      src: getGalleryAssetUrl(
+        preview.assetPath,
+      ),
+
+      poster:
+        preview.type === 'video' &&
+        preview.posterAssetPath
+          ? getGalleryAssetUrl(
+              preview.posterAssetPath,
+            )
+          : undefined,
+    };
+  });
+
+---
+
+<BaseLayout
+  lang={lang}
+  title={localized.title || slug}
+  description={localized.desc}
+  fullWidth={true}
+>
+  <main class="gallery-detail">
+    <div class="gallery-detail__inner">
+
+      <!-- =================================================
+           Navigation
+      ================================================== -->
+
+      <nav class="detail-breadcrumb" aria-label="Breadcrumb">
+        <a href={withBase(`/${lang}/gallery`)}>
+          {copy.back}
+        </a>
+
+        <span aria-hidden="true">/</span>
+
+        <span>{localized.title || slug}</span>
+      </nav>
+
+      <!-- =================================================
+           Header
+      ================================================== -->
+
+      <header class="detail-header">
+
+        <div class="detail-eyebrow">
+          <span class="detail-type">
+            {typeLabel}
+          </span>
+
+          <span class="detail-separator">·</span>
+
+          <span class="detail-category">
+            {categoryLabel}
+          </span>
+        </div>
+
+        <h1 class="detail-title">
+          {localized.title || slug}
+        </h1>
+
+        {
+          localized.desc && (
+            <p class="detail-description">
+              {localized.desc}
+            </p>
+          )
+        }
+
+      </header>
+
+      <!-- =================================================
+           Independent photo
+      ================================================== -->
+
+      {
+        data.type === 'photo' && standaloneUrl && (
+          <div
+            class="detail-visual detail-visual--photo"
+            transition:name={`gallery-item-${entry.id}`}
+          >
+            <img
+              src={standaloneUrl}
+              alt={localized.title || slug}
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+        )
+      }
+
+      <!-- =================================================
+           Independent video
+      ================================================== -->
+
+      {
+        data.type === 'video' && standaloneUrl && (
+          <div
+            class="detail-visual detail-visual--video"
+            transition:name={`gallery-item-${entry.id}`}
+          >
+            <video
+              src={standaloneUrl}
+              poster={standalonePoster}
+              controls
+              playsinline
+              preload="metadata"
+            >
+              Your browser does not support HTML video.
+            </video>
+          </div>
+        )
+      }
+
+      <!-- =================================================
+           Portfolio
+      ================================================== -->
+
+      {
+        data.type === 'portfolio' && (
+          <section
+            class="portfolio-content"
+            aria-label={copy.contents}
+          >
+
+            <div class="portfolio-grid">
+
+              {
+                portfolioItems.map((item, index) => (
+                  <article class="portfolio-media">
+
+                    <div
+                      class="portfolio-media__visual"
+                      transition:name={
+                        index === 0
+                          ? `gallery-item-${entry.id}`
+                          : undefined
+                      }
+                    >
+
+                      {
+                        item.type === 'photo' ? (
+                          <img
+                            src={item.src}
+                            alt={item.title}
+                            loading={index === 0 ? 'eager' : 'lazy'}
+                            decoding="async"
+                            fetchpriority={
+                              index === 0 ? 'high' : undefined
+                            }
+                          />
+                        ) : (
+                          <video
+                            src={item.src}
+                            poster={item.poster}
+                            controls
+                            playsinline
+                            preload="metadata"
+                          >
+                            Your browser does not support HTML video.
+                          </video>
+                        )
+                      }
+
+                    </div>
+
+                    {
+                      (
+                        item.title !== item.id ||
+                        item.desc ||
+                        item.location
+                      ) && (
+                        <div class="portfolio-media__caption">
+
+                          {
+                            item.title !== item.id && (
+                              <h3>{item.title}</h3>
+                            )
+                          }
+
+                          {
+                            item.location && (
+                              <span>{item.location}</span>
+                            )
+                          }
+
+                          {
+                            item.desc && (
+                              <p>{item.desc}</p>
+                            )
+                          }
+
+                        </div>
+                      )
+                    }
+
+                  </article>
+                ))
+              }
+
+            </div>
+          </section>
+        )
+      }
+
+      <!-- =================================================
+           Metadata
+      ================================================== -->
+
+      <section class="detail-information">
+
+        {
+          localized.text && (
+            <div class="detail-about">
+              <h2>{copy.about}</h2>
+
+              <p>{localized.text}</p>
+            </div>
+          )
+        }
+
+        <aside class="detail-metadata">
+          <h2>{copy.details}</h2>
+
+          <dl>
+
+            {
+              (formattedDate || data.date) && (
+                <div class="metadata-row">
+                  <dt>{copy.date}</dt>
+                  <dd>{formattedDate}</dd>
+                </div>
+              )
+            }
+
+            {
+              localized.location && (
+                <div class="metadata-row">
+                  <dt>{copy.location}</dt>
+                  <dd>{localized.location}</dd>
+                </div>
+              )
+            }
+
+            <div class="metadata-row">
+              <dt>{copy.category}</dt>
+              <dd>{categoryLabel}</dd>
+            </div>
+
+            {
+              data.by && (
+                <div class="metadata-row">
+                  <dt>{copy.creator}</dt>
+                  <dd>{data.by}</dd>
+                </div>
+              )
+            }
+
+          </dl>
+        </aside>
+
+      </section>
+
+      <!-- =================================================
+           Related works
+      ================================================== -->
+
+      {
+        relatedItems.length > 0 && (
+          <section class="related-section">
+
+            <h2 class="related-title">
+              {copy.related}
+            </h2>
+
+            <div class="related-grid">
+
+              {
+                relatedItems.map((item) => (
+                  <a
+                    class="related-card"
+                    href={withBase(
+                      `/${lang}/gallery/${item.id}`,
+                    )}
+                    transition:name={`gallery-related-${item.id}`}
+                  >
+                    <div
+                      class="related-card__media"
+                      transition:name={`gallery-item-${item.id}`}
+                    >
+
+                      {
+                        item.type === 'video' ? (
+                          <video
+                            src={item.src}
+                            poster={item.poster}
+                            muted
+                            playsinline
+                            preload="metadata"
+                            aria-label={item.title}
+                          />
+                        ) : (
+                          <img
+                            src={item.src}
+                            alt={item.title}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )
+                      }
+
+                    </div>
+
+                    <span>{item.title}</span>
+                  </a>
+                ))
+              }
+
+            </div>
+          </section>
+        )
+      }
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  /* ===================================================
+     Main layout
+  =================================================== */
+
+  .gallery-detail {
+    min-height: 75vh;
+
+    padding:
+      calc(var(--header-h) + 1.5rem)
+      var(--gutter)
+      5rem;
+  }
+
+  .gallery-detail__inner {
+    width: 100%;
+    max-width: 1320px;
+    margin-inline: auto;
+  }
+
+  /* ===================================================
+     Breadcrumb
+  =================================================== */
+
+  .detail-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+
+    margin-bottom: 2.5rem;
+
+    color: var(--text-faint);
+    font-size: 0.82rem;
+  }
+
+  .detail-breadcrumb a {
+    color: var(--text-soft);
+    transition: color var(--transition-fast);
+  }
+
+  .detail-breadcrumb a:hover {
+    color: var(--accent);
+  }
+
+  .detail-breadcrumb span:last-child {
+    color: var(--text-faint);
+  }
+
+  /* ===================================================
+     Header
+  =================================================== */
+
+  .detail-header {
+    max-width: 850px;
+    margin-bottom: 2.25rem;
+  }
+
+  .detail-eyebrow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+
+    margin-bottom: 0.9rem;
+
+    color: var(--text-soft);
+    font-size: 0.82rem;
+    letter-spacing: 0.035em;
+  }
+
+  .detail-type {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .detail-separator {
+    color: var(--text-faint);
+  }
+
+  .detail-category {
+    color: var(--text-soft);
+  }
+
+  .detail-title {
+    margin: 0;
+
+    color: var(--text);
+
+    font-family: var(--font-sans);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 550;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+  }
+
+  .detail-description {
+    max-width: 720px;
+
+    margin: 1rem 0 0;
+
+    color: var(--text-soft);
+
+    font-size: 1rem;
+    line-height: 1.85;
+    white-space: pre-line;
+  }
+
+  /* ===================================================
+     Main media
+  =================================================== */
+
+  .detail-visual {
+    width: 100%;
+
+    margin: 0 auto 3rem;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+    background: var(--surface-2);
+  }
+
+  .detail-visual--photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 180px;
+    max-height: 82vh;
+  }
+
+  .detail-visual--photo img {
+    display: block;
+
+    width: 100%;
+    max-height: 82vh;
+
+    object-fit: contain;
+  }
+
+  .detail-visual--video video {
+    display: block;
+
+    width: 100%;
+    max-height: 82vh;
+
+    background: #000;
+    object-fit: contain;
+  }
+
+  /* ===================================================
+     Portfolio
+  =================================================== */
+
+  .portfolio-content {
+    margin-bottom: 3rem;
+  }
+
+  .portfolio-grid {
+    columns: 1;
+    column-gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .portfolio-media {
+    display: inline-block;
+
+    width: 100%;
+
+    margin-bottom: clamp(1.2rem, 2.5vw, 2rem);
+
+    break-inside: avoid;
+    vertical-align: top;
+  }
+
+  .portfolio-media__visual {
+    width: 100%;
+
+    overflow: hidden;
+
+    border-radius: 9px;
+    background: var(--surface-2);
+  }
+
+  .portfolio-media__visual img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    object-fit: cover;
+  }
+
+  .portfolio-media__visual video {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    background: #000;
+  }
+
+  .portfolio-media__caption {
+    padding: 0.8rem 0.2rem 0.3rem;
+  }
+
+  .portfolio-media__caption h3 {
+    margin: 0;
+
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .portfolio-media__caption > span {
+    display: block;
+
+    margin-top: 0.25rem;
+
+    color: var(--text-faint);
+    font-size: 0.78rem;
+  }
+
+  .portfolio-media__caption p {
+    margin: 0.45rem 0 0;
+
+    color: var(--text-soft);
+    font-size: 0.86rem;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  /* ===================================================
+     Information
+  =================================================== */
+
+  .detail-information {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(240px, 0.8fr);
+
+    gap: clamp(2rem, 6vw, 6rem);
+
+    margin-top: 3rem;
+    padding-top: 2rem;
+
+    border-top: 1px solid var(--border);
+  }
+
+  .detail-information h2 {
+    margin: 0 0 1.15rem;
+
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+  }
+
+  .detail-about p {
+    margin: 0;
+
+    color: var(--text-soft);
+    font-size: 0.94rem;
+    line-height: 1.95;
+    white-space: pre-line;
+  }
+
+  .detail-metadata dl {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    margin: 0;
+  }
+
+  .metadata-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 1rem;
+
+    padding: 0.7rem 0;
+
+    border-bottom: 1px solid var(--border);
+  }
+
+  .metadata-row dt {
+    flex: none;
+
+    color: var(--text-faint);
+    font-size: 0.82rem;
+  }
+
+  .metadata-row dd {
+    margin: 0;
+
+    color: var(--text);
+    font-size: 0.84rem;
+    text-align: right;
+  }
+
+  /* ===================================================
+     Related works
+  =================================================== */
+
+  .related-section {
+    margin-top: 5rem;
+  }
+
+  .related-title {
+    margin: 0 0 1.5rem;
+
+    color: var(--text);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 1.2rem;
+  }
+
+  .related-card {
+    min-width: 0;
+    color: var(--text);
+  }
+
+  .related-card:hover {
+    color: var(--text);
+  }
+
+  .related-card__media {
+    overflow: hidden;
+
+    margin-bottom: 0.65rem;
+
+    border-radius: 8px;
+    background: var(--surface-2);
+  }
+
+  .related-card__media img,
+  .related-card__media video {
+    display: block;
+
+    width: 100%;
+    aspect-ratio: 4 / 3;
+
+    object-fit: cover;
+
+    transition: transform 350ms ease;
+  }
+
+  .related-card:hover .related-card__media img,
+  .related-card:hover .related-card__media video {
+    transform: scale(1.035);
+  }
+
+  .related-card > span {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--text-soft);
+    font-size: 0.84rem;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    transition: color var(--transition-fast);
+  }
+
+  .related-card:hover > span {
+    color: var(--accent);
+  }
+
+  /* ===================================================
+     Responsive
+  =================================================== */
+
+  @media (min-width: 650px) {
+    .portfolio-grid {
+      columns: 2;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .detail-information {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .related-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .related-section {
+      margin-top: 3.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .gallery-detail {
+      padding-top: calc(var(--header-h) + 1rem);
+      padding-bottom: 3rem;
+    }
+
+    .detail-breadcrumb {
+      margin-bottom: 1.8rem;
+    }
+
+    .detail-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-visual {
+      margin-bottom: 2rem;
+      border-radius: 7px;
+    }
+
+    .portfolio-media__visual {
+      border-radius: 7px;
+    }
+
+    .related-grid {
+      gap: 0.85rem;
+    }
+  }
+
+  /* ===================================================
+     Reduced motion
+  =================================================== */
+
+  @media (prefers-reduced-motion: reduce) {
+    .related-card__media img,
+    .related-card__media video {
+      transition: none;
+    }
+  }
+</style>

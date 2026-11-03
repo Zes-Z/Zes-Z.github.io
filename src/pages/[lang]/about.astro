@@ -1,5 +1,5 @@
 ---
-import SelfLayout from '../../layouts/SelfLayout.astro';
+import AboutLayout from '../../layouts/AboutLayout.astro';
 import { siteConfig } from '../../site.config';
 import { withBase, IMAGE_FALLBACK } from '../../utils/paths';
 import type { Language } from '../../types';
@@ -15,7 +15,7 @@ const { lang } = Astro.params as {
 };
 ---
 
-<SelfLayout
+<AboutLayout
   lang={lang}
   title="About Zes"
   description="About Zes — Zes 的个人空间"
@@ -352,4 +352,4 @@ const { lang } = Astro.params as {
 
   </footer>
 
-</SelfLayout>
+</AboutLayout>

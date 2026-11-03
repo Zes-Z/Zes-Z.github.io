@@ -1,0 +1,846 @@
+
+---
+import { getCollection } from 'astro:content';
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+import { siteConfig } from '../../site.config';
+import type { Language } from '../../types';
+
+import {
+  resolveGalleryLocale,
+  type GalleryLanguage,
+  type GalleryLocalizedData,
+} from '../../utils/gallery-locale';
+
+import { getGalleryAssetUrl } from '../../utils/gallery-assets';
+import { withBase } from '../../utils/paths';
+
+// =====================================================
+// 1. Static paths
+// =====================================================
+
+export async function getStaticPaths() {
+  return siteConfig.langs.map((lang) => ({
+    params: { lang },
+  }));
+}
+
+const lang = Astro.params.lang as Language;
+
+// Normalize the project's language code.
+
+const localeKey: GalleryLanguage = lang;
+
+const fallbackOrder: GalleryLanguage[] = [
+  ...siteConfig.langs,
+];
+
+// =====================================================
+// 2. Page translations
+// =====================================================
+
+const messages = {
+  en: {
+    title: 'Gallery',
+    description: 'A collection of photographs, videos and portfolios.',
+    all: 'All',
+    emptyTitle: 'Nothing here yet',
+    emptyDescription: 'Gallery content will appear here once media has been added.',
+    portfolio: 'Portfolio',
+    video: 'Video',
+    mediaCount: (count: number) => `${count} media items`,
+  },
+
+  zh: {
+    title: '画廊',
+    description: '照片、视频与摄影作品集。',
+    all: '全部',
+    emptyTitle: '画廊暂时还是空的',
+    emptyDescription: '添加照片、视频或作品集后，它们就会在这里展示。',
+    portfolio: '作品集',
+    video: '视频',
+    mediaCount: (count: number) => `${count} 项媒体`,
+  },
+
+  ja: {
+    title: 'ギャラリー',
+    description: '写真・動画・ポートフォリオのコレクション。',
+    all: 'すべて',
+    emptyTitle: 'まだコンテンツがありません',
+    emptyDescription: '写真や動画、ポートフォリオを追加すると、ここに表示されます。',
+    portfolio: 'ポートフォリオ',
+    video: '動画',
+    mediaCount: (count: number) => `${count} 件のメディア`,
+  },
+} as const;
+
+const copy = messages[localeKey];
+
+// =====================================================
+// 3. Category translations
+//
+// category IDs remain language-independent.
+// These are only presentation labels.
+// =====================================================
+
+const categoryLabels: Record<
+  GalleryLanguage,
+  Record<string, string>
+> = {
+  en: {
+    architecture: 'Architecture',
+    art: 'Art',
+    automotive: 'Automotive',
+    fashion: 'Fashion',
+    food: 'Food',
+    furniture: 'Furniture',
+    interior: 'Interior',
+    landscape: 'Landscape',
+    nature: 'Nature',
+    portrait: 'Portrait',
+    space: 'Space',
+    street: 'Street',
+    technology: 'Technology',
+    travel: 'Travel',
+    urban: 'Urban',
+    wildlife: 'Wildlife',
+  },
+
+  zh: {
+    architecture: '建筑',
+    art: '艺术',
+    automotive: '汽车',
+    fashion: '时尚',
+    food: '美食',
+    furniture: '家具',
+    interior: '室内',
+    landscape: '风景',
+    nature: '自然',
+    portrait: '人像',
+    space: '宇宙',
+    street: '街头',
+    technology: '科技',
+    travel: '旅行',
+    urban: '城市',
+    wildlife: '野生动物',
+  },
+
+  ja: {
+    architecture: '建築',
+    art: 'アート',
+    automotive: '自動車',
+    fashion: 'ファッション',
+    food: '料理',
+    furniture: '家具',
+    interior: 'インテリア',
+    landscape: '風景',
+    nature: '自然',
+    portrait: 'ポートレート',
+    space: '宇宙',
+    street: 'ストリート',
+    technology: 'テクノロジー',
+    travel: '旅行',
+    urban: '都市',
+    wildlife: '野生動物',
+  },
+};
+
+function getCategoryLabel(category: string) {
+  return (
+    categoryLabels[localeKey][category] ??
+    category
+      .replaceAll('-', ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+  );
+}
+
+// =====================================================
+// 4. Load Gallery collection
+// =====================================================
+
+const collection = await getCollection('gallery');
+
+const galleryItems = collection
+  .map((entry) => {
+    const { id, data } = entry;
+
+    // Resolve localized metadata independently per field.
+
+    const localized = resolveGalleryLocale(
+      data as unknown as GalleryLocalizedData,
+      localeKey,
+      fallbackOrder,
+    );
+
+    const isPortfolio = data.type === 'portfolio';
+
+    // A portfolio uses its first photograph as the cover.
+
+    const media = isPortfolio
+      ? data.cover
+      : data;
+
+    const isVideo = media.type === 'video';
+
+    // Use a poster for videos when available.
+    // Otherwise, render the video itself as the preview.
+
+    const previewUrl =
+      media.type === 'photo'
+        ? getGalleryAssetUrl(media.assetPath)
+        : media.posterAssetPath
+          ? getGalleryAssetUrl(media.posterAssetPath)
+          : undefined;
+
+    const videoUrl = isVideo
+      ? getGalleryAssetUrl(media.assetPath)
+      : undefined;
+
+    return {
+      id,
+      type: data.type,
+
+      title: localized.title || id,
+      description: localized.desc,
+      category: data.category,
+      categoryLabel: getCategoryLabel(data.category),
+
+      date: data.date ?? '',
+
+      previewUrl,
+      videoUrl,
+
+      mediaCount: isPortfolio
+        ? data.items.length
+        : 0,
+    };
+  })
+  .sort((a, b) => {
+    // Newest content first.
+    // Items without dates appear after dated items.
+
+    return b.date.localeCompare(a.date);
+  });
+
+// =====================================================
+// 5. Available categories
+// =====================================================
+
+const categories = [
+  ...new Set(
+    galleryItems.map((item) => item.category),
+  ),
+].sort((a, b) =>
+  getCategoryLabel(a).localeCompare(
+    getCategoryLabel(b),
+    localeKey,
+  ),
+);
+
+---
+
+<BaseLayout
+  lang={lang}
+  title={copy.title}
+  description={copy.description}
+  fullWidth={true}
+>
+  <div class="gallery-page" data-gallery-root>
+    <div class="gallery-inner">
+
+      <!-- Category filters -->
+
+      <nav
+        class="gallery-filters"
+        aria-label="Gallery categories"
+      >
+        <button
+          type="button"
+          class="gallery-filter is-active"
+          data-gallery-filter="all"
+          aria-pressed="true"
+        >
+          {copy.all}
+        </button>
+
+        {
+          categories.map((category) => (
+            <button
+              type="button"
+              class="gallery-filter"
+              data-gallery-filter={category}
+              aria-pressed="false"
+            >
+              {getCategoryLabel(category)}
+            </button>
+          ))
+        }
+      </nav>
+
+      <!-- Gallery masonry -->
+
+      {
+        galleryItems.length > 0 ? (
+          <div class="gallery-masonry">
+
+            {
+              galleryItems.map((item, index) => (
+                <article
+                  class="gallery-card"
+                  data-gallery-card
+                  data-category={item.category}
+                >
+                  <a
+  class="gallery-card__link"
+  href={withBase(`/${lang}/gallery/${item.id}`)}
+  aria-label={item.title}
+>
+  <div
+    class="gallery-card__media"
+    transition:name={`gallery-item-${item.id}`}
+  >
+
+                      {
+                        item.previewUrl ? (
+                          <img
+                            src={item.previewUrl}
+                            alt={item.title}
+                            loading={index < 6 ? 'eager' : 'lazy'}
+                            fetchpriority={
+                              index < 2 ? 'high' : undefined
+                            }
+                            decoding="async"
+                          />
+                        ) : item.videoUrl ? (
+                          <video
+                            src={item.videoUrl}
+                            muted
+                            playsinline
+                            preload="metadata"
+                            aria-label={item.title}
+                          />
+                        ) : null
+                      }
+
+                      <!-- Video indicator -->
+
+                      {
+                        item.type === 'video' && (
+                          <span
+                            class="gallery-card__play"
+                            aria-hidden="true"
+                          >
+                            ▶
+                          </span>
+                        )
+                      }
+
+                      <!-- Portfolio indicator -->
+
+                      {
+                        item.type === 'portfolio' && (
+                          <span class="gallery-card__badge">
+                            <span class="gallery-card__badge-icon">
+                              ▧
+                            </span>
+                            {copy.portfolio}
+                            <span class="gallery-card__count">
+                              {item.mediaCount}
+                            </span>
+                          </span>
+                        )
+                      }
+
+                      <!-- Always-visible information -->
+
+                      <div class="gallery-card__caption">
+                        <h2>{item.title}</h2>
+
+                        <p>
+                          {
+                            item.type === 'portfolio'
+                              ? `${copy.portfolio} · ${item.categoryLabel}`
+                              : item.type === 'video'
+                                ? `${copy.video} · ${item.categoryLabel}`
+                                : item.categoryLabel
+                          }
+                        </p>
+                      </div>
+
+                    </div>
+                  </a>
+                </article>
+              ))
+            }
+
+          </div>
+        ) : (
+          <div class="gallery-empty">
+            <div class="gallery-empty__icon" aria-hidden="true">
+              ◇
+            </div>
+
+            <h2>{copy.emptyTitle}</h2>
+
+            <p>{copy.emptyDescription}</p>
+          </div>
+        )
+      }
+
+    </div>
+  </div>
+</BaseLayout>
+
+<!-- ===================================================
+     6. Client-side category filtering
+=================================================== -->
+
+<script>
+  function initGalleryFilters() {
+    const root = document.querySelector<HTMLElement>(
+      '[data-gallery-root]',
+    );
+
+    if (!root || root.dataset.filtersReady === 'true') {
+      return;
+    }
+
+    root.dataset.filtersReady = 'true';
+
+    root.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+
+      const button = target.closest<HTMLButtonElement>(
+        '[data-gallery-filter]',
+      );
+
+      if (!button || !root.contains(button)) {
+        return;
+      }
+
+      const selected = button.dataset.galleryFilter ?? 'all';
+
+      // Update active filter appearance and accessibility state.
+
+      root
+        .querySelectorAll<HTMLButtonElement>(
+          '[data-gallery-filter]',
+        )
+        .forEach((filter) => {
+          const active =
+            filter.dataset.galleryFilter === selected;
+
+          filter.classList.toggle(
+            'is-active',
+            active,
+          );
+
+          filter.setAttribute(
+            'aria-pressed',
+            String(active),
+          );
+        });
+
+      // Filter cards.
+
+      root
+        .querySelectorAll<HTMLElement>(
+          '[data-gallery-card]',
+        )
+        .forEach((card) => {
+          const category = card.dataset.category;
+
+          const visible =
+            selected === 'all' ||
+            category === selected;
+
+          card.hidden = !visible;
+        });
+    });
+  }
+
+  initGalleryFilters();
+
+  // Reinitialize after Astro page navigation.
+
+  document.addEventListener(
+    'astro:page-load',
+    initGalleryFilters,
+  );
+</script>
+
+<style>
+  /* ===================================================
+     Gallery page
+  =================================================== */
+
+  .gallery-page {
+    min-height: 75vh;
+
+    /*
+     * fullWidth removes BaseLayout's normal
+     * main padding. Restore the header offset here.
+     */
+
+    padding:
+      calc(var(--header-h) + clamp(2rem, 4vw, 3.5rem))
+      var(--gutter)
+      5rem;
+  }
+
+  .gallery-inner {
+    width: 100%;
+    max-width: 1600px;
+    margin-inline: auto;
+  }
+
+
+  /* ===================================================
+     Category filters
+  =================================================== */
+
+  .gallery-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 0.55rem;
+
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .gallery-filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0.38rem 0.95rem;
+
+    border: 1px solid var(--border);
+    border-radius: 999px;
+
+    background: transparent;
+    color: var(--text-soft);
+
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 400;
+    letter-spacing: 0.015em;
+
+    cursor: pointer;
+
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+
+  .gallery-filter:hover {
+    color: var(--text);
+    border-color: var(--text-faint);
+  }
+
+  .gallery-filter.is-active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  /* ===================================================
+     Masonry layout
+  =================================================== */
+
+  .gallery-masonry {
+    columns: 1;
+    column-gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .gallery-card {
+    display: inline-block;
+    width: 100%;
+
+    margin: 0 0 clamp(1rem, 2vw, 1.5rem);
+
+    break-inside: avoid;
+    vertical-align: top;
+  }
+
+  .gallery-card[hidden] {
+    display: none !important;
+  }
+
+  /* ===================================================
+     Card
+  =================================================== */
+
+  .gallery-card__link {
+    position: relative;
+    display: block;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    color: inherit;
+    background: var(--surface);
+
+    text-decoration: none;
+
+    transform: translateY(0);
+
+    transition:
+      transform 280ms ease,
+      background-color var(--transition);
+  }
+
+  .gallery-card__link:hover {
+    color: inherit;
+    transform: translateY(-3px);
+  }
+
+  .gallery-card__media {
+    position: relative;
+    overflow: hidden;
+
+    width: 100%;
+    line-height: 0;
+  }
+
+  .gallery-card__media img,
+  .gallery-card__media video {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    object-fit: cover;
+
+    transition:
+      transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .gallery-card__link:hover
+  .gallery-card__media img,
+  .gallery-card__link:hover
+  .gallery-card__media video {
+    transform: scale(1.025);
+  }
+
+  /* ===================================================
+     Caption overlay
+  =================================================== */
+
+  .gallery-card__caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+
+    padding: 2.8rem 1rem 0.9rem;
+
+    color: #fff;
+
+    background: linear-gradient(
+      to top,
+      rgba(8, 10, 14, 0.76) 0%,
+      rgba(8, 10, 14, 0.23) 55%,
+      transparent 100%
+    );
+
+    transition: background var(--transition);
+  }
+
+  .gallery-card__link:hover
+  .gallery-card__caption {
+    background: linear-gradient(
+      to top,
+      rgba(8, 10, 14, 0.88) 0%,
+      rgba(8, 10, 14, 0.34) 65%,
+      transparent 100%
+    );
+  }
+
+  .gallery-card__caption h2 {
+    margin: 0;
+
+    color: #fff;
+
+    font-size: 0.94rem;
+    font-weight: 550;
+    line-height: 1.4;
+    letter-spacing: 0.005em;
+  }
+
+  .gallery-card__caption p {
+    margin: 0.25rem 0 0;
+
+    color: rgba(255, 255, 255, 0.82);
+
+    font-size: 0.76rem;
+    font-weight: 350;
+    line-height: 1.45;
+    letter-spacing: 0.025em;
+  }
+
+  /* ===================================================
+     Media type indicators
+  =================================================== */
+
+  .gallery-card__badge {
+    position: absolute;
+    top: 0.8rem;
+    left: 0.8rem;
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    padding: 0.4rem 0.65rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+
+    color: #fff;
+    background: rgba(10, 12, 16, 0.48);
+
+    backdrop-filter: blur(10px);
+
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
+  .gallery-card__badge-icon {
+    font-size: 0.9rem;
+  }
+
+  .gallery-card__count {
+    padding-left: 0.4rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.35);
+    opacity: 0.85;
+  }
+
+  .gallery-card__play {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    z-index: 2;
+
+    display: grid;
+    place-items: center;
+
+    width: 34px;
+    height: 34px;
+
+    padding-left: 2px;
+
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+
+    color: #fff;
+    background: rgba(10, 12, 16, 0.48);
+
+    backdrop-filter: blur(10px);
+
+    font-size: 0.75rem;
+  }
+
+  /* ===================================================
+     Empty state
+  =================================================== */
+
+  .gallery-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 320px;
+
+    padding: 3rem 1.5rem;
+
+    text-align: center;
+  }
+
+  .gallery-empty__icon {
+    margin-bottom: 1rem;
+
+    color: var(--text-faint);
+
+    font-size: 2.6rem;
+    line-height: 1;
+  }
+
+  .gallery-empty h2 {
+    margin: 0;
+
+    color: var(--text);
+    font-size: 1.15rem;
+    font-weight: 550;
+  }
+
+  .gallery-empty p {
+    max-width: 30rem;
+
+    margin: 0.7rem 0 0;
+
+    color: var(--text-soft);
+
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  /* ===================================================
+     Responsive columns
+  =================================================== */
+
+  @media (min-width: 600px) {
+    .gallery-masonry {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 850px) {
+    .gallery-masonry {
+      columns: 3;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .gallery-masonry {
+      columns: 4;
+    }
+  }
+
+  @media (min-width: 1600px) {
+    .gallery-masonry {
+      columns: 4;
+      column-gap: 1.65rem;
+    }
+  }
+
+  /* ===================================================
+     Reduced motion
+  =================================================== */
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-card__link,
+    .gallery-card__media img,
+    .gallery-card__media video,
+    .gallery-card__caption,
+    .gallery-filter {
+      transition: none;
+    }
+
+    .gallery-card__link:hover {
+      transform: none;
+    }
+
+    .gallery-card__link:hover
+    .gallery-card__media img,
+    .gallery-card__link:hover
+    .gallery-card__media video {
+      transform: none;
+    }
+  }
+</style>

@@ -1,4 +1,4 @@
-import friendsData from './content/data/friends.json';
+import friendsData from './content/friends.json';
 import type { Language, LocalizedText, FriendGroup } from './types';
 
 /**
