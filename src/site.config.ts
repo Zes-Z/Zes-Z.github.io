@@ -120,16 +120,17 @@ welcome: [
       href: (lang: Language) => `/${lang}/archive`,
       external: false,
       icon: 'database',
-    },  
+    }, 
+    // “相册”暂未重构 
     {
       label: {
-        eng: 'Gallery',
-        cn: '画廊',
-        jap: '写真',
+        eng: 'Album',
+        cn: '相册',
+        jap: '写真集',
       },
-      href: (lang: Language) => `/${lang}/gallery`,
-      external: false,
-      icon: 'gallery',
+      // href:"https://example.com/album",
+      external: true,
+      icon: 'album',
     },
     
 
