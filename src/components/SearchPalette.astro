@@ -65,234 +65,278 @@ const indexUrl = withBase(`/${lang}/search-index.json`);
     body: string;
   }
 
-  const dialog = document.querySelector<HTMLDialogElement>('[data-search-palette]');
-  if (!dialog) throw new Error('search palette missing');
+  let items: Item[] = [];
+  let loadedUrl = '';
 
-  const indexUrl = dialog.dataset.indexUrl ?? '';
-  const input = dialog.querySelector<HTMLInputElement>('[data-search-input]');
-  const results = dialog.querySelector<HTMLElement>('[data-search-results]');
-  const status = dialog.querySelector<HTMLElement>('[data-search-status]');
-  const regexToggle = dialog.querySelector<HTMLButtonElement>('[data-regex-toggle]');
-  const closeBtn = dialog.querySelector<HTMLButtonElement>('[data-search-close]');
-  const i18n = {
-    noResults: dialog.dataset.i18nNoResults ?? 'No matching posts.',
-    count: dialog.dataset.i18nCount ?? 'results',
-    invalid: dialog.dataset.i18nInvalid ?? 'Invalid regular expression',
+  type Ctx = {
+    dialog: HTMLDialogElement;
+    input: HTMLInputElement | null;
+    results: HTMLElement | null;
+    status: HTMLElement | null;
+    regexToggle: HTMLButtonElement | null;
+    i18n: { noResults: string; count: string; invalid: string };
+    indexUrl: string;
+    activeIndex: number;
+    rendered: Item[];
+    regexMode: boolean;
+    open: () => void;
+    close: () => void;
+    syncActive: () => void;
   };
 
-  let items: Item[] = [];
-  let loaded = false;
-  let activeIndex = 0;
-  let rendered: Item[] = [];
-  let regexMode = false;
-
-  async function loadIndex(): Promise<void> {
-    if (loaded) return;
-    try {
-      const response = await fetch(indexUrl);
-      const data = (await response.json()) as Item[];
-      items = Array.isArray(data) ? data : [];
-      loaded = true;
-    } catch {
-      items = [];
-      loaded = true;
-    }
-  }
+  let ctx: Ctx | null = null;
 
   function escapeHtml(value: string): string {
     return value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
   }
 
-  function makeMatcher(query: string): { test: (text: string) => boolean; error: string | null } {
-    if (!query) return { test: () => false, error: null };
-    if (regexMode) {
-      try {
-        const re = new RegExp(query, 'gi');
-        return { test: (text) => { re.lastIndex = 0; return re.test(text); }, error: null };
-      } catch (e) {
-        return { test: () => false, error: e instanceof Error ? e.message : String(e) };
-      }
-    }
-    const needle = query.toLocaleLowerCase();
-    return { test: (text) => text.toLocaleLowerCase().includes(needle), error: null };
-  }
+  function init() {
+    const dialog = document.querySelector<HTMLDialogElement>('[data-search-palette]');
+    if (!dialog) return;
 
-  /** Build a highlighted snippet around the first match of a haystack. */
-  function highlightSnippet(haystack: string, query: string): string {
-    const plain = haystack.replace(/\s+/g, ' ').trim();
-    if (!plain) return '';
+    const indexUrl = dialog.dataset.indexUrl ?? '';
+    const input = dialog.querySelector<HTMLInputElement>('[data-search-input]');
+    const results = dialog.querySelector<HTMLElement>('[data-search-results]');
+    const status = dialog.querySelector<HTMLElement>('[data-search-status]');
+    const regexToggle = dialog.querySelector<HTMLButtonElement>('[data-regex-toggle]');
+    const closeBtn = dialog.querySelector<HTMLButtonElement>('[data-search-close]');
+    const i18n = {
+      noResults: dialog.dataset.i18nNoResults ?? 'No matching posts.',
+      count: dialog.dataset.i18nCount ?? 'results',
+      invalid: dialog.dataset.i18nInvalid ?? 'Invalid regular expression',
+    };
 
-    let matchIndex = -1;
-    let matchLength = 0;
-    if (regexMode) {
+    const state = {
+      activeIndex: 0,
+      rendered: [] as Item[],
+      regexMode: false,
+    };
+
+    async function loadIndex(): Promise<void> {
+      if (loadedUrl === indexUrl) return;
       try {
-        const re = new RegExp(query, 'i');
-        const m = re.exec(plain);
-        if (m) {
-          matchIndex = m.index;
-          matchLength = m[0].length;
-        }
+        const response = await fetch(indexUrl);
+        const data = (await response.json()) as Item[];
+        items = Array.isArray(data) ? data : [];
+        loadedUrl = indexUrl;
       } catch {
-        /* handled by makeMatcher */
+        items = [];
+        loadedUrl = indexUrl;
       }
-    } else if (query) {
-      matchIndex = plain.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
-      matchLength = query.length;
-    }
-    if (matchIndex === -1) return escapeHtml(plain.slice(0, 140));
-
-    const start = Math.max(0, matchIndex - 48);
-    const end = Math.min(plain.length, matchIndex + matchLength + 84);
-    const prefix = start > 0 ? '…' : '';
-    const suffix = end < plain.length ? '…' : '';
-    const before = escapeHtml(plain.slice(start, matchIndex));
-    const hit = escapeHtml(plain.slice(matchIndex, matchIndex + matchLength));
-    const after = escapeHtml(plain.slice(matchIndex + matchLength, end));
-    return `${prefix}${before}<mark class="search-hit">${hit}</mark>${after}${suffix}`;
-  }
-
-  function render(): void {
-    const query = input?.value.trim() ?? '';
-    if (!query) {
-      status!.hidden = true;
-      results!.innerHTML = '';
-      rendered = [];
-      return;
     }
 
-    const matcher = makeMatcher(query);
-    status!.hidden = !matcher.error;
-    if (matcher.error) {
-      status!.textContent = `${i18n.invalid}: ${matcher.error}`;
-      results!.innerHTML = '';
-      rendered = [];
-      return;
+    function makeMatcher(query: string): { test: (text: string) => boolean; error: string | null } {
+      if (!query) return { test: () => false, error: null };
+      if (state.regexMode) {
+        try {
+          const re = new RegExp(query, 'gi');
+          return { test: (text) => { re.lastIndex = 0; return re.test(text); }, error: null };
+        } catch (e) {
+          return { test: () => false, error: e instanceof Error ? e.message : String(e) };
+        }
+      }
+      const needle = query.toLocaleLowerCase();
+      return { test: (text) => text.toLocaleLowerCase().includes(needle), error: null };
     }
 
-    rendered = items.filter((item) => {
-      const haystack = [item.title, item.description, item.category, item.tags.join(' '), item.body].join('\n');
-      return matcher.test(haystack);
+    function highlightSnippet(haystack: string, query: string): string {
+      const plain = haystack.replace(/\s+/g, ' ').trim();
+      if (!plain) return '';
+
+      let matchIndex = -1;
+      let matchLength = 0;
+      if (state.regexMode) {
+        try {
+          const re = new RegExp(query, 'i');
+          const m = re.exec(plain);
+          if (m) {
+            matchIndex = m.index;
+            matchLength = m[0].length;
+          }
+        } catch {
+          /* handled by makeMatcher */
+        }
+      } else if (query) {
+        matchIndex = plain.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
+        matchLength = query.length;
+      }
+      if (matchIndex === -1) return escapeHtml(plain.slice(0, 140));
+
+      const start = Math.max(0, matchIndex - 48);
+      const end = Math.min(plain.length, matchIndex + matchLength + 84);
+      const prefix = start > 0 ? '…' : '';
+      const suffix = end < plain.length ? '…' : '';
+      const before = escapeHtml(plain.slice(start, matchIndex));
+      const hit = escapeHtml(plain.slice(matchIndex, matchIndex + matchLength));
+      const after = escapeHtml(plain.slice(matchIndex + matchLength, end));
+      return `${prefix}${before}<mark class="search-hit">${hit}</mark>${after}${suffix}`;
+    }
+
+    function syncActive(): void {
+      results?.querySelectorAll<HTMLElement>('[data-search-item]').forEach((item) => {
+        item.classList.toggle('is-active', Number(item.dataset.index) === state.activeIndex);
+      });
+      const active = results?.querySelector<HTMLElement>('[data-search-item].is-active');
+      active?.scrollIntoView({ block: 'nearest' });
+    }
+
+    function render(): void {
+      const query = input?.value.trim() ?? '';
+      if (!query) {
+        status!.hidden = true;
+        results!.innerHTML = '';
+        state.rendered = [];
+        return;
+      }
+
+      const matcher = makeMatcher(query);
+      status!.hidden = !matcher.error;
+      if (matcher.error) {
+        status!.textContent = `${i18n.invalid}: ${matcher.error}`;
+        results!.innerHTML = '';
+        state.rendered = [];
+        return;
+      }
+
+      state.rendered = items.filter((item) => {
+        const haystack = [item.title, item.description, item.category, item.tags.join(' '), item.body].join('\n');
+        return matcher.test(haystack);
+      });
+
+      state.activeIndex = Math.min(state.activeIndex, Math.max(state.rendered.length - 1, 0));
+
+      if (state.rendered.length === 0) {
+        results!.innerHTML = `<p class="search-empty">${escapeHtml(i18n.noResults)}</p>`;
+        return;
+      }
+
+      results!.innerHTML =
+        `<p class="search-count">${state.rendered.length} ${escapeHtml(i18n.count)}</p>` +
+        state.rendered
+          .map((item, index) => {
+            const snippet =
+              highlightSnippet(item.body, query) ||
+              highlightSnippet(item.description, query) ||
+              escapeHtml(item.category);
+            return `
+              <a class="search-item${index === state.activeIndex ? ' is-active' : ''}" href="${escapeHtml(item.href)}" data-search-item data-index="${index}">
+                <span class="search-item-title">${escapeHtml(item.title)}</span>
+                <span class="search-item-meta">
+                  <span class="chip chip--plain">${escapeHtml(item.category)}</span>
+                  ${item.tags.slice(0, 3).map((tag) => `<span class="chip chip--plain">${escapeHtml(tag)}</span>`).join('')}
+                  <time>${escapeHtml(item.date)}</time>
+                </span>
+                <span class="search-item-snippet">${snippet}</span>
+              </a>
+            `;
+          })
+          .join('');
+    }
+
+    function open(): void {
+      if (dialog!.open) {
+        input?.focus();
+        return;
+      }
+      dialog!.showModal();
+      input!.value = '';
+      state.activeIndex = 0;
+      state.regexMode = false;
+      regexToggle!.setAttribute('aria-pressed', 'false');
+      regexToggle!.classList.remove('is-active');
+      render();
+      void loadIndex();
+      requestAnimationFrame(() => input?.focus());
+    }
+
+    function close(): void {
+      if (dialog!.open) dialog!.close();
+    }
+
+    closeBtn?.addEventListener('click', close);
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      close();
+    });
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+    regexToggle?.addEventListener('click', () => {
+      state.regexMode = !state.regexMode;
+      regexToggle.setAttribute('aria-pressed', String(state.regexMode));
+      regexToggle.classList.toggle('is-active', state.regexMode);
+      render();
+    });
+    input?.addEventListener('input', () => {
+      state.activeIndex = 0;
+      void loadIndex().then(render);
+    });
+    results?.addEventListener('mouseover', (event) => {
+      const item = (event.target as HTMLElement).closest<HTMLElement>('[data-search-item]');
+      if (!item) return;
+      state.activeIndex = Number(item.dataset.index ?? 0);
+      syncActive();
     });
 
-    activeIndex = Math.min(activeIndex, Math.max(rendered.length - 1, 0));
-
-    if (rendered.length === 0) {
-      results!.innerHTML = `<p class="search-empty">${escapeHtml(i18n.noResults)}</p>`;
-      return;
-    }
-
-    results!.innerHTML =
-      `<p class="search-count">${rendered.length} ${escapeHtml(i18n.count)}</p>` +
-      rendered
-        .map((item, index) => {
-          const snippet =
-            highlightSnippet(item.body, query) ||
-            highlightSnippet(item.description, query) ||
-            escapeHtml(item.category);
-          return `
-            <a class="search-item${index === activeIndex ? ' is-active' : ''}" href="${escapeHtml(item.href)}" data-search-item data-index="${index}">
-              <span class="search-item-title">${escapeHtml(item.title)}</span>
-              <span class="search-item-meta">
-                <span class="chip chip--plain">${escapeHtml(item.category)}</span>
-                ${item.tags.slice(0, 3).map((tag) => `<span class="chip chip--plain">${escapeHtml(tag)}</span>`).join('')}
-                <time>${escapeHtml(item.date)}</time>
-              </span>
-              <span class="search-item-snippet">${snippet}</span>
-            </a>
-          `;
-        })
-        .join('');
+    ctx = {
+      dialog,
+      input,
+      results,
+      status,
+      regexToggle,
+      i18n,
+      indexUrl,
+      get activeIndex() { return state.activeIndex; },
+      set activeIndex(v) { state.activeIndex = v; },
+      get rendered() { return state.rendered; },
+      set rendered(v) { state.rendered = v; },
+      get regexMode() { return state.regexMode; },
+      set regexMode(v) { state.regexMode = v; },
+      open,
+      close,
+      syncActive,
+    };
   }
 
-  function open(): void {
-    if (dialog!.open) {
-      input?.focus();
-      return;
-    }
-    dialog!.showModal();
-    input!.value = '';
-    activeIndex = 0;
-    regexMode = false;
-    regexToggle!.setAttribute('aria-pressed', 'false');
-    regexToggle!.classList.remove('is-active');
-    render();
-    void loadIndex();
-    requestAnimationFrame(() => input?.focus());
-  }
-
-  function close(): void {
-    if (dialog!.open) dialog!.close();
-  }
-
-  document.querySelectorAll<HTMLElement>('[data-search-open]').forEach((button) => {
-    button.addEventListener('click', open);
+  // 打开按钮在 Header 里,每次导航都会重建;用 document 委托绑定一次。
+  document.addEventListener('click', (event) => {
+    const btn = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-search-open]');
+    if (btn) ctx?.open();
   });
 
-  closeBtn?.addEventListener('click', close);
-  dialog!.addEventListener('cancel', (event) => {
-    event.preventDefault();
-    close();
-  });
-  dialog!.addEventListener('click', (event) => {
-    if (event.target === dialog) close();
-  });
-
-  regexToggle?.addEventListener('click', () => {
-    regexMode = !regexMode;
-    regexToggle.setAttribute('aria-pressed', String(regexMode));
-    regexToggle.classList.toggle('is-active', regexMode);
-    render();
-  });
-
-  input?.addEventListener('input', () => {
-    activeIndex = 0;
-    void loadIndex().then(render);
-  });
-
+  // 键盘导航:委托在 document 上,通过 ctx 操作当前页面的弹窗。
   document.addEventListener('keydown', (event) => {
-    if (!dialog!.open) return;
+    if (!ctx || !ctx.dialog.open) return;
     const target = event.target;
     const isEditable =
       target instanceof HTMLElement &&
       (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
-    if (isEditable && target !== input) return;
+    if (isEditable && target !== ctx.input) return;
 
     if (event.key === 'Escape') {
-      close();
+      ctx.close();
       return;
     }
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      activeIndex = Math.min(activeIndex + 1, rendered.length - 1);
-      syncActive();
+      ctx.activeIndex = Math.min(ctx.activeIndex + 1, ctx.rendered.length - 1);
+      ctx.syncActive();
       return;
     }
     if (event.key === 'ArrowUp') {
       event.preventDefault();
-      activeIndex = Math.max(activeIndex - 1, 0);
-      syncActive();
+      ctx.activeIndex = Math.max(ctx.activeIndex - 1, 0);
+      ctx.syncActive();
       return;
     }
-    if (event.key === 'Enter' && rendered[activeIndex]) {
+    if (event.key === 'Enter' && ctx.rendered[ctx.activeIndex]) {
       event.preventDefault();
-      window.location.href = rendered[activeIndex]!.href;
+      window.location.href = ctx.rendered[ctx.activeIndex]!.href;
     }
   });
 
-  function syncActive(): void {
-    results?.querySelectorAll<HTMLElement>('[data-search-item]').forEach((item) => {
-      item.classList.toggle('is-active', Number(item.dataset.index) === activeIndex);
-    });
-    const active = results?.querySelector<HTMLElement>('[data-search-item].is-active');
-    active?.scrollIntoView({ block: 'nearest' });
-  }
-
-  results?.addEventListener('mouseover', (event) => {
-    const item = (event.target as HTMLElement).closest<HTMLElement>('[data-search-item]');
-    if (!item) return;
-    activeIndex = Number(item.dataset.index ?? 0);
-    syncActive();
-  });
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

@@ -1,17 +1,25 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GalleryWall from '../../../components/GalleryWall.astro';
 import { siteConfig } from '../../../site.config';
 import { t } from '../../../i18n';
 import type { Language } from '../../../types';
-import { portfolioPhotos } from '../../../utils/photos';
+import type { GalleryWallItem } from '../../../utils/photos';
+import {
+  photoHref,
+  photoViewTransitionName,
+  portfolioPhotos,
+} from '../../../utils/photos';
 import { withBase } from '../../../utils/paths';
 import { renderMarkdown } from '../../../utils/markdown';
 
 export async function getStaticPaths() {
   const paths: { params: { lang: string; slug: string } }[] = [];
   for (const lang of siteConfig.langs) {
-    const items = await getCollection('portfolios', (p) => p.id.startsWith(`${lang}/`));
+    const items = await getCollection('portfolios', (p) =>
+      p.id.startsWith(`${lang}/`)
+    );
     for (const item of items) {
       paths.push({ params: { lang, slug: item.id.slice(lang.length + 1) } });
     }
@@ -20,116 +28,132 @@ export async function getStaticPaths() {
 }
 
 const { lang, slug } = Astro.params as { lang: Language; slug: string };
-const item = (await getCollection('portfolios')).find((p) => p.id === `${lang}/${slug}`);
+const item = (await getCollection('portfolios')).find(
+  (p) => p.id === `${lang}/${slug}`
+);
 
 if (!item) {
-  return Astro.redirect(`/${lang}/photos`);
+  return Astro.redirect(withBase(`/${lang}/photos?tab=portfolio`));
 }
 
 const title = item.data.title;
 const description = item.data.description ?? '';
 const { html: bodyHtml } = await renderMarkdown(item.body ?? '');
 const photos = await portfolioPhotos(slug);
-const backHref = withBase(`/${lang}/photos`);
+
+const items: GalleryWallItem[] = photos.map((photo) => ({
+  href: photoHref(lang, photo),
+  photo,
+  subtitle: t(lang, 'photos.category'),
+  transitionName: photoViewTransitionName(photo),
+}));
+
+const countLabel = t(lang, 'photos.count').replace('{n}', String(photos.length));
+const backHref = withBase(`/${lang}/photos?tab=portfolio`);
 ---
 
 <BaseLayout lang={lang} title={title} description={description || undefined}>
   <div class="portfolio-detail">
-    <a class="portfolio-back" href={backHref} data-back-to-photos>← {t(lang, 'nav.photos')}</a>
+    <button
+      type="button"
+      class="portfolio-back"
+      data-history-back
+      data-fallback={backHref}
+    >
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path
+          d="M12.5 4.5 7 10l5.5 5.5"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+      {t(lang, 'photos.back')}
+    </button>
 
-    <h1 class="portfolio-detail-title">{title}</h1>
-    {description && <p class="portfolio-detail-desc">{description}</p>}
+    <header class="portfolio-head">
+      <h1 class="portfolio-detail-title">{title}</h1>
+      <p class="portfolio-count-label">{countLabel}</p>
+      {description && <p class="portfolio-detail-desc">{description}</p>}
+    </header>
 
     {bodyHtml && <div class="prose portfolio-detail-body" set:html={bodyHtml} />}
 
     {
-      photos.length > 0 ? (
-        <div class="portfolio-detail-masonry">
-          {
-            photos.map((p) => (
-              <img
-                class:list={['photo-item', { 'is-landscape': p.landscape }]}
-                src={p.src}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            ))
-          }
-        </div>
+      items.length > 0 ? (
+        <GalleryWall
+          items={items}
+          eagerCount={6}
+          ariaLabel={title}
+        />
       ) : (
         <p class="photos-empty">{t(lang, 'photos.empty')}</p>
       )
     }
+
   </div>
 </BaseLayout>
 
 <style>
   .portfolio-detail {
-    max-width: 960px;
+    max-width: 1080px;
     margin: 0 auto;
-    padding: 1.5rem 0 2rem;
+    padding: 0.4rem 0 3rem;
   }
 
   .portfolio-back {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
+    gap: 2px;
+    margin-bottom: 1.4rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
     color: var(--text-soft);
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+  }
+  .portfolio-back svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
   }
   .portfolio-back:hover {
     color: var(--hover);
   }
 
+  .portfolio-head {
+    margin-bottom: 1.5rem;
+  }
+
   .portfolio-detail-title {
-    margin: 0 0 0.6rem;
-    font-size: clamp(1.6rem, 4vw, 2.2rem);
-    font-weight: 800;
+    margin: 0 0 0.35rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    overflow-wrap: anywhere;
+  }
+
+  .portfolio-count-label {
+    margin: 0 0 0.9rem;
+    color: var(--text-faint);
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
   }
 
   .portfolio-detail-desc {
-    margin: 0 0 0.6rem;
+    margin: 0;
     color: var(--text-soft);
     font-size: 1rem;
+    line-height: 1.75;
   }
 
   .portfolio-detail-body {
-    margin: 0.6rem 0 1.6rem;
-  }
-
-  .portfolio-detail-masonry {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-flow: dense;
-    gap: 14px;
-    align-items: start;
-  }
-  .photo-item {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: var(--radius);
-    /* 原图很大:让浏览器跳过屏幕外图片的解码与绘制 */
-    content-visibility: auto;
-    contain-intrinsic-size: auto 480px;
-  }
-  .photo-item.is-landscape {
-    grid-column: span 2;
-  }
-  @media (max-width: 900px) {
-    .portfolio-detail-masonry {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (max-width: 560px) {
-    .portfolio-detail-masonry {
-      grid-template-columns: 1fr;
-    }
-    .photo-item.is-landscape {
-      grid-column: span 1;
-    }
+    margin: 0.9rem 0 2rem;
   }
 
   .photos-empty {
@@ -140,18 +164,3 @@ const backHref = withBase(`/${lang}/photos`);
     border-radius: var(--radius);
   }
 </style>
-
-<script>
-  // "← 相册"返回:优先回到点入前的页面(history),没有历史时回退到相册页
-  const backLink = document.querySelector<HTMLAnchorElement>('[data-back-to-photos]');
-  if (backLink) {
-    backLink.addEventListener('click', (event) => {
-      event.preventDefault();
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        window.location.href = backLink.href;
-      }
-    });
-  }
-</script>

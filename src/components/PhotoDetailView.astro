@@ -1,0 +1,455 @@
+---
+import type { Language } from '../types';
+import { t } from '../i18n';
+import type { GalleryWallItem, Photo } from '../utils/photos';
+import { photoViewTransitionName } from '../utils/photos';
+import GalleryWall from './GalleryWall.astro';
+
+interface Props {
+  lang: Language;
+  photo: Photo;
+  /** Main heading shown beside the image. */
+  heading: string;
+  /** Optional album context (rendered as a category link). */
+  album?: { title: string; href: string };
+  description?: string;
+  /** Fallback destination for the back link. */
+  backHref: string;
+  backLabel?: string;
+  related: GalleryWallItem[];
+}
+
+const {
+  lang,
+  photo,
+  heading,
+  album,
+  description,
+  backHref,
+  backLabel = t(lang, 'photos.back'),
+  related,
+} = Astro.props;
+
+const locale = lang === 'zh' ? 'zh-CN' : lang === 'ja' ? 'ja-JP' : 'en-US';
+const dateLabel = photo.date
+  ? new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(photo.date))
+  : '';
+const orientationLabel = t(
+  lang,
+  photo.orientation === 'landscape'
+    ? 'photos.landscape'
+    : photo.orientation === 'portrait'
+      ? 'photos.portrait'
+      : 'photos.square'
+);
+const transitionName = photoViewTransitionName(photo);
+const placeholderStyle = photo.placeholder
+  ? `background-image:url("${photo.placeholder}");background-size:cover;background-position:center;`
+  : '';
+---
+
+<article class="photo-detail">
+  <button
+    type="button"
+    class="photo-back"
+    data-history-back
+    data-fallback={backHref}
+  >
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path
+        d="M12.5 4.5 7 10l5.5 5.5"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+    {backLabel}
+  </button>
+
+  <div class="photo-grid">
+    <figure class="photo-hero">
+      <button
+        type="button"
+        class="photo-zoom-trigger"
+        popovertarget="photo-zoom"
+        aria-label={`${t(lang, 'photos.viewLarger')}: ${heading}`}
+      >
+        <img
+          src={photo.thumb.src}
+          width={photo.thumb.width}
+          height={photo.thumb.height}
+          alt={heading}
+          style={`view-transition-name: ${transitionName};${placeholderStyle}`}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </button>
+    </figure>
+
+    <aside class="photo-info">
+      <h1 class="photo-title">{heading}</h1>
+      <p class="photo-category">
+        {
+          album ? (
+            <a href={album.href}>{album.title}</a>
+          ) : (
+            t(lang, 'photos.category')
+          )
+        }
+      </p>
+
+      {description && <p class="photo-desc">{description}</p>}
+
+      <dl class="photo-meta">
+        {
+          album && (
+            <div>
+              <dt>{t(lang, 'photos.album')}</dt>
+              <dd>
+                <a href={album.href}>{album.title}</a>
+              </dd>
+            </div>
+          )
+        }
+        {
+          dateLabel && (
+            <div>
+              <dt>{t(lang, 'photos.date')}</dt>
+              <dd>{dateLabel}</dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>{t(lang, 'photos.dimensions')}</dt>
+          <dd>{photo.width} × {photo.height}</dd>
+        </div>
+        <div>
+          <dt>{t(lang, 'photos.orientation')}</dt>
+          <dd>{orientationLabel}</dd>
+        </div>
+        <div>
+          <dt>{t(lang, 'photos.file')}</dt>
+          <dd class="photo-file">{photo.filename}</dd>
+        </div>
+      </dl>
+    </aside>
+  </div>
+
+  {
+    related.length > 0 && (
+      <section class="photo-related" aria-labelledby="photo-related-title">
+        <h2 class="photo-related-title" id="photo-related-title">
+          {t(lang, 'photos.related')}
+        </h2>
+        <GalleryWall
+          items={related}
+          variant="related"
+          eagerCount={4}
+          ariaLabel={t(lang, 'photos.related')}
+        />
+      </section>
+    )
+  }
+</article>
+
+<!-- Full-screen zoom, using the native popover API (no JS needed). -->
+<div id="photo-zoom" popover class="photo-zoom">
+  <button
+    type="button"
+    class="photo-zoom-backdrop"
+    popovertarget="photo-zoom"
+    popovertargetaction="hide"
+    aria-label={t(lang, 'photos.closeZoom')}
+  >
+    <img
+      src={photo.large.src}
+      width={photo.large.width}
+      height={photo.large.height}
+      alt={heading}
+      style={placeholderStyle || undefined}
+      loading="lazy"
+      decoding="async"
+    />
+  </button>
+</div>
+
+<style>
+  .photo-detail {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0.4rem 0 3rem;
+  }
+
+  /* The shared image carries continuity; the surrounding chrome gets a
+     short entrance so the swap does not read as a hard cut. */
+  .photo-back,
+  .photo-info,
+  .photo-related {
+    animation: photo-detail-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes photo-detail-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  .photo-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 1.4rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+  }
+  .photo-back svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+  .photo-back:hover {
+    color: var(--hover);
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+
+  .photo-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    min-height: 240px;
+  }
+
+  .photo-zoom-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .photo-zoom-trigger:focus-visible {
+    outline: 2px solid var(--sky);
+    outline-offset: 4px;
+  }
+
+  .photo-zoom-trigger img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    box-shadow: var(--shadow);
+    object-fit: contain;
+  }
+
+  .photo-info {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    padding-top: 0.25rem;
+  }
+
+  .photo-title {
+    margin: 0 0 0.35rem;
+    font-size: clamp(1.55rem, 3vw, 2.1rem);
+    font-weight: 650;
+    line-height: 1.22;
+    letter-spacing: 0.01em;
+    overflow-wrap: anywhere;
+  }
+
+  .photo-category {
+    margin: 0 0 1.4rem;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+  .photo-category a,
+  .photo-meta a {
+    color: var(--text-soft);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--text-soft) 32%, transparent);
+    transition:
+      color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+  .photo-category a:hover,
+  .photo-meta a:hover {
+    color: var(--hover);
+    border-color: var(--hover);
+  }
+
+  .photo-desc {
+    margin: 0 0 1.5rem;
+    color: var(--text);
+    font-size: 0.98rem;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+  }
+
+  .photo-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  .photo-meta div {
+    display: flex;
+    gap: 0.9rem;
+  }
+  .photo-meta dt {
+    flex: 0 0 6.2rem;
+    color: var(--text-faint);
+  }
+  .photo-meta dd {
+    margin: 0;
+    color: var(--text-soft);
+    overflow-wrap: anywhere;
+  }
+  .photo-file {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .photo-related {
+    margin-top: clamp(3rem, 6vw, 5rem);
+  }
+  .photo-related-title {
+    margin: 0 0 1.25rem;
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---------- full-screen zoom ---------- */
+  .photo-zoom {
+    box-sizing: border-box;
+    inset: 0;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: rgba(9, 11, 15, 0.94);
+    opacity: 0;
+    transform: scale(0.985);
+    transition:
+      opacity 280ms ease,
+      transform 280ms ease,
+      overlay 280ms allow-discrete,
+      display 280ms allow-discrete;
+  }
+
+  .photo-zoom:popover-open {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @starting-style {
+    .photo-zoom:popover-open {
+      opacity: 0;
+      transform: scale(0.985);
+    }
+  }
+
+  .photo-zoom::backdrop {
+    background: rgb(9 11 15 / 0);
+    transition:
+      background 280ms ease,
+      overlay 280ms allow-discrete,
+      display 280ms allow-discrete;
+  }
+
+  .photo-zoom:popover-open::backdrop {
+    background: rgb(9 11 15 / 0.72);
+  }
+
+  @starting-style {
+    .photo-zoom:popover-open::backdrop {
+      background: rgb(9 11 15 / 0);
+    }
+  }
+
+  .photo-zoom-backdrop {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: clamp(1rem, 4vw, 2.5rem);
+    border: 0;
+    background: transparent;
+    cursor: zoom-out;
+  }
+
+  .photo-zoom-backdrop img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: calc(100dvh - 2 * clamp(1rem, 4vw, 2.5rem));
+    border-radius: var(--radius-sm);
+    object-fit: contain;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  }
+
+  @media (max-width: 860px) {
+    .photo-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .photo-info {
+      position: static;
+      padding-top: 0;
+    }
+    .photo-zoom-trigger img {
+      max-height: 70vh;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .photo-zoom {
+      transition: none;
+    }
+    .photo-back,
+    .photo-info,
+    .photo-related {
+      animation: none;
+    }
+  }
+</style>
+
+<style is:global>
+  html:has(#photo-zoom:popover-open),
+  html:has(#photo-zoom:popover-open) body {
+    overflow: hidden;
+  }
+</style>

@@ -121,38 +121,29 @@ welcome: [
       icon: 'database',
     },
 
-
-    // 以下为带有可展开子节点的导航块，如“生活”和“联系”
     {
       label: {
-        eng: 'Life',
-        cn: '生活',
-        jap: '暮らし',
+        eng: 'Photos',
+        cn: '相册',
+        jap: '写真',
       },
+      href: (lang: Language) => `/${lang}/photos`,
+      external: false,
       icon: 'photos',
-      children: [
-        {
-          label: {
-            eng: 'Photos',
-            cn: '相册',
-            jap: '写真',
-          },
-          href: (lang: Language) => `/${lang}/photos`,
-          external: false,
-          icon: 'photos',
-        },
-        {
-          label: {
-            eng: 'Recipes',
-            cn: '菜单',
-            jap: '料理',
-          },
-          href: (lang: Language) => `/${lang}/recipes`,
-          external: false,
-          icon: 'recipe',
-        },
-      ],
     },
+
+    {
+      label: {
+        eng: 'Recipes',
+        cn: '菜单',
+        jap: '料理',
+      },
+      href: (lang: Language) => `/${lang}/recipes`,
+      external: false,
+      icon: 'recipe',
+    },
+
+    // 以下为带有可展开子节点的导航块，如“联系”
 
     {
       label: {
@@ -384,10 +375,7 @@ welcome: [
   // ============================================================
   // 自定义网站主题背景色
   // ============================================================
-  //
-  //  这两个值是"首屏防闪屏"的唯一来源:BaseLayout 会在 <head> 最前面把它们
-  //  内联成 CSS 变量,内联脚本再据此设置背景色。改这里的颜色即可,
-  //  不要再把颜色硬编码进 BaseLayout 的脚本里。
+
   theme: {
     light: {
       bg: '#f2fff166',
@@ -406,10 +394,6 @@ welcome: [
 
   /** 菜单页的固定分类(与 `pnpm newreci` 的可选项共用同一份数据)。 */
   recipeCategories: ['蔬菜', '禽类', '海鲜', '猪牛羊', '汤', '黑暗料理'] as const,
-
-  //  * 相册"所有"板块的图片:true = 默认淡黑白、悬停变彩色;
-  //  * 仅作用于"所有"(photos)板块,作品集板块始终全彩。
-  photosGrayscaleHover: true,
 } as const;
 
 export function siteSubtitle(): LocalizedText | undefined {
@@ -434,14 +418,14 @@ export function siteSubtitle(): LocalizedText | undefined {
 //      - 向下弹出的块(导航分组 + 搜索右侧条目块):`.nav-submenu`
 //      - 分组内容:上方 `nav[].children` 与 `menu`
 
-//   2) 瀑布流(归档/菜单/相册统一)
-//      - 比例集(CSS 宽:高 3/2·2/3·1/1):src/utils/ratio.ts 的 MASONRY_RATIOS
-//        以及 site.config.ts 上方 `masonryRatios`
-//      - 布局算法(列数/列宽/gap=列宽/6):src/scripts/masonry.ts 的 initMasonry
-//      - 图片块元素(应用 aspect-ratio):
-//         归档   → src/components/ArchivePanel.astro(.masonry-media)
-//         菜单   → src/pages/[lang]/recipes.astro(.recipe-media)
-//         相册   → src/pages/[lang]/photos.astro(.photo-item / .portfolio-cover)
+//   2) 图片墙
+//      - 归档:JS 密铺(比例集见 src/utils/ratio.ts 的 MASONRY_RATIOS,
+//        布局算法见 src/scripts/masonry.ts 的 initMasonry)
+//         归档 → src/components/ArchivePanel.astro(.masonry-media)
+//      - 相册/菜单:参考 Frame Shift 的自然比例 CSS columns 墙
+//         相册 → src/components/GalleryWall.astro(.gallery-*)
+//         菜单 → src/pages/[lang]/recipes.astro(.recipe-*)
+//         相册图片变体与详情路由见 src/utils/photos.ts
 
 //   3) 友链页
 //      文件:src/pages/[lang]/links.astro

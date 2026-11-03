@@ -825,17 +825,61 @@ mark.search-hit {
   padding: 0 1px;
 }
 
-/* ============================================================
-   Photos
-   ============================================================ */
-
-.photos-page.gray-photos [data-photos-view='photos'] .photo-item {
-  filter: grayscale(0.8);
-  transition: filter 0.6s ease;
+html[data-theme='light'] {
+  --vt-bg: var(--vt-light-bg, #f2fff1);
 }
 
-.photos-page.gray-photos [data-photos-view='photos'] .photo-item:hover {
-  filter: grayscale(0);
+html[data-theme='dark'] {
+  --vt-bg: var(--vt-dark-bg, #101218);
+}
+
+/* ============================================================
+   Photo view transitions
+
+   The gallery wall and the photo detail page share the same
+   `view-transition-name` and the same image file. `<ClientRouter />`
+   performs a same-document View Transition that morphs the card image
+   into the detail hero; these rules tune the page cross-fade so the old
+   gallery does not linger behind the new layout.
+   ============================================================ */
+
+::view-transition {
+  background-color: var(--vt-bg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The photo itself morphs while the page cross-fade stays quick, so the
+     old gallery is not left ghosting behind the new detail layout. */
+  ::view-transition-group(*) {
+    animation-duration: 300ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 150ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   ClientRouter scroll hand-off
+
+   ClientRouter restores the previous scroll offset while the new page
+   snapshot is being prepared. The global `scroll-behavior: smooth`
+   would animate that restore from the top, so the snapshot (and the
+   first painted frame) lands at 0 before sliding down. During a
+   transition, force the restore to be instant.
+   ============================================================ */
+
+html[data-astro-transition] {
+  scroll-behavior: auto !important;
 }
 
 /* ============================================================

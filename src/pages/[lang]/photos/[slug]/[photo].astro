@@ -1,0 +1,83 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import PhotoDetailView from '../../../../components/PhotoDetailView.astro';
+import { siteConfig } from '../../../../site.config';
+import type { Language } from '../../../../types';
+import type { GalleryWallItem } from '../../../../utils/photos';
+import { withBase } from '../../../../utils/paths';
+import {
+  photoHref,
+  photoViewTransitionName,
+  portfolioPhotos,
+} from '../../../../utils/photos';
+
+export async function getStaticPaths() {
+  const paths: { params: { lang: string; slug: string; photo: string } }[] = [];
+  for (const lang of siteConfig.langs) {
+    const portfolios = await getCollection('portfolios', (p) =>
+      p.id.startsWith(`${lang}/`)
+    );
+    for (const item of portfolios) {
+      const slug = item.id.slice(lang.length + 1);
+      const photos = await portfolioPhotos(slug);
+      for (const photo of photos) {
+        paths.push({ params: { lang, slug, photo: photo.slug } });
+      }
+    }
+  }
+  return paths;
+}
+
+const { lang, slug, photo: photoSlug } = Astro.params as {
+  lang: Language;
+  slug: string;
+  photo: string;
+};
+
+const item = (await getCollection('portfolios')).find(
+  (p) => p.id === `${lang}/${slug}`
+);
+
+const albumHref = withBase(`/${lang}/photos/${slug}`);
+
+if (!item) {
+  return Astro.redirect(withBase(`/${lang}/photos?tab=portfolio`));
+}
+
+const photos = await portfolioPhotos(slug);
+const photo = photos.find((p) => p.slug === photoSlug);
+
+if (!photo) {
+  return Astro.redirect(albumHref);
+}
+
+const album = { title: item.data.title, href: albumHref };
+const description = item.data.description ?? '';
+
+const related: GalleryWallItem[] = photos
+  .filter((p) => p.slug !== photo.slug)
+  .slice(0, 8)
+  .map((p) => ({
+    href: photoHref(lang, p),
+    photo: p,
+    subtitle: album.title,
+    transitionName: photoViewTransitionName(p),
+  }));
+---
+
+<BaseLayout
+  lang={lang}
+  title={photo.title}
+  description={description || `${album.title} · ${photo.title}`}
+>
+  <PhotoDetailView
+    lang={lang}
+    photo={photo}
+    heading={photo.title}
+    album={album}
+    description={description || undefined}
+    backHref={albumHref}
+    related={related}
+  />
+</BaseLayout>

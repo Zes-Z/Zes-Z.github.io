@@ -1,4 +1,5 @@
 import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
 import { nearestRatio, DEFAULT_RATIO } from './ratio';
 
 /**
@@ -7,42 +8,88 @@ import { nearestRatio, DEFAULT_RATIO } from './ratio';
  * Each recipe lives in `src/content/recipes/<slug>/` and can carry images
  * (cover `main.*` placed first, then numbered photos).
  *
- * Images are served as ORIGINAL files (no downscaling), only the aspect
- * ratio is detected for masonry layout.
+ * The list page uses a ~900px WebP `thumb` for its reference-style image
+ * wall; the recipe detail page keeps the original `src` for full quality.
  */
 
 const recipeGlob = import.meta.glob(
   '/src/content/recipes/**/*.{png,jpg,jpeg,PNG,JPG,JPEG,webp,gif,avif,svg}'
 );
 
-export interface RecipeImage {
+export interface RecipeImageVariant {
   src: string;
-  /** 横屏图片(width > height),用于在瀑布流中放大两倍与竖屏协调 */
+  width: number;
+  height: number;
+}
+
+export interface RecipeImage {
+  /** Original asset URL (detail page). */
+  src: string;
+  /** Optimized gallery thumbnail. */
+  thumb: RecipeImageVariant;
+  width: number;
+  height: number;
+  /** 横屏图片(width > height) */
   landscape: boolean;
   /** 实际显示比例(CSS 宽:高):3 / 2 · 2 / 3 · 1 / 1 */
   ratio: string;
 }
 
+type Loader = () => Promise<unknown>;
+
 const cache = new Map<string, Promise<RecipeImage | undefined>>();
 
-async function resolveImage(path: string, loader: () => Promise<unknown>) {
-  let promise = cache.get(path);
-  if (!promise) {
-    promise = loader()
-      .then((mod) => {
-        const meta = (mod as { default: ImageMetadata }).default;
-        const w = meta.width ?? 0;
-        const h = meta.height ?? 0;
-        return {
-          src: meta.src,
-          landscape: w > h,
-          ratio: w && h ? nearestRatio(w, h) : DEFAULT_RATIO,
-        } as RecipeImage;
-      })
-      .catch(() => undefined);
-    cache.set(path, promise);
+/** Raster formats that can safely be re-encoded as WebP. */
+const RASTER = new Set(['jpg', 'jpeg', 'png', 'webp', 'avif']);
+
+async function thumbnail(meta: ImageMetadata): Promise<RecipeImageVariant> {
+  if (!RASTER.has(meta.format)) {
+    return { src: meta.src, width: meta.width, height: meta.height };
   }
-  return promise;
+  const target = Math.min(900, meta.width);
+  const result = await getImage({
+    src: meta,
+    width: target,
+    format: 'webp',
+    quality: 82,
+  });
+  return {
+    src: result.src,
+    width: Number(result.attributes.width) || target,
+    height:
+      Number(result.attributes.height) ||
+      Math.round((target * meta.height) / meta.width),
+  };
+}
+
+async function resolveImage(
+  path: string,
+  loader: Loader
+): Promise<RecipeImage | undefined> {
+  const promise = cache.get(path);
+  if (promise) return promise;
+
+  const next = (async () => {
+    try {
+      const mod = await loader();
+      const meta = (mod as { default: ImageMetadata }).default;
+      const w = meta.width ?? 0;
+      const h = meta.height ?? 0;
+      return {
+        src: meta.src,
+        thumb: await thumbnail(meta),
+        width: w,
+        height: h,
+        landscape: w > h,
+        ratio: w && h ? nearestRatio(w, h) : DEFAULT_RATIO,
+      } satisfies RecipeImage;
+    } catch {
+      return undefined;
+    }
+  })();
+
+  cache.set(path, next);
+  return next;
 }
 
 function basename(path: string): string {
@@ -72,8 +119,7 @@ export async function recipeImages(slug: string): Promise<RecipeImage[]> {
 /** Cover (first image) of a recipe, for the recipe card grid. */
 export async function recipeCover(
   slug: string
-): Promise<{ src: string; ratio: string } | undefined> {
+): Promise<RecipeImage | undefined> {
   const images = await recipeImages(slug);
-  const first = images[0];
-  return first ? { src: first.src, ratio: first.ratio } : undefined;
+  return images[0];
 }

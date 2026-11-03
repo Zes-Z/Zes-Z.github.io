@@ -555,40 +555,24 @@ const hasToc =
 </BaseLayout>
 
 <script>
-  // 顶部细进度条:按阅读进度填充
-  const bar =
-    document.querySelector<HTMLElement>(
-      '[data-progress-bar]',
-    );
-
+  // 顶部细进度条:按阅读进度填充。bar 每次从当前 DOM 重新查询,
+  // 兼容 ClientRouter 的 SPA 页面切换。
   const update = () => {
+    const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
     if (!bar) return;
 
-    const root =
-      document.documentElement;
-
-    const total =
-      root.scrollHeight -
-      window.innerHeight;
+    const root = document.documentElement;
+    const total = root.scrollHeight - window.innerHeight;
 
     bar.style.width =
       total > 0
-        ? `${Math.min(
-            100,
-            (window.scrollY /
-              total) *
-              100,
-          )}%`
+        ? `${Math.min(100, (window.scrollY / total) * 100)}%`
         : '0%';
   };
 
-  window.addEventListener(
-    'scroll',
-    update,
-    { passive: true },
-  );
-
+  window.addEventListener('scroll', update, { passive: true });
   update();
+  document.addEventListener('astro:page-load', update);
 </script>
 
 <style>

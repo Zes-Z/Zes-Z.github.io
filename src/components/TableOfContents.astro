@@ -50,128 +50,73 @@ const items = headings.filter(
 }
 
 <script>
-  const toc =
-    document.querySelector<HTMLElement>(
-      '[data-toc]',
-    );
+  // 单一 scroll/resize 监听 + 每次 SPA 导航时替换 update 闭包,
+  // 避免在 ClientRouter 切换页面时累积多个监听器。
+  let currentUpdate: (() => void) | null = null;
 
-  if (toc && !toc.dataset.ready) {
+  function init() {
+    const toc = document.querySelector<HTMLElement>('[data-toc]');
+    if (!toc || toc.dataset.ready) return;
     toc.dataset.ready = 'true';
 
     const links = [
-      ...toc.querySelectorAll<HTMLAnchorElement>(
-        '[data-toc-link]',
-      ),
+      ...toc.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'),
     ];
 
     const entries = links
       .map((link) => ({
         link,
-        el: document.getElementById(
-          decodeURIComponent(
-            link.hash.slice(1),
-          ),
-        ),
+        el: document.getElementById(decodeURIComponent(link.hash.slice(1))),
       }))
       .filter(
-        (
-          entry,
-        ): entry is {
-          link: HTMLAnchorElement;
-          el: HTMLElement;
-        } =>
+        (entry): entry is { link: HTMLAnchorElement; el: HTMLElement } =>
           entry.el !== null,
       );
 
     if (entries.length > 0) {
       const update = () => {
-        const pos =
-          window.scrollY + 96;
-
-        let current =
-          entries[0]!.el;
+        const pos = window.scrollY + 96;
+        let current = entries[0]!.el;
 
         for (const { el } of entries) {
-          if (
-            el.getBoundingClientRect()
-              .top +
-              window.scrollY <=
-            pos
-          ) {
+          if (el.getBoundingClientRect().top + window.scrollY <= pos) {
             current = el;
           }
         }
 
         links.forEach((link) => {
-          const active =
-            link.hash ===
-            `#${current.id}`;
-
-          link.classList.toggle(
-            'is-active',
-            active,
-          );
-
+          const active = link.hash === `#${current.id}`;
+          link.classList.toggle('is-active', active);
           if (active) {
-            link.setAttribute(
-              'aria-current',
-              'location',
-            );
+            link.setAttribute('aria-current', 'location');
           } else {
-            link.removeAttribute(
-              'aria-current',
-            );
+            link.removeAttribute('aria-current');
           }
         });
       };
 
-      /*
-       * 点击目录：平滑滚动到章节，
-       * 但不写入浏览历史。
-       */
       links.forEach((link) => {
-        link.addEventListener(
-          'click',
-          (event) => {
-            const target =
-              document.getElementById(
-                decodeURIComponent(
-                  link.hash.slice(1),
-                ),
-              );
-
-            if (!target) return;
-
-            event.preventDefault();
-
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start',
-            });
-
-            history.replaceState(
-              null,
-              '',
-              link.hash,
-            );
-          },
-        );
+        link.addEventListener('click', (event) => {
+          const target = document.getElementById(
+            decodeURIComponent(link.hash.slice(1)),
+          );
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', link.hash);
+        });
       });
 
+      currentUpdate = update;
       update();
-
-      window.addEventListener(
-        'scroll',
-        update,
-        { passive: true },
-      );
-
-      window.addEventListener(
-        'resize',
-        update,
-      );
     }
   }
+
+  window.addEventListener('scroll', () => currentUpdate?.(), { passive: true });
+  window.addEventListener('resize', () => currentUpdate?.());
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

@@ -53,7 +53,7 @@ async function adjacentRecipeCard(r: Awaited<ReturnType<typeof getCollection<'re
   return {
     href: withBase(`/${lang}/recipes/${rSlug}`),
     title: r.data.title,
-    image: cover?.src,
+    image: cover?.thumb.src,
     ratio: cover?.ratio,
     date: `${pub.getFullYear()}/${pub.getMonth() + 1}/${pub.getDate()}`,
     tags: r.data.tags ?? [],
@@ -111,9 +111,10 @@ const nextCard = nextRecipe ? await adjacentRecipeCard(nextRecipe) : undefined;
 </BaseLayout>
 
 <script>
-  // 顶部细进度条:按阅读进度填充
-  const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
+  // 顶部细进度条:按阅读进度填充。bar 每次从当前 DOM 重新查询,
+  // 兼容 ClientRouter 的 SPA 页面切换。
   const update = () => {
+    const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
     if (!bar) return;
     const root = document.documentElement;
     const total = root.scrollHeight - window.innerHeight;
@@ -121,6 +122,7 @@ const nextCard = nextRecipe ? await adjacentRecipeCard(nextRecipe) : undefined;
   };
   window.addEventListener('scroll', update, { passive: true });
   update();
+  document.addEventListener('astro:page-load', update);
 </script>
 
 <style>

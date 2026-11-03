@@ -5,7 +5,6 @@ import { siteConfig } from '../../site.config';
 import { t } from '../../i18n';
 import type { Language } from '../../types';
 import { recipeCover } from '../../utils/recipes';
-import { DEFAULT_RATIO } from '../../utils/ratio';
 import { withBase } from '../../utils/paths';
 
 export async function getStaticPaths() {
@@ -64,16 +63,24 @@ for (const r of recipes) {
       recipes.length > 0 ? (
         <div class="recipes-masonry" data-recipes-masonry>
           {
-            recipes.map((r) => (
+            recipes.map((r, index) => (
               <a
                 class="recipe-card"
                 href={r.href}
                 data-categories={r.categories}
-                data-ratio={r.cover?.ratio ?? DEFAULT_RATIO}
+                aria-label={r.title}
               >
-                <span class="recipe-media" style={`aspect-ratio: ${r.cover?.ratio ?? DEFAULT_RATIO}`}>
+                <span class="recipe-media">
                   {r.cover ? (
-                    <img class="recipe-cover" src={r.cover.src} alt={r.title} loading="lazy" decoding="async" />
+                    <img
+                      class="recipe-cover"
+                      src={r.cover.thumb.src}
+                      width={r.cover.thumb.width}
+                      height={r.cover.thumb.height}
+                      alt={r.title}
+                      loading={index < 4 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
                   ) : (
                     <span class="recipe-fallback"></span>
                   )}
@@ -101,15 +108,13 @@ for (const r of recipes) {
 </BaseLayout>
 
 <script>
-  import { initMasonry } from '../../scripts/masonry';
-
-  const page = document.querySelector<HTMLElement>('[data-recipes-page]');
-  if (page && page.dataset.ready !== 'true') {
+  // 分类筛选:纯 CSS columns 会自动重排,无需 JS 计算位置。
+  function init() {
+    const page = document.querySelector<HTMLElement>('[data-recipes-page]');
+    if (!page || page.dataset.ready === 'true') return;
     page.dataset.ready = 'true';
-    const masonryEl = page.querySelector<HTMLElement>('[data-recipes-masonry]');
     const pills = [...page.querySelectorAll<HTMLAnchorElement>('[data-category]')];
     const cards = [...page.querySelectorAll<HTMLElement>('[data-recipes-masonry] .recipe-card')];
-    const relayout = masonryEl ? initMasonry(masonryEl) : () => {};
 
     const apply = (cat: string) => {
       pills.forEach((b) => {
@@ -119,17 +124,19 @@ for (const r of recipes) {
       cards.forEach((card) => {
         card.hidden = cat !== '' && card.dataset.categories !== cat;
       });
-      relayout();
     };
 
     const category = new URLSearchParams(window.location.search).get('category') ?? '';
     apply(category);
   }
+
+  init();
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>
   .recipes-page {
-    max-width: 980px;
+    max-width: 1080px;
     margin: 1.5rem auto 0;
     padding-bottom: 2rem;
   }
@@ -141,7 +148,7 @@ for (const r of recipes) {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-bottom: 1.4rem;
+    margin-bottom: 1.5rem;
   }
 
   .category-pill {
@@ -182,10 +189,12 @@ for (const r of recipes) {
     color: var(--sky);
   }
 
-  /* 瀑布流:位置由 initMasonry 计算(最短列绝对定位,上下密铺) */
+  /* 自然比例 CSS columns,与相册墙同一套视觉语言 */
   .recipes-masonry {
-    position: relative;
+    columns: 1;
+    column-gap: 1.25rem;
   }
+
   .recipe-card[hidden] {
     display: none !important;
   }
@@ -193,37 +202,50 @@ for (const r of recipes) {
   .recipe-card {
     position: relative;
     display: block;
-    border-radius: var(--radius);
     overflow: hidden;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
+    margin: 0 0 1.25rem;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    border-radius: var(--radius);
     background: var(--surface-2);
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--border) 70%, transparent);
+    transition:
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* 无论有无封面图都占固定比例,避免无图卡片塌成 0 高(比例由内联样式给定) */
+  .recipe-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-strong);
+  }
+
+  .recipe-card:focus-visible {
+    outline: 2px solid var(--sky);
+    outline-offset: 3px;
+  }
+
   .recipe-media {
     position: relative;
     display: block;
     width: 100%;
     overflow: hidden;
     background: var(--surface-2);
-    /* 封面为原图:跳过屏幕外卡片的渲染 */
-    content-visibility: auto;
-    contain-intrinsic-size: auto 360px;
   }
 
   .recipe-cover {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
   }
 
+  /* 无封面时用一块渐变占位,避免卡片塌成 0 高 */
   .recipe-fallback {
-    position: absolute;
-    inset: 0;
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
     background:
       radial-gradient(circle at 30% 20%, var(--accent-soft), transparent 45%),
       linear-gradient(135deg, var(--surface-2), var(--surface));
@@ -233,8 +255,13 @@ for (const r of recipes) {
     position: absolute;
     inset: 0;
     z-index: 1;
-    /* 阴影只落到左下角标题之间:更靠下、更淡(与归档一致) */
-    background: linear-gradient(180deg, transparent 72%, rgba(10, 12, 16, 0.32));
+    background: linear-gradient(
+      to top,
+      rgba(8, 10, 14, 0.84) 0%,
+      rgba(8, 10, 14, 0.36) 42%,
+      transparent 100%
+    );
+    pointer-events: none;
   }
 
   .recipe-body {
@@ -246,6 +273,7 @@ for (const r of recipes) {
     gap: 4px;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
   }
 
   .recipe-date {
@@ -285,5 +313,26 @@ for (const r of recipes) {
     color: var(--text-faint);
     border: 1px dashed var(--border-strong);
     border-radius: var(--radius);
+  }
+
+  @media (min-width: 560px) {
+    .recipes-masonry {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .recipes-masonry {
+      columns: 3;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recipe-card {
+      transition: none;
+    }
+    .recipe-card:hover {
+      transform: none;
+    }
   }
 </style>

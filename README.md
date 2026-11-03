@@ -7,7 +7,7 @@
 - **明亮 / 暗黑双模式** — localStorage 持久化,无闪烁加载
 - **正则搜索** — 顶部导航搜索按钮弹出面板,支持普通/正则两种模式、命中高亮与键盘导航
 - **archive 归档页** — 顶部**分类胶囊(单选,含每类篇数)**;未筛选时按年份倒序的时间线,选中某个分类后切换为瀑布流(每行 1–3 个文章块,2:3 / 3:2 / 1:1 三种图片比例,角落显示文章名与日期)
-- **菜单页** — 与归档同构:固定分类胶囊(来源 `site.config.ts` 的 `recipeCategories`)+ 瀑布流卡片
+- **菜单页** — 固定分类胶囊(来源 `site.config.ts` 的 `recipeCategories`)+ 自然比例 CSS columns 图片墙
 - **Home 首页** — 全屏图柔和淡入淡出 → 置顶文章块(主图展示)
 - **about 页** — 独立的海洋蓝个人页(`SelfLayout`),含首页 / 关于 / 技能 / 作品 / 留言墙分节与锚点导航
 - **友链页** — 全屏淡入图 + 好友块(每行 2–3 列,左图右两行文字)
@@ -251,9 +251,11 @@ draft: false
 | `/{lang}/archive` | 归档(时间线 / 分类瀑布流) |
 | `/{lang}/about` | 关于(独立海洋蓝个人页) |
 | `/{lang}/links` | 友链 |
-| `/{lang}/photos` | 相册(三个可切换板块:瀑布流墙 / 作品集 / 待定) |
-| `/{lang}/photos/{slug}` | 单个作品集(说明 + 内部照片) |
-| `/{lang}/recipes` | 菜单(固定分类 + 瀑布流) |
+| `/{lang}/photos` | 相册(三个可切换板块:相册墙 / 作品集 / 待定) |
+| `/{lang}/photos/photo/{photo}` | 单张照片详情(大图 + 信息 + 相关照片) |
+| `/{lang}/photos/{slug}` | 单个作品集(说明 + 内部照片墙) |
+| `/{lang}/photos/{slug}/{photo}` | 作品集内单张照片详情 |
+| `/{lang}/recipes` | 菜单(固定分类 + 自然比例图片墙) |
 | `/{lang}/recipes/{slug}` | 单个菜谱 |
 | `/{lang}/posts/{slug}` | 文章页(`{slug}` 支持多级,如 `电路学笔记/一、基本电路观念`) |
 | `/{lang}/unknown` | 占位页 |
@@ -264,20 +266,27 @@ draft: false
 
 ## 相册页
 
-相册是独立页,顶部三个**可切换板块**(仿归档的"类别"切换):
+相册页参考 [Frame Shift](https://emasuriano.github.io/astro-frame-shift/) 的展示方式,顶部三个**可切换板块**(仿归档的"类别"切换):
 
-1. **瀑布流展示墙** — `src/content/photos/*` 里的图片,瀑布流铺开;
+1. **相册墙** — `src/content/photos/*` 里的图片,按原始比例用 CSS columns 铺成自然瀑布流;
+   每张图带始终可见的渐变标题条(标题 + "照片"),悬停上浮并加深阴影;
 2. **作品集** — `src/content/portfolios/<slug>/` 一个作品集一个文件夹:
    - `zh.md` / `en.md` / `ja.md`(标题 + 说明正文)
-   - `main.svg`(封面)+ 若干编号照片,页面瀑布流展示,点进去看说明和内部照片;
+   - `main.*`(封面)+ 若干编号照片;作品集页同样用相册墙展示;
 3. **待定** — 占位板块。
 
-- **灯箱**:相册墙与作品集详情里的照片点击可全屏查看,支持 ←/→ 切换、键盘方向键、Esc 关闭;
-- **黑白悬停彩色**:`site.config.ts` 的 `photosGrayscaleHover`(`true` 默认黑白悬停彩色,`false` 关闭)控制。
+### 图片查看
 
-> 相册与菜谱的图片**按原图输出**(不做降采样/转码),以保证画质;代价是首屏流量较大,
-> 因此代码里对首屏几张用 `loading="eager"`、其余 `lazy`,并配合 `content-visibility`
-> 跳过屏幕外图片的渲染。若要真正压缩这些图片,需要引入 `getImage` 生成多档尺寸。
+- **点击照片** → 进入独立的照片详情页(`/photos/photo/{photo}` 或
+  `/photos/{album}/{photo}`):左侧大图、右侧标题/作品集/文件日期/尺寸/方向/文件信息,
+  下方是"相关照片"墙;
+- **点击详情页大图** → 使用原生 Popover API 全屏放大,点击背景或按 Esc 关闭;
+- **共享元素过渡** → 相册墙缩略图与详情页大图共享 `view-transition-name`,
+  借助原生跨文档 View Transitions 做缩略图 → 大图的形状补间(不支持的浏览器直接正常跳转);
+- **图片变体** → 相册墙与详情页共用约 900px 的 WebP 缩略图(与参考站一致),放大用 2600px;
+  由 `src/utils/photos.ts` 在构建时通过 `getImage` 生成。详情页复用相册缩略图,保证共享元素过渡不会二次换图;原始文件仍保留在 `Photo.src`。
+
+> 菜谱页卡片同样使用 900px WebP 缩略图;菜谱详情页里的正文图片仍使用原图。
 
 ## 技术栈
 
@@ -350,7 +359,7 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 - `src/site.config.ts` — 站点级配置(nav / menu / hero 图 / 友链 / 主题背景色 / 菜单分类 …)
 - `src/loaders/zest.ts` — 自定义内容 loader:文件夹多语结构 → `id = <lang>/<slug>`,自动判定子文档与 `pubDate`
 - `src/utils/markdown.ts` — unified 渲染管线(指令、代码块工具栏、KaTeX、Shiki 双主题、TOC 收集)
-- `src/scripts/masonry.ts` — 归档/菜单/相册共用的密铺瀑布流(最短列绝对定位)
+- `src/scripts/masonry.ts` — 归档页使用的密铺瀑布流(最短列绝对定位)
 - `cli/newpost.ts` — `pnpm newpost` / `newport` / `newreci` 交互式新建内容
 
 ## 关于 `pubDate` 的注意事项

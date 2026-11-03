@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import PhotoDetailView from '../../../../components/PhotoDetailView.astro';
+import { siteConfig } from '../../../../site.config';
+import { t } from '../../../../i18n';
+import type { Language } from '../../../../types';
+import type { GalleryWallItem } from '../../../../utils/photos';
+import {
+  photoHref,
+  photosPhotos,
+  photoViewTransitionName,
+} from '../../../../utils/photos';
+import { withBase } from '../../../../utils/paths';
+
+export async function getStaticPaths() {
+  const photos = await photosPhotos();
+  const paths: { params: { lang: string; photo: string } }[] = [];
+  for (const lang of siteConfig.langs) {
+    for (const photo of photos) {
+      paths.push({ params: { lang, photo: photo.slug } });
+    }
+  }
+  return paths;
+}
+
+const { lang, photo: photoSlug } = Astro.params as {
+  lang: Language;
+  photo: string;
+};
+
+const photos = await photosPhotos();
+const photo = photos.find((p) => p.slug === photoSlug);
+
+if (!photo) {
+  return Astro.redirect(withBase(`/${lang}/photos?tab=photos`));
+}
+
+const related: GalleryWallItem[] = photos
+  .filter((p) => p.slug !== photo.slug)
+  .slice(0, 8)
+  .map((p) => ({
+    href: photoHref(lang, p),
+    photo: p,
+    subtitle: t(lang, 'photos.category'),
+    transitionName: photoViewTransitionName(p),
+  }));
+
+const backHref = withBase(`/${lang}/photos?tab=photos`);
+---
+
+<BaseLayout
+  lang={lang}
+  title={photo.title}
+  description={`${t(lang, 'nav.photos')} · ${photo.title}`}
+>
+  <PhotoDetailView
+    lang={lang}
+    photo={photo}
+    heading={photo.title}
+    backHref={backHref}
+    related={related}
+  />
+</BaseLayout>

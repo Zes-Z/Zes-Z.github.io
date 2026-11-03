@@ -8,12 +8,17 @@
  * Each card must carry `data-ratio` (CSS 宽:高, e.g. "3 / 2", "2 / 3", "1 / 1"); its
  * height is derived from that ratio and the computed column width.
  *
- * Returns a `relayout()` function; call it after the visible card set
- * changes (filtering, tab switch, dynamic render).
+ * Returns `{ relayout, destroy }`; call `relayout()` after the visible card
+ * set changes (filtering, tab switch, dynamic render), and `destroy()` when
+ * the container is about to be discarded (e.g. SPA page swap) so the resize
+ * listener does not leak.
  */
 import { DEFAULT_RATIO } from '../utils/ratio';
 
-export function initMasonry(container: HTMLElement): () => void {
+export function initMasonry(container: HTMLElement): {
+  relayout: () => void;
+  destroy: () => void;
+} {
   const parseRatio = (s: string): number => {
     const [w, h] = s.split('/').map((n) => parseFloat(n.trim()));
     return w && h ? w / h : 1;
@@ -54,5 +59,8 @@ export function initMasonry(container: HTMLElement): () => void {
 
   layout();
   window.addEventListener('resize', layout);
-  return layout;
+  return {
+    relayout: layout,
+    destroy: () => window.removeEventListener('resize', layout),
+  };
 }
