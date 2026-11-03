@@ -1,9 +1,10 @@
-{
-  "version": 1,
-  "items": { "blue-sky": {
+[{
+    "photo1": {
       "type": "photo",
       "file": "碧海蓝天.jpg",
       "category": "landscape",
+      "date": "2025-12-06",
+      "photographer": "zes",
       "en": {
         "title": "Blue Sea and Sky"
       },
@@ -13,6 +14,39 @@
       "ja": {
         "title": "青い海と空"
       }
+    },
+    "photo2": {
+      "type": "photo",
+      "file": "雪山.jpg",
+      "category": "landscape",
+      "date": "2025-12-07",
+      "photographer": "zes",
+      "en": {
+        "title": "Snowy Mountain"
+      },
+      "zh": {
+        "title": "雪山"
+      },
+      "ja": {
+        "title": "雪の山"
+      }
+    },
+    "video1": {
+      "type": "video",
+      "file": "自然风光.mp4",
+      "category": "landscape",
+      "date": "2025-12-08",
+      "photographer": "zes",
+      "en": {
+        "title": "Natural Scenery"
+      },
+      "zh": {
+        "title": "自然风光"
+      },
+      "ja": {
+        "title": "自然の風景"
+      }
     }
+
   }
-}
+]

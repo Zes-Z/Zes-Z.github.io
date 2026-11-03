@@ -4,10 +4,6 @@ import { z } from 'astro/zod';
 
 import { zestLoader } from './loaders/zest';
 
-import {
-  galleryLoader,
-  galleryEntrySchema,
-} from './loaders/gallery';
 
 /**
  * Zest content collections
