@@ -1,3 +1,4 @@
+import friendsData from './content/data/friends.json';
 import type { Language, LocalizedText, FriendGroup } from './types';
 
 /**
@@ -82,8 +83,8 @@ welcome: [
    *              A GROUP entry (one with `children`) has no href of its own —
    *              clicking it only opens/closes its panel.
    *   external : open in a new tab
-   *   icon     : 导航图标名(home | archive | recipe | photos | friends | ,
-   *              见 src/icons/)
+   *   icon     : 导航图标名(home | archive | friends | ,
+   *              见 public/icon/)
    *   children : 可选。带 children 的条目渲染成"可向下展开的块",点开后在
    *              顶栏下方弹出面板列出子项(子项结构与顶层条目相同)。
    */
@@ -119,32 +120,20 @@ welcome: [
       href: (lang: Language) => `/${lang}/archive`,
       external: false,
       icon: 'database',
-    },
-
+    },  
     {
       label: {
-        eng: 'Photos',
-        cn: '相册',
+        eng: 'Gallery',
+        cn: '画廊',
         jap: '写真',
       },
-      href: (lang: Language) => `/${lang}/photos`,
+      href: (lang: Language) => `/${lang}/gallery`,
       external: false,
-      icon: 'photos',
+      icon: 'gallery',
     },
-
-    {
-      label: {
-        eng: 'Recipes',
-        cn: '菜单',
-        jap: '料理',
-      },
-      href: (lang: Language) => `/${lang}/recipes`,
-      external: false,
-      icon: 'recipe',
-    },
+    
 
     // 以下为带有可展开子节点的导航块，如“联系”
-
     {
       label: {
         eng: 'contact',
@@ -251,126 +240,7 @@ welcome: [
   // ============================================================
   // 友链
   // ============================================================
-  friends: [
-    {
-      name: {
-        eng: 'friends',
-        cn: '朋友',
-        jap: '友達',
-      },
-
-      desc: {
-        eng: 'Friendship forever.',
-        cn: '常联系。',
-        jap: '一期一会。',
-      },
-
-      items: [
-        {
-          name: {
-            eng: 'cyou daii',
-            cn: 'cyou daii',
-            jap: 'cyou daii',
-          },
-
-          desc: {
-            eng: 'It takes many.',
-            cn: '感谢他的协作。',
-            jap: '三人寄れば文殊の知恵。',
-          },
-
-          avatar: '/avatar/cyou daii.jpg',
-          link: 'https://davis-blog.vercel.app/',
-        },
-
-        {
-          name: {
-            eng: 'kosame',
-            cn: 'kosame',
-            jap: 'kosame',
-          },
-
-          desc: {
-            eng: 'It starts raining.',
-            cn: '感谢她的倾听。',
-            jap: '言うより聞く。',
-          },
-
-          avatar: '/avatar/kosame.jpg',
-          link: 'https://example.com',
-        },
-
-        {
-          name: {
-            eng: 'cyou shiyu',
-            cn: 'cyou shiyu',
-            jap: 'cyou shiyu',
-          },
-
-          desc: {
-            eng: 'The same wavelength.',
-            cn: '感谢她的同理心。',
-            jap: '情けは人のためならず。',
-          },
-
-          avatar: '/avatar/cyou shiyu.jpg',
-          link: 'https://example.com',
-        },
-
-        {
-          name: {
-            eng: 'kim',
-            cn: 'kim',
-            jap: 'kim',
-          },
-
-          desc: {
-            eng: '.',
-            cn: '感谢她的存在。',
-            jap: '。',
-          },
-
-          avatar: '',
-          link: 'https://example.com',
-        },
-      ],
-    },
-
-    // // 以下为自定义区块，与“朋友”同级显示
-    // {
-    //   name: {
-    //     eng: '外链',
-    //     cn: '外链',
-    //     jap: '外链',
-    //   },
-
-    //   desc: {
-    //     eng: 'Useful pages worth keeping.',
-    //     cn: '值得收藏的网页。',
-    //     jap: '甲斐のあるページ。',
-    //   },
-
-    //   items: [
-    //     {
-    //       name: {
-    //         eng: 'Astro',
-    //         cn: 'Astro',
-    //         jap: 'Astro',
-    //       },
-    //       desc: {
-    //         eng: 'The framework this theme is built on.',
-    //         cn: '本主题所基于的框架。',
-    //         jap: 'このテーマの土台となったフレームワーク。',
-    //       },
-    //       avatar: 'https://avatars.githubusercontent.com/u/44914786',
-    //       link: 'https://astro.build',
-    //     },
-
-    //   ],
-    // },
-
-    
-  ] satisfies FriendGroup[],
+  friends: friendsData as FriendGroup[],
 
   // ============================================================
   // 自定义网站主题背景色
@@ -392,8 +262,6 @@ welcome: [
    */
   heroFont: true,
 
-  /** 菜单页的固定分类(与 `pnpm newreci` 的可选项共用同一份数据)。 */
-  recipeCategories: ['蔬菜', '禽类', '海鲜', '猪牛羊', '汤', '黑暗料理'] as const,
 } as const;
 
 export function siteSubtitle(): LocalizedText | undefined {
@@ -418,14 +286,10 @@ export function siteSubtitle(): LocalizedText | undefined {
 //      - 向下弹出的块(导航分组 + 搜索右侧条目块):`.nav-submenu`
 //      - 分组内容:上方 `nav[].children` 与 `menu`
 
-//   2) 图片墙
-//      - 归档:JS 密铺(比例集见 src/utils/ratio.ts 的 MASONRY_RATIOS,
-//        布局算法见 src/scripts/masonry.ts 的 initMasonry)
-//         归档 → src/components/ArchivePanel.astro(.masonry-media)
-//      - 相册/菜单:参考 Frame Shift 的自然比例 CSS columns 墙
-//         相册 → src/components/GalleryWall.astro(.gallery-*)
-//         菜单 → src/pages/[lang]/recipes.astro(.recipe-*)
-//         相册图片变体与详情路由见 src/utils/photos.ts
+//   2) 归档图片墙
+//      - 比例集见 src/utils/ratio.ts 的 MASONRY_RATIOS
+//      - 布局算法见 src/scripts/masonry.ts 的 initMasonry
+//      - 容器见 src/components/ArchivePanel.astro(.masonry-media)
 
 //   3) 友链页
 //      文件:src/pages/[lang]/links.astro

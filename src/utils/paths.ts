@@ -76,16 +76,12 @@ export function linksHref(lang: Language): string {
   return withBase(`/${lang}/links`);
 }
 
-export function recipesHref(lang: Language): string {
-  return withBase(`/${lang}/recipes`);
-}
-
 export function rssHref(lang: Language): string {
   return withBase(`/${lang}/rss.xml`);
 }
 
 /** Route segments that exist identically in every language. */
-const SHARED_SEGMENTS = new Set(['archive', 'links', 'photos', 'recipes']);
+const SHARED_SEGMENTS = new Set(['archive', 'links']);
 
 /**
  * Translate a URL of the current language into the same page in another
@@ -134,4 +130,8 @@ export function localizePath(
 /** Default language entry used by the root redirect. */
 export function defaultHome(): string {
   return homeHref(siteConfig.defaultLang);
+}
+
+export function iconSrc(name: string): string {
+  return withBase(`/icon/${name}.svg`);
 }

@@ -13,12 +13,6 @@ import { zestLoader } from './loaders/zest';
  *
  * pages:
  *   src/content/pages/<name>/{zh,en,ja}.md
- *
- * portfolios:
- *   src/content/portfolios/<slug>/{zh,en,ja}.md
- *
- * recipes:
- *   src/content/recipes/<slug>/{zh,en,ja}.md
  */
 
 export const collections = {
@@ -51,33 +45,6 @@ export const collections = {
       title: z.string().optional(),
       description: z.string().optional(),
       pubDate: z.coerce.date().optional(),
-    }),
-  }),
-
-  portfolios: defineCollection({
-    loader: zestLoader({ base: './src/content/portfolios' }),
-
-    schema: z.object({
-      title: z.string(),
-      description: z.string().optional(),
-      pubDate: z.coerce.date().optional(),
-    }),
-  }),
-
-  recipes: defineCollection({
-    loader: zestLoader({ base: './src/content/recipes' }),
-
-    schema: z.object({
-      title: z.string(),
-      categories: z.string().nullable().optional(),
-      description: z.string().optional(),
-      pubDate: z.coerce.date().optional(),
-      tags: z.array(z.string()).default([]),
-      postImage: z.string().nullable().optional(),
-
-      homepined: z.boolean().default(false),
-      pinedOrder: z.number().default(0),
-      draft: z.boolean().default(false),
     }),
   }),
 };

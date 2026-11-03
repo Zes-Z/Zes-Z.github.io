@@ -4,8 +4,6 @@ import { siteConfig } from '../site.config';
 /** UI string dictionary for English (the key source of truth). */
 const en = {
   'nav.archive': 'Archive',
-  'nav.recipe': 'Recipe',
-  'nav.photos': 'Photos',
   'nav.links': 'Friends',
 
   'lang.name': 'English',
@@ -31,25 +29,6 @@ const en = {
   'archive.all': 'All posts',
   'archive.noMatch': 'No posts match the current filters.',
 
-  'photos.photos': 'All',
-  'photos.portfolio': 'Portfolios',
-  'photos.coming': 'Coming soon',
-  'photos.comingDesc': 'This section is still under construction — stay tuned.',
-  'photos.empty': 'No photos yet.',
-  'photos.back': 'Back to gallery',
-  'photos.related': 'Related photos',
-  'photos.category': 'Photograph',
-  'photos.album': 'Album',
-  'photos.date': 'File date',
-  'photos.dimensions': 'Dimensions',
-  'photos.orientation': 'Orientation',
-  'photos.file': 'File',
-  'photos.landscape': 'Landscape',
-  'photos.portrait': 'Portrait',
-  'photos.square': 'Square',
-  'photos.viewLarger': 'View larger',
-  'photos.closeZoom': 'Close larger image',
-  'photos.count': '{n} photos',
 
   'post.toc': 'On this page',
 
@@ -63,8 +42,6 @@ export type UiKey = keyof typeof en;
 /** UI string dictionary for Chinese. */
 const zh: Record<UiKey, string> = {
   'nav.archive': '归档',
-  'nav.recipe': '菜单',
-  'nav.photos': '相册',
   'nav.links': '友链',
   'lang.name': '中文',
   'lang.switch': '语言',
@@ -89,25 +66,6 @@ const zh: Record<UiKey, string> = {
   'archive.all': '归档',
   'archive.noMatch': '没有符合当前筛选的文章。',
 
-  'photos.photos': '所有',
-  'photos.portfolio': '作品集',
-  'photos.coming': '待定',
-  'photos.comingDesc': '该板块正在建设中,敬请期待。',
-  'photos.empty': '暂无照片。',
-  'photos.back': '返回相册',
-  'photos.related': '相关照片',
-  'photos.category': '照片',
-  'photos.album': '作品集',
-  'photos.date': '文件日期',
-  'photos.dimensions': '尺寸',
-  'photos.orientation': '方向',
-  'photos.file': '文件',
-  'photos.landscape': '横构图',
-  'photos.portrait': '竖构图',
-  'photos.square': '方形',
-  'photos.viewLarger': '查看大图',
-  'photos.closeZoom': '关闭大图',
-  'photos.count': '共 {n} 张',
 
   'post.toc': '本页目录',
 
@@ -119,8 +77,6 @@ const zh: Record<UiKey, string> = {
 /** UI string dictionary for Japanese. */
 const ja: Record<UiKey, string> = {
   'nav.archive': 'アーカイブ',
-  'nav.recipe': '料理',
-  'nav.photos': '写真',
   'nav.links': '友達リンク',
 
   'lang.name': '日本語',
@@ -146,25 +102,6 @@ const ja: Record<UiKey, string> = {
   'archive.all': 'すべての記事',
   'archive.noMatch': '条件に一致する記事がありません。',
 
-  'photos.photos': 'すべて',
-  'photos.portfolio': '作品集',
-  'photos.coming': '準備中',
-  'photos.comingDesc': 'このセクションは準備中です。お楽しみに。',
-  'photos.empty': '写真はまだありません。',
-  'photos.back': 'ギャラリーに戻る',
-  'photos.related': '関連写真',
-  'photos.category': '写真',
-  'photos.album': '作品集',
-  'photos.date': 'ファイル日付',
-  'photos.dimensions': 'サイズ',
-  'photos.orientation': '向き',
-  'photos.file': 'ファイル',
-  'photos.landscape': '横向き',
-  'photos.portrait': '縦向き',
-  'photos.square': '正方形',
-  'photos.viewLarger': '拡大表示',
-  'photos.closeZoom': '拡大表示を閉じる',
-  'photos.count': '{n} 枚',
 
   'post.toc': '目次',
 

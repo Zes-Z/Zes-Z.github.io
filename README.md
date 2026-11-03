@@ -7,7 +7,6 @@
 - **明亮 / 暗黑双模式** — localStorage 持久化,无闪烁加载
 - **正则搜索** — 顶部导航搜索按钮弹出面板,支持普通/正则两种模式、命中高亮与键盘导航
 - **archive 归档页** — 顶部**分类胶囊(单选,含每类篇数)**;未筛选时按年份倒序的时间线,选中某个分类后切换为瀑布流(每行 1–3 个文章块,2:3 / 3:2 / 1:1 三种图片比例,角落显示文章名与日期)
-- **菜单页** — 固定分类胶囊(来源 `site.config.ts` 的 `recipeCategories`)+ 自然比例 CSS columns 图片墙
 - **Home 首页** — 全屏图柔和淡入淡出 → 置顶文章块(主图展示)
 - **about 页** — 独立的海洋蓝个人页(`SelfLayout`),含首页 / 关于 / 技能 / 作品 / 留言墙分节与锚点导航
 - **友链页** — 全屏淡入图 + 好友块(每行 2–3 列,左图右两行文字)
@@ -50,15 +49,13 @@ pnpm newpost        # 交互式新建文章(自动盖章 pubDate)
 ```ts
 nav: [
   { label: { cn: '首页', eng: 'Home', jap: 'ホーム' }, href: (lang) => `/${lang}`, external: false, icon: 'home' },
-  { label: { cn: '归档', eng: 'Archive', jap: 'アーカイブ' }, href: (lang) => `/${lang}/archive`, icon: 'archive' },
+  { label: { cn: '友链', eng: 'Friends', jap: '友達' }, href: (lang) => `/${lang}/links`, icon: 'friends' },
+  { label: { cn: '归档', eng: 'Archive', jap: 'アーカイブ' }, href: (lang) => `/${lang}/archive`, icon: 'database' },
   // 带 children 的条目 = 一个"可向下展开的块",点击在顶栏下方弹出面板
   {
-    label: { cn: '生活', eng: 'Life', jap: '暮らし' },
-    icon: 'photos',
-    children: [
-      { label: { cn: '相册' }, href: (lang) => `/${lang}/photos`, icon: 'photos' },
-      { label: { cn: '菜单' }, href: (lang) => `/${lang}/recipes`, icon: 'recipe' },
-    ],
+    label: { cn: '联系', eng: 'contact', jap: '連絡' },
+    icon: 'link',
+    children: [/* GitHub / Email / WeChat / 云盘 / RSS */],
   },
 ],
 ```
@@ -251,12 +248,6 @@ draft: false
 | `/{lang}/archive` | 归档(时间线 / 分类瀑布流) |
 | `/{lang}/about` | 关于(独立海洋蓝个人页) |
 | `/{lang}/links` | 友链 |
-| `/{lang}/photos` | 相册(三个可切换板块:相册墙 / 作品集 / 待定) |
-| `/{lang}/photos/photo/{photo}` | 单张照片详情(大图 + 信息 + 相关照片) |
-| `/{lang}/photos/{slug}` | 单个作品集(说明 + 内部照片墙) |
-| `/{lang}/photos/{slug}/{photo}` | 作品集内单张照片详情 |
-| `/{lang}/recipes` | 菜单(固定分类 + 自然比例图片墙) |
-| `/{lang}/recipes/{slug}` | 单个菜谱 |
 | `/{lang}/posts/{slug}` | 文章页(`{slug}` 支持多级,如 `电路学笔记/一、基本电路观念`) |
 | `/{lang}/unknown` | 占位页 |
 | `/{lang}/welcome-site` | 首页左下角欢迎块指向的介绍页 |
@@ -264,29 +255,7 @@ draft: false
 | `/{lang}/search-index.json` | 搜索索引(构建产物) |
 | `/rss.xml` | 301 到默认语言的订阅源 |
 
-## 相册页
-
-相册页参考 [Frame Shift](https://emasuriano.github.io/astro-frame-shift/) 的展示方式,顶部三个**可切换板块**(仿归档的"类别"切换):
-
-1. **相册墙** — `src/content/photos/*` 里的图片,按原始比例用 CSS columns 铺成自然瀑布流;
-   每张图带始终可见的渐变标题条(标题 + "照片"),悬停上浮并加深阴影;
-2. **作品集** — `src/content/portfolios/<slug>/` 一个作品集一个文件夹:
-   - `zh.md` / `en.md` / `ja.md`(标题 + 说明正文)
-   - `main.*`(封面)+ 若干编号照片;作品集页同样用相册墙展示;
-3. **待定** — 占位板块。
-
-### 图片查看
-
-- **点击照片** → 进入独立的照片详情页(`/photos/photo/{photo}` 或
-  `/photos/{album}/{photo}`):左侧大图、右侧标题/作品集/文件日期/尺寸/方向/文件信息,
-  下方是"相关照片"墙;
-- **点击详情页大图** → 使用原生 Popover API 全屏放大,点击背景或按 Esc 关闭;
-- **共享元素过渡** → 相册墙缩略图与详情页大图共享 `view-transition-name`,
-  借助原生跨文档 View Transitions 做缩略图 → 大图的形状补间(不支持的浏览器直接正常跳转);
-- **图片变体** → 相册墙与详情页共用约 900px 的 WebP 缩略图(与参考站一致),放大用 2600px;
-  由 `src/utils/photos.ts` 在构建时通过 `getImage` 生成。详情页复用相册缩略图,保证共享元素过渡不会二次换图;原始文件仍保留在 `Photo.src`。
-
-> 菜谱页卡片同样使用 900px WebP 缩略图;菜谱详情页里的正文图片仍使用原图。
+> 画廊(Gallery)与菜单(Recipes)页面及其实现已移除,等待重新设计。
 
 ## 技术栈
 
@@ -296,21 +265,16 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 
 ## 图标
 
-图标统一放在 `src/icons/`(每个图标一个 `.svg`),由 `src/icons/index.ts` 通过
-`import.meta.glob` 以 `?raw` 方式读成字符串并内联进 HTML(不产生额外请求)。
+图标统一放在 `public/icon/`(每个图标一个 `.svg`),通过 `src/icons/index.ts` 的
+`iconSrc(name)` 直接生成 URL(`/icon/<name>.svg`,自动带部署 base 前缀)。
+顶栏组件用 `<img src={iconSrc(name)}>` 读取,不再内联 SVG,也不再区分
+`color/` 彩色层与单色兜底层。
 
-两套图标,职责不同:
-
-| 目录 | 用途 | 着色方式 |
-| --- | --- | --- |
-| `src/icons/color/*.svg` | **顶栏在用的图标**(导航项、「链接」按钮、两个展开面板) | 品牌彩色(硬编码 fill) |
-| `src/icons/*.svg` | 兜底单色集 | `currentColor` |
-
-- 顶栏取图标统一走 `panelIcon(name)` = `color/<name>.svg` ?? `<name>.svg`;
-- 所以换彩色图标只需在 `src/icons/color/` 放一个同名 `.svg`,**不用改配置或组件**;
-- 某个图标想临时退回单色,把 `color/<name>.svg` 删掉或改名即可(会自动落到单色集);
-- 新增图标:在 `src/icons/` 放 `<name>.svg`,然后在 `site.config.ts` 里写 `icon: '<name>'`;
-- `public/icon/neteasecloudmusic.svg` 是例外:音乐挂件通过 `<img src>` 引用它,保留在 `public/` 下。
+- 新增图标:在 `public/icon/` 放 `<name>.svg`,然后在 `site.config.ts` 里写 `icon: '<name>'`;
+- 换图标:直接用同名文件覆盖 `public/icon/<name>.svg` 即可,不用改配置或组件;
+- 搜索 / 主题 / 汉堡 这几个功能性按钮仍内联 `currentColor` 单色 SVG,
+  以便在大图 Hero 上跟随文字变白;
+- 音乐挂件同样通过 `/icon/neteasecloudmusic.svg` 引用。
 
 ### 顶栏图标配色
 
@@ -318,15 +282,12 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 | --- | --- | --- | --- | --- |
 | 首页 home | `#5FA8F5` / `#A8D8FC` | | 链接 link | `#4C6FE0` / `#7E9BF5` |
 | 归档 archive | `#F0A93B` / `#FFC96B` | | GitHub | `#181717` (白圆底) |
-| 生活 photos | `#6FB2F0` / `#A8D4FB` | | 邮箱 | `#2F6BED` |
-| 生活 › 菜单 recipe | `#D9592B` / `#F5A15C` | | 云盘 | `#FF6A00` |
 | 友链 friends | `#2FA36B` / `#7BCB9E` | | 微信 | `#07C160` |
 | 未知 unknown | `#8E86E8` | | RSS | `#F26522` |
 | 语言 globe | `#79AEF5` / `#C6E0FB` | | | |
 
 > 搜索 / 主题 / 汉堡 这几个**功能性按钮**仍是 `currentColor` 单色——
-> 跟随文字色才能在大图 Hero 上正确变白。语言按钮已按要求改为彩色;
-> 若在浅色壁纸上觉得对比度不足,删掉 `src/icons/color/globe.svg` 即可回到单色。
+> 跟随文字色才能在大图 Hero 上正确变白。语言按钮使用 `public/icon/globe.svg`。
 
 ### 顶栏间距
 
@@ -356,11 +317,11 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 
 ## 项目结构要点
 
-- `src/site.config.ts` — 站点级配置(nav / menu / hero 图 / 友链 / 主题背景色 / 菜单分类 …)
+- `src/site.config.ts` — 站点级配置(nav / menu / hero 图 / 主题背景色 …);友链数据在 `src/content/data/friends.json`
 - `src/loaders/zest.ts` — 自定义内容 loader:文件夹多语结构 → `id = <lang>/<slug>`,自动判定子文档与 `pubDate`
 - `src/utils/markdown.ts` — unified 渲染管线(指令、代码块工具栏、KaTeX、Shiki 双主题、TOC 收集)
 - `src/scripts/masonry.ts` — 归档页使用的密铺瀑布流(最短列绝对定位)
-- `cli/newpost.ts` — `pnpm newpost` / `newport` / `newreci` 交互式新建内容
+- `cli/newpost.ts` — `pnpm newpost` 交互式新建文章
 
 ## 关于 `pubDate` 的注意事项
 

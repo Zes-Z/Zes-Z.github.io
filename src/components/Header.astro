@@ -3,7 +3,7 @@ import { siteConfig } from '../site.config';
 import { t, localize } from '../i18n';
 import type { Language } from '../types';
 import { withBase } from '../utils/paths';
-import { panelIcon } from '../icons';
+import { iconSrc } from '../utils/paths';
 import LanguagePicker from './LanguagePicker.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
@@ -55,8 +55,8 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
       href,
       external: Boolean(child.external),
       wechatId: child.wechatId,
-      // 面板内用彩色图标(没有彩色变体时自动退回单色)
-      icon: panelIcon(child.icon ?? ''),
+      // 面板内图标(public/icon/<name>.svg)
+      icon: child.icon ? iconSrc(child.icon) : '',
       active: isActive(href),
     };
   });
@@ -67,8 +67,8 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
     label: localize(item.label as never, lang),
     href,
     external: Boolean(item.external),
-    // 导航栏也改用彩色图标(统一走 panelIcon:优先 color/ 变体)
-    icon: item.icon ? panelIcon(item.icon) : '',
+    // 导航栏图标(public/icon/<name>.svg)
+    icon: item.icon ? iconSrc(item.icon) : '',
     children,
     active: entryActive(href, children.map((c) => c.href)),
   };
@@ -98,7 +98,11 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
                   aria-haspopup="true"
                   data-nav-group
                 >
-                  {item.icon && <span class="nav-icon" set:html={item.icon} />}
+                  {item.icon && (
+                    <span class="nav-icon">
+                      <img src={item.icon} alt="" decoding="async" />
+                    </span>
+                  )}
                   <span class="nav-label">{item.label}</span>
                 </button>
               ) : (
@@ -107,7 +111,11 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
                   href={item.href}
                   {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 >
-                  {item.icon && <span class="nav-icon" set:html={item.icon} />}
+                  {item.icon && (
+                    <span class="nav-icon">
+                      <img src={item.icon} alt="" decoding="async" />
+                    </span>
+                  )}
                   <span class="nav-label">{item.label}</span>
                 </a>
               )}
@@ -124,7 +132,11 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
                           data-copy-wechat
                           data-copy-value={child.wechatId}
                         >
-                          {child.icon && <span class="nav-icon" set:html={child.icon} />}
+                          {child.icon && (
+                            <span class="nav-icon">
+                              <img src={child.icon} alt="" decoding="async" />
+                            </span>
+                          )}
                           <span class="sr-only">{child.label}</span>
                         </button>
                       ) : (
@@ -136,7 +148,11 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
                             ? { target: '_blank', rel: 'noopener noreferrer' }
                             : {})}
                         >
-                          {child.icon && <span class="nav-icon" set:html={child.icon} />}
+                          {child.icon && (
+                            <span class="nav-icon">
+                              <img src={child.icon} alt="" decoding="async" />
+                            </span>
+                          )}
                           <span class="sr-only">{child.label}</span>
                         </a>
                       )}
@@ -386,8 +402,12 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
     display: inline-flex;
     flex: none;
   }
-  .nav-icon :global(svg) {
+  .nav-icon :global(img) {
     display: block;
+    width: auto;
+    height: auto;
+    max-width: 20px;
+    max-height: 20px;
   }
   .nav-label {
     display: inline-block;
@@ -584,8 +604,12 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
   .site-header .nav-submenu-link .nav-icon {
     display: block;
   }
-  .site-header .nav-submenu-link :global(svg) {
+  .site-header .nav-submenu-link :global(img) {
     display: block;
+    width: auto;
+    height: auto;
+    max-width: 20px;
+    max-height: 20px;
   }
   .site-header .nav-submenu-link:hover {
     background: color-mix(in srgb, var(--sky) 12%, transparent);

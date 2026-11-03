@@ -3,7 +3,7 @@ import { siteConfig } from '../site.config';
 import { t } from '../i18n';
 import type { Language } from '../types';
 import { localizePath } from '../utils/paths';
-import { panelIcon } from '../icons';
+import { iconSrc } from '../utils/paths';
 
 interface Props {
   lang: Language;
@@ -24,7 +24,9 @@ const nextLabel = t(next, 'lang.name');
     href={localizePath(pathname, next)}
     aria-label={`${t(lang, 'lang.switch')} → ${nextLabel}`}
   >
-    <span class="nav-icon" set:html={panelIcon('globe')} />
+    <span class="nav-icon">
+      <img src={iconSrc('globe')} alt="" decoding="async" />
+    </span>
     <span class="lang-current">{lang.toUpperCase()}</span>
   </a>
 </language-picker>
@@ -41,6 +43,19 @@ const nextLabel = t(next, 'lang.name');
     width: auto;
     height: 38px;
     padding: 0 12px;
+  }
+
+  .nav-icon {
+    display: inline-flex;
+    flex: none;
+  }
+
+  .nav-icon img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 20px;
+    max-height: 20px;
   }
 
   .lang-current {

@@ -3,25 +3,10 @@
  *
  * Usage:
  *   pnpm newpost "文章名"
- *   pnpm newport "项目名"
- *   pnpm newreci "菜名"
  *
  * Creates:
  *
- *   newpost:
  *   src/content/posts/<文章名>/
- *     zh.md
- *     en.md
- *     ja.md
- *
- *   newport:
- *   src/content/portfolios/<项目名>/
- *     zh.md
- *     en.md
- *     ja.md
- *
- *   newreci:
- *   src/content/recipes/<菜名>/
  *     zh.md
  *     en.md
  *     ja.md
@@ -40,7 +25,6 @@ import {
 import {
   fileURLToPath,
 } from 'node:url';
-import { siteConfig } from '../src/site.config';
 
 const root = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -67,17 +51,11 @@ const onCancel = () => {
 
 const command = process.argv[2];
 
-if (
-  command !== 'newpost' &&
-  command !== 'newport' &&
-  command !== 'newreci'
-) {
+if (command !== 'newpost') {
   console.error(
     [
       'Usage:',
       '  pnpm newpost "文章名"',
-      '  pnpm newport "项目名"',
-      '  pnpm newreci "菜名"',
     ].join('\n')
   );
 
@@ -87,16 +65,7 @@ if (
 const name = process.argv.slice(3).join(' ').trim();
 
 if (!name) {
-  const label =
-    command === 'newpost'
-      ? '文章名'
-      : command === 'newport'
-        ? '项目名'
-        : '菜名';
-
-  console.error(
-    `Usage: pnpm ${command} "${label}"`
-  );
+  console.error('Usage: pnpm newpost "文章名"');
 
   process.exit(1);
 }
@@ -343,284 +312,9 @@ async function newPost() {
 
 
 /* =========================================================
- * newport
- * ======================================================= */
-
-async function newPort() {
-  const portfoliosDir = join(
-    root,
-    'src',
-    'content',
-    'portfolios'
-  );
-
-  const folder = join(
-    portfoliosDir,
-    name
-  );
-
-  if (existsSync(folder)) {
-    console.error(
-      `Folder already exists: ${folder}`
-    );
-
-    process.exit(1);
-  }
-
-  const response = await prompts(
-    [
-      {
-        type: 'text',
-        name: 'titleEn',
-        message: 'English title',
-        validate: (value: string) =>
-          value.trim()
-            ? true
-            : 'English title is required',
-      },
-
-      {
-        type: 'text',
-        name: 'titleJa',
-        message: 'Japanese title (日本語タイトル)',
-        validate: (value: string) =>
-          value.trim()
-            ? true
-            : 'Japanese title is required',
-      },
-
-      {
-        type: 'text',
-        name: 'descriptionZh',
-        message: 'Chinese description (中文描述)',
-        initial: '',
-      },
-
-      {
-        type: 'text',
-        name: 'descriptionEn',
-        message: 'English description',
-        initial: '',
-      },
-
-      {
-        type: 'text',
-        name: 'descriptionJa',
-        message: 'Japanese description (日本語説明)',
-        initial: '',
-      },
-    ],
-    { onCancel }
-  ) as {
-    titleEn: string;
-    titleJa: string;
-    descriptionZh: string;
-    descriptionEn: string;
-    descriptionJa: string;
-  };
-
-  const files = {
-    'zh.md': {
-      title: name,
-      description:
-        response.descriptionZh.trim(),
-    },
-
-    'en.md': {
-      title: response.titleEn.trim(),
-      description:
-        response.descriptionEn.trim(),
-    },
-
-    'ja.md': {
-      title: response.titleJa.trim(),
-      description:
-        response.descriptionJa.trim(),
-    },
-  };
-
-  mkdirSync(folder, {
-    recursive: true,
-  });
-
-  for (const [fileName, file] of Object.entries(
-    files
-  )) {
-    const content = `---
-title: ${JSON.stringify(file.title)}
-description: ${JSON.stringify(file.description)}
----
-
-`;
-
-    writeFileSync(
-      join(folder, fileName),
-      content,
-      'utf8'
-    );
-
-    console.log(
-      `wrote ${join(
-        'src/content/portfolios',
-        name,
-        fileName
-      )}`
-    );
-  }
-
-  console.log('');
-  console.log(
-    `Created portfolio folder: src/content/portfolios/${name}/`
-  );
-}
-
-/* =========================================================
- * newreci
- * ======================================================= */
-
-/**
- * 固定分类。来源是 site.config.ts 的 recipeCategories,与菜单页共用同一份,
- * 避免"菜单页有某分类、CLI 却选不到"这类不一致。
- */
-const RECIPE_CATEGORIES = siteConfig.recipeCategories;
-
-async function newRecipe() {
-  const recipesDir = join(
-    root,
-    'src',
-    'content',
-    'recipes'
-  );
-
-  const folder = join(
-    recipesDir,
-    name
-  );
-
-  if (existsSync(folder)) {
-    console.error(
-      `Folder already exists: ${folder}`
-    );
-
-    process.exit(1);
-  }
-
-  const response = await prompts(
-    [
-      {
-        type: 'select',
-        name: 'category',
-        message: '分类',
-        choices: RECIPE_CATEGORIES.map((c) => ({
-          title: c,
-          value: c,
-        })),
-        initial: 0,
-      },
-
-      {
-        type: 'text',
-        name: 'tags',
-        message: '标签(逗号分隔,可跳过)',
-        initial: '',
-      },
-
-      {
-        type: 'text',
-        name: 'description',
-        message: '描述(可跳过)',
-        initial: '',
-      },
-    ],
-    { onCancel }
-  ) as {
-    category: string;
-    tags: string;
-    description: string;
-  };
-
-  const tags = response.tags
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-
-  const frontmatter = [
-    `title: ${JSON.stringify(name)}`,
-    `categories: ${JSON.stringify(response.category)}`,
-    `description: ${JSON.stringify(response.description.trim())}`,
-    `pubDate: "${today()}"`,
-    `tags: [${tags
-      .map((tag) => JSON.stringify(tag))
-      .join(', ')}]`,
-    'postImage: ',
-    'homepined: true',
-    'pinedOrder: 0',
-    'draft: false',
-  ].join('\n');
-
-  const body = `## 备菜
-
----
-
-## 
-
-
-
----
-
-## 
-
-`;
-
-  const files = {
-    'zh.md': name,
-    'en.md': name,
-    'ja.md': name,
-  };
-
-  mkdirSync(folder, {
-    recursive: true,
-  });
-
-  for (const fileName of Object.keys(files)) {
-    writeFileSync(
-      join(folder, fileName),
-
-      `---\n${frontmatter}\n---\n\n${body}`,
-
-      'utf8'
-    );
-
-    console.log(
-      `wrote ${join(
-        'src/content/recipes',
-        name,
-        fileName
-      )}`
-    );
-  }
-
-  console.log('');
-  console.log(
-    `Created recipe folder: src/content/recipes/${name}/`
-  );
-  console.log(
-    'Put images (cover main.* + step photos) in the same folder.'
-  );
-}
-
-/* =========================================================
  * Run
  * ======================================================= */
 
 if (command === 'newpost') {
   await newPost();
-}
-
-if (command === 'newport') {
-  await newPort();
-}
-
-if (command === 'newreci') {
-  await newRecipe();
 }

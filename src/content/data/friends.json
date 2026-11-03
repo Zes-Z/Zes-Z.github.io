@@ -1,0 +1,72 @@
+[
+  {
+    "name": {
+      "eng": "friends",
+      "cn": "朋友",
+      "jap": "友達"
+    },
+    "desc": {
+      "eng": "Friendship forever.",
+      "cn": "常联系。",
+      "jap": "一期一会。"
+    },
+    "items": [
+      {
+        "name": {
+          "eng": "cyou daii",
+          "cn": "cyou daii",
+          "jap": "cyou daii"
+        },
+        "desc": {
+          "eng": "It takes many.",
+          "cn": "感谢他的协作。",
+          "jap": "三人寄れば文殊の知恵。"
+        },
+        "avatar": "/avatar/cyou daii.jpg",
+        "link": "https://davis-blog.vercel.app/"
+      },
+      {
+        "name": {
+          "eng": "kosame",
+          "cn": "kosame",
+          "jap": "kosame"
+        },
+        "desc": {
+          "eng": "It starts raining.",
+          "cn": "感谢她的倾听。",
+          "jap": "言うより聞く。"
+        },
+        "avatar": "/avatar/kosame.jpg",
+        "link": "https://example.com"
+      },
+      {
+        "name": {
+          "eng": "cyou shiyu",
+          "cn": "cyou shiyu",
+          "jap": "cyou shiyu"
+        },
+        "desc": {
+          "eng": "The same wavelength.",
+          "cn": "感谢她的同理心。",
+          "jap": "情けは人のためならず。"
+        },
+        "avatar": "/avatar/cyou shiyu.jpg",
+        "link": "https://example.com"
+      },
+      {
+        "name": {
+          "eng": "kim",
+          "cn": "kim",
+          "jap": "kim"
+        },
+        "desc": {
+          "eng": ".",
+          "cn": "感谢她的存在。",
+          "jap": "。"
+        },
+        "avatar": "",
+        "link": "https://example.com"
+      }
+    ]
+  }
+]

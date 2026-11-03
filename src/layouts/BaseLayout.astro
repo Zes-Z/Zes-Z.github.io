@@ -8,7 +8,6 @@ import { siteConfig, siteSubtitle } from '../site.config';
 import { localize } from '../i18n';
 import type { Language } from '../types';
 import { withBase } from '../utils/paths';
-import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   lang: Language;
@@ -38,10 +37,6 @@ const pageTitle = title
     ? `${siteConfig.title} — ${localize(subtitleText, lang)}`
     : siteConfig.title;
 const pageDescription = description ?? localize(siteConfig.description, lang);
-
-/** `#rrggbbaa` → `#rrggbb`, for the opaque backdrop used by view transitions. */
-const opaque = (color: string) =>
-  /^#[0-9a-f]{8}$/i.test(color) ? color.slice(0, 7) : color;
 ---
 
 <!doctype html>
@@ -61,7 +56,7 @@ const opaque = (color: string) =>
         template literals, so the values would be emitted as literal JS text. */}
     <style
       is:inline
-      set:html={`:root{--site-light-bg:${siteConfig.theme.light.bg};--site-dark-bg:${siteConfig.theme.dark.bg};--vt-light-bg:${opaque(siteConfig.theme.light.bg)};--vt-dark-bg:${opaque(siteConfig.theme.dark.bg)}}`}
+      set:html={`:root{--site-light-bg:${siteConfig.theme.light.bg};--site-dark-bg:${siteConfig.theme.dark.bg}}`}
     />
 
     <script is:inline>
@@ -127,7 +122,6 @@ const opaque = (color: string) =>
     }
     <meta name="theme-color" content={siteConfig.theme.light.bg} />
     <title>{pageTitle}</title>
-    <ClientRouter />
   </head>
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
@@ -205,36 +199,6 @@ const opaque = (color: string) =>
     },
     true
   );
-
-  // "返回相册"按钮:有同站历史时走 history.back(),让 ClientRouter 恢复滚动位置;
-  // 直接打开/外链进入(无历史)时跳转到 data-fallback 兜底。
-  document.addEventListener('click', (event) => {
-    const btn = (event.target as HTMLElement | null)?.closest<HTMLElement>(
-      '[data-history-back]'
-    );
-    if (!btn) return;
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    if (window.history.length <= 1) {
-      const fallback = btn.dataset.fallback;
-      if (fallback) window.location.assign(fallback);
-      return;
-    }
-    window.history.back();
-  });
-
-  // 只在相册相关路由之间启用 ClientRouter 的 SPA 过渡(/<lang>/photos/...),
-  // 其余页面走整页导航,避免影响归档/菜谱/搜索等页面的脚本初始化。
-  const isPhotosPath = (url: URL): boolean => {
-    const seg = url.pathname.split('/');
-    return seg[2] === 'photos';
-  };
-
-  document.addEventListener('astro:before-preparation', (event) => {
-    const e = event as Event & { from: URL; to: URL; preventDefault: () => void };
-    if (!(isPhotosPath(e.from) && isPhotosPath(e.to))) {
-      e.preventDefault();
-    }
-  });
 
   // 复制类按钮(顶栏展开块里的微信号等):委托监听,兼容视图切换。
   // 文案与字号沿用原来页脚时的表现,只在有 data-copy-toast 时提示。
