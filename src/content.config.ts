@@ -83,11 +83,4 @@ export const collections = {
   // Gallery
   // ===================================================
 
-  gallery: defineCollection({
-    loader: galleryLoader({
-      base: './src/content/gallery',
-    }),
-
-    schema: galleryEntrySchema,
-  }),
 };
