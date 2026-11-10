@@ -132,6 +132,16 @@ welcome: [
       external: true,
       icon: 'album',
     },
+    {
+      label: {
+        eng: 'Mess',
+        cn: '留言',
+        jap: '伝言',
+      },
+      href: (lang: Language) => `/${lang}`,
+      external: false,
+      icon: 'message',
+    },
     
 
     // 以下为带有可展开子节点的导航块，如“联系”

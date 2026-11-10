@@ -96,33 +96,7 @@ const dateText =
  * Resolve Markdown links
  * ========================================================= */
 
-/**
- * Resolve a relative `.md` link from the current post.
- *
- * Current article:
- *
- *   电路学
- *
- * Link:
- *
- *   二、进阶电路分析/zh.md
- *
- * Result:
- *
- *   /zh/posts/电路学/二、进阶电路分析
- *
- * Current article:
- *
- *   电路学/一、基本电路观念
- *
- * Link:
- *
- *   ../二、进阶电路分析/zh.md
- *
- * Result:
- *
- *   /zh/posts/电路学/二、进阶电路分析
- */
+
 function resolvePostLink(
   url: string,
 ): string | undefined {
@@ -183,21 +157,7 @@ function resolvePostLink(
    * Current Markdown file is:
    *
    *   <slug>/<lang>.md
-   *
-   * Therefore the directory containing
-   * the current file is represented by
-   * the current `slug`.
-   *
-   * Example:
-   *
-   *   slug =
-   *   电路学/一、基本电路观念
-   *
-   * base =
-   *   [
-   *     电路学,
-   *     一、基本电路观念
-   *   ]
+
    */
   const baseParts =
     slug
