@@ -6,6 +6,7 @@ import '../styles/katex.css';
 import Header from '../components/Header.astro';
 import SearchPalette from '../components/SearchPalette.astro';
 import MusicWidget from '../components/MusicWidget.astro';
+import { ClientRouter } from 'astro:transitions';
 
 import { siteConfig, siteSubtitle } from '../site.config';
 import { localize } from '../i18n';
@@ -27,6 +28,7 @@ interface Props {
    * Only then are the web fonts loaded.
    */
   heroFont?: boolean;
+  transitions?: boolean;
 }
 
 const {
@@ -35,6 +37,7 @@ const {
   description,
   fullWidth = false,
   heroFont = false,
+  transitions = false,
 } = Astro.props;
 
 const subtitleText = siteSubtitle();
@@ -58,6 +61,8 @@ const pageDescription =
 >
   <head>
     <meta charset="UTF-8" />
+    {transitions && <ClientRouter />}
+    {transitions && <link rel="preload" as="image" href={withBase('/icon/album.svg')} />}
 
     <!-- Critical background colors -->
     <style

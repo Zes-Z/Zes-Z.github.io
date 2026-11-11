@@ -1,0 +1,18 @@
+---
+import AlbumLayout from '../../../layouts/AlbumLayout.astro';
+import { siteConfig } from '../../../site.config';
+import type { Language } from '../../../types';
+import { getAlbumEntries } from '../../../utils/album';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.flatMap((lang) =>
+    getAlbumEntries(lang).map((entry) => ({ params: { lang, id: entry.id } })),
+  );
+}
+
+const { lang, id } = Astro.params as { lang: Language; id: string };
+const entry = getAlbumEntries(lang).find((item) => item.id === id);
+const title = entry?.title ?? 'Album';
+---
+
+<AlbumLayout lang={lang} title={title} entryId={id} />

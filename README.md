@@ -24,7 +24,10 @@ pnpm dev            # 开发服务器 http://localhost:4321
 pnpm build          # astro check + astro build
 pnpm preview        # 预览生产构建
 pnpm newpost        # 交互式新建文章(自动盖章 pubDate)
+pnpm newport        # 交互式新建作品集文件夹和 portfolio.md
 ```
+
+根目录照片元信息保存在 `photo-video.json`，以文件名为键；作品集照片元信息放在 `portfolio.md` 正文中的 JSON 片段里，frontmatter 只保存作品集字段。照片元信息使用 `draft`、`type`、`category`、`tag`、`date`、`photographer`、`title: [英文, 中文, 日文]` 和 `related`。照片与作品集各自的 `draft` 独立控制显示。`heroImage` 保存作品集封面文件名。`pnpm dev`、`pnpm build` 或 `pnpm gallery:sync` 会根据实际媒体文件更新元信息、补齐同作品集照片的 `related`，并迁移旧 `portfolio.json`。`related` 使用对象 ID 字符串数组，例如 `related: ["portfolio1", "video1", "photo2"]`。
 
 要求 Node >= 22.12、pnpm(项目使用 pnpm 11;`pnpm-workspace.yaml` 中已放行 esbuild/sharp 构建脚本)。
 
@@ -322,6 +325,7 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 - `src/utils/markdown.ts` — unified 渲染管线(指令、代码块工具栏、KaTeX、Shiki 双主题、TOC 收集)
 - `src/scripts/masonry.ts` — 归档页使用的密铺瀑布流(最短列绝对定位)
 - `cli/newpost.ts` — `pnpm newpost` 交互式新建文章
+- `cli/newport.ts` — `pnpm newport` 交互式新建作品集
 
 ## 关于 `pubDate` 的注意事项
 

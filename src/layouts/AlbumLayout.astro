@@ -1,0 +1,636 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { Language } from '../types';
+import { getAlbumEntries, getAlbumHomeItems, type AlbumEntry, type PortfolioCard } from '../utils/album';
+import { withBase } from '../utils/paths';
+import CategoryPills from '../components/CategoryPills.astro';
+
+interface Props {
+  lang: Language;
+  title: string;
+  entryId?: string;
+  portfolioId?: string;
+  category?: string;
+  backHref?: string;
+}
+
+const { lang, title, entryId, portfolioId, category, backHref } = Astro.props;
+const words = {
+  zh: { all: '全部', back: '返回照片墙', categories: '分类', date: '日期', photographer: '作者', related: '相关照片', portfolio: '作品集', zoom: '查看大图', close: '关闭大图', previous: '上一张', next: '下一张', empty: '没有符合当前分类的照片。' },
+  en: { all: 'All', back: 'Back to gallery', categories: 'Categories', date: 'Date', photographer: 'Photographer', related: 'Related Images', portfolio: 'Portfolio', zoom: 'View larger image', close: 'Close larger image', previous: 'Previous image', next: 'Next image', empty: 'No photos match this category.' },
+  ja: { all: 'すべて', back: '写真一覧に戻る', categories: 'カテゴリ', date: '日付', photographer: '撮影者', related: '関連写真', portfolio: 'ポートフォリオ', zoom: '拡大表示', close: '拡大画像を閉じる', previous: '前の写真', next: '次の写真', empty: 'このカテゴリに一致する写真はありません。' },
+}[lang];
+const albumHref = withBase(`/${lang}/album`);
+const allEntries = getAlbumEntries(lang);
+const homeItems = getAlbumHomeItems(lang);
+const portfolio = homeItems.find((item): item is PortfolioCard => 'count' in item && item.id === portfolioId);
+const detail = allEntries.find((item) => item.id === entryId);
+const uniqueByImage = (items: AlbumEntry[]) => {
+  const unique = new Map<string, AlbumEntry>();
+  for (const item of items) if (!unique.has(item.src)) unique.set(item.src, item);
+  return [...unique.values()];
+};
+const activeEntries: AlbumEntry[] = portfolio
+  ? allEntries.filter((item) => item.file.startsWith(`${portfolio.folder}/`))
+  : category
+    ? uniqueByImage(allEntries.filter((item) => item.category.toLowerCase() === category.toLowerCase()))
+    : allEntries.filter((item) => !item.file.includes('/'));
+const portfolioImages = activeEntries.filter((item) => item.kind !== 'video');
+const portfolioImageIndex = new Map(portfolioImages.map((item, index) => [item.id, index]));
+const categories = [...new Set(allEntries.map((item) => item.category.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+const categoryCounts = categories.map((name) => [name, new Set(allEntries.filter((item) => item.category === name).map((item) => item.src)).size] as [string, number]);
+const relatedIds = new Set(detail?.related ?? []);
+const related = uniqueByImage(allEntries.filter((item) => relatedIds.has(item.id))).slice(0, 8);
+const categoryEntries = uniqueByImage(allEntries.filter((item) => item.category.trim()));
+const srcForEntry = (item: AlbumEntry) => withBase(`/${lang}/album/${encodeURIComponent(item.id)}`);
+const back = backHref ?? (portfolio ? withBase(`/${lang}/album/portfolio/${encodeURIComponent(portfolio.id)}`) : albumHref);
+const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'}width=2400` : '';
+---
+
+<BaseLayout lang={lang} title={title} transitions>
+  {detail ? <div class="album-detail-shell">
+    <div class="album-container">
+      <a class="album-back" href={back}><span aria-hidden="true">←</span>{words.back}</a>
+      <section class="album-detail">
+        <div class="detail-image-wrap" transition:name={`image-${detail.id}`}>
+          {detail.kind === 'video' ? <video src={detail.src} controls playsinline /> : <button class="zoom-trigger" type="button" popovertarget="album-image-zoom" aria-label={`${words.zoom}: ${detail.title}`}><img src={detail.src} alt={detail.title} width={detail.width} height={detail.height} loading="eager" /></button>}
+        </div>
+        <aside class="detail-info">
+          <h1>{detail.title}</h1>
+          {detail.category && <h2>{detail.category}</h2>}
+          <div class="metadata">
+            {detail.category && <p><span>{words.categories}</span><b>{detail.category}</b></p>}
+            {detail.date && <p><span>{words.date}</span><b>{detail.date}</b></p>}
+            {detail.photographer && <p><span>{words.photographer}</span><b>{detail.photographer}</b></p>}
+          </div>
+        </aside>
+      </section>
+      {related.length > 0 && <section class="related">
+        <h2>{words.related}</h2>
+        <div class="masonry">
+      {related.map((item) => <a class="photo-card" href={srcForEntry(item)}>
+            <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />
+          <span class="caption">
+            <span class="caption-main"><b>{item.title}</b>{item.category && <small>{item.category}</small>}</span>
+            {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
+          </span>
+          </a>)}
+        </div>
+      </section>}
+    </div>
+    {detail.kind !== 'video' && <div id="album-image-zoom" popover class="zoom-popover"><button class="zoom-close" type="button" popovertarget="album-image-zoom" popovertargetaction="hide" aria-label={words.close}><img src={largeImage} alt={detail.title} /></button></div>}
+  </div> : portfolio ? <div class="album-container portfolio-page">
+    <a class="album-back" href={albumHref}><span aria-hidden="true">←</span>{words.back}</a>
+    <h1 class="portfolio-title">{portfolio.title}</h1>
+    <div class="portfolio-sequence">
+      {activeEntries.map((item, index) => <section class:list={[
+        'portfolio-row',
+        { 'image-right-wide': index % 2 === 1 },
+      ]}>
+        <div class="portfolio-image">
+          {item.kind === 'video' ? <video src={item.src} controls playsinline /> : <button
+            class="portfolio-lightbox-trigger"
+            type="button"
+            data-portfolio-lightbox-trigger
+            data-lightbox-index={portfolioImageIndex.get(item.id)}
+            aria-label={`${words.zoom}: ${item.title}`}
+          ><img src={item.src} alt={item.title} width={item.width} height={item.height} loading={index < 2 ? 'eager' : 'lazy'} /></button>}
+        </div>
+        <aside class="portfolio-info">
+          <h2>{item.title}</h2>
+          {item.category && <h3>{item.category}</h3>}
+          <div class="metadata">
+            {item.category && <p><span>{words.categories}</span><b>{item.category}</b></p>}
+            {item.date && <p><span>{words.date}</span><b>{item.date}</b></p>}
+            {item.photographer && <p><span>{words.photographer}</span><b>{item.photographer}</b></p>}
+          </div>
+        </aside>
+      </section>)}
+    </div>
+    {portfolioImages.length > 0 && <div class="portfolio-lightbox" popover data-portfolio-lightbox>
+      <button class="portfolio-lightbox-close" type="button" data-lightbox-close aria-label={words.close}>×</button>
+      <button class="portfolio-lightbox-arrow previous" type="button" data-lightbox-previous aria-label={words.previous}>←</button>
+      <figure class="portfolio-lightbox-content">
+        <img
+          data-lightbox-image
+          src={portfolioImages[0].src}
+          alt={portfolioImages[0].title}
+          width={portfolioImages[0].width}
+          height={portfolioImages[0].height}
+        />
+        <figcaption>
+          <strong data-lightbox-title>{portfolioImages[0].title}</strong>
+          <span data-lightbox-counter>1 / {portfolioImages.length}</span>
+        </figcaption>
+      </figure>
+      <button class="portfolio-lightbox-arrow next" type="button" data-lightbox-next aria-label={words.next}>→</button>
+    </div>}
+  </div> : <div class="album-container album-listing" data-album-filter data-active-category={category ?? ''}>
+    {categories.length > 0 && <CategoryPills
+      lang={lang}
+      categories={categoryCounts}
+      active={category ? categories.find((name) => name.toLowerCase() === category.toLowerCase()) ?? '' : ''}
+      allHref={albumHref}
+      allLabel={words.all}
+      totalCount={homeItems.length}
+      hrefForCategory={(name) => withBase(`/${lang}/album/category/${encodeURIComponent(name.toLowerCase())}`)}
+    />}
+    <div class="filter-view" data-home-view hidden={Boolean(category)}>
+        <div class="masonry">
+          {homeItems.map((item) => 'count' in item ? <a class="photo-card portfolio-card" href={withBase(`/${lang}/album/portfolio/${encodeURIComponent(item.id)}`)} aria-label={item.title}>
+            <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" transition:name={`portfolio-${item.id}`} />
+            <span class="caption">
+              <span class="caption-main"><b>{item.title}</b><small>{words.portfolio} · {item.count}{item.category && ` · ${item.category}`}</small></span>
+              {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
+            </span>
+          </a> : <a class="photo-card" href={srcForEntry(item)} transition:name={`image-${item.id}`}>
+            {item.kind === 'video' ? <video src={item.src} muted playsinline preload="metadata" /> : <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />}
+            <span class="caption">
+              <span class="caption-main"><b>{item.title}</b>{item.category && <small>{item.category}</small>}</span>
+              {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
+            </span>
+          </a>)}
+        </div>
+    </div>
+    <div class="filter-view" data-category-view hidden={!category} aria-live="polite">
+        <div class="masonry">
+          {categoryEntries.map((item) => <a class="photo-card" data-filter-card data-category={item.category.toLowerCase()} hidden={Boolean(category) && item.category.toLowerCase() !== category?.toLowerCase()} href={srcForEntry(item)} transition:name={`image-${item.id}`}>
+            {item.kind === 'video' ? <video src={item.src} muted playsinline preload="metadata" /> : <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />}
+            <span class="caption">
+              <span class="caption-main"><b>{item.title}</b><small>{item.category}</small></span>
+              {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
+            </span>
+          </a>)}
+        </div>
+        <p class="filter-empty" data-filter-empty hidden>{words.empty}</p>
+    </div>
+  </div>}
+</BaseLayout>
+
+<script>
+  const ALBUM_RETURN_KEY = 'zest-album-return-map';
+  const ALBUM_PENDING_KEY = 'zest-album-return-pending';
+  let previousScrollBehavior: string | null = null;
+
+  type AlbumReturnState = {
+    destination: string;
+    sourcePath: string;
+    sourceIndex: number | null;
+    targetIndex: number;
+    scrollX: number;
+    scrollY: number;
+    anchorHref: string;
+    anchorTop: number;
+    sourceView: 'home' | 'category' | 'other';
+    disableSharedElement: boolean;
+  };
+
+  function readAlbumReturnMap(): Record<string, AlbumReturnState> {
+    try {
+      return JSON.parse(sessionStorage.getItem(ALBUM_RETURN_KEY) || '{}') as Record<string, AlbumReturnState>;
+    } catch {
+      return {};
+    }
+  }
+
+  function prepareMasonryForSwap(newDocument: Document) {
+    const container = document.querySelector<HTMLElement>('.album-container');
+    const shell = document.querySelector<HTMLElement>('.container-x');
+    const shellStyle = shell ? getComputedStyle(shell) : null;
+    const shellWidth = shell && shellStyle
+      ? shell.clientWidth - Number.parseFloat(shellStyle.paddingLeft) - Number.parseFloat(shellStyle.paddingRight)
+      : document.documentElement.clientWidth;
+    const masonryWidth = container?.getBoundingClientRect().width || shellWidth;
+
+    const probe = document.createElement('div');
+    probe.className = 'masonry';
+    const targetMasonry = newDocument.querySelector<HTMLElement>('.masonry');
+    targetMasonry?.getAttributeNames()
+      .filter((name) => name.startsWith('data-astro-cid-'))
+      .forEach((name) => probe.setAttribute(name, ''));
+    probe.style.cssText = `position:fixed;left:-10000px;top:0;width:${masonryWidth}px;visibility:hidden;pointer-events:none`;
+    document.body.append(probe);
+    const style = getComputedStyle(probe);
+    const columns = Math.max(1, style.gridTemplateColumns.split(/\s+/).filter(Boolean).length);
+    const rowHeight = Number.parseFloat(style.gridAutoRows) || 8;
+    const rowGap = Number.parseFloat(style.rowGap) || 0;
+    const columnGap = Number.parseFloat(style.columnGap) || 0;
+    probe.remove();
+
+    const cardWidth = (masonryWidth - columnGap * (columns - 1)) / columns;
+    newDocument.querySelectorAll<HTMLElement>('.masonry').forEach((masonry) => {
+      masonry.querySelectorAll<HTMLElement>(':scope > .photo-card').forEach((card) => {
+        const image = card.querySelector<HTMLImageElement>('img');
+        const video = card.querySelector<HTMLVideoElement>('video');
+        const mediaWidth = Number(image?.getAttribute('width') ?? video?.getAttribute('width'));
+        const mediaHeight = Number(image?.getAttribute('height') ?? video?.getAttribute('height'));
+        const ratio = mediaWidth > 0 && mediaHeight > 0 ? mediaHeight / mediaWidth : 0.5;
+        const span = Math.max(1, Math.ceil((cardWidth * ratio + rowGap) / (rowHeight + rowGap)));
+        card.style.gridRowEnd = `span ${span}`;
+      });
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const backLink = target.closest<HTMLAnchorElement>('.album-back');
+    if (backLink) {
+      try {
+        const index = history.state?.index;
+        const saved = typeof index === 'number' ? readAlbumReturnMap()[`target:${index}`] : null;
+        const destination = `${location.pathname}${location.search}`;
+        if (saved?.destination === destination && saved.targetIndex === index) {
+          event.preventDefault();
+          history.back();
+        }
+      } catch {
+        // Keep the normal href behavior when session storage is unavailable.
+      }
+      return;
+    }
+
+    const link = target.closest<HTMLAnchorElement>('.album-container a.photo-card');
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    try {
+      const targetUrl = new URL(link.href, location.href);
+      if (targetUrl.origin !== location.origin) return;
+      const homeView = document.querySelector<HTMLElement>('[data-home-view]');
+      const categoryView = document.querySelector<HTMLElement>('[data-category-view]');
+      const sourceView = link.closest('[data-home-view]') && !homeView?.hidden
+        ? 'home'
+        : link.closest('[data-category-view]') && !categoryView?.hidden
+          ? 'category'
+          : 'other';
+      const disableSharedElement = sourceView !== 'category';
+      if (disableSharedElement) {
+        link.style.setProperty('view-transition-name', 'none', 'important');
+        link.querySelector<HTMLElement>('img, video')?.style.setProperty('view-transition-name', 'none', 'important');
+        if (sourceView === 'other') {
+          document.querySelector<HTMLElement>('.detail-image-wrap')
+            ?.style.setProperty('view-transition-name', 'none', 'important');
+        }
+      }
+      const currentState = history.state && typeof history.state === 'object' ? history.state : {};
+      history.replaceState({ ...currentState, scrollX: window.scrollX, scrollY: window.scrollY }, '');
+      sessionStorage.setItem(ALBUM_PENDING_KEY, JSON.stringify({
+        destination: `${targetUrl.pathname}${targetUrl.search}`,
+        sourcePath: `${location.pathname}${location.search}${location.hash}`,
+        sourceIndex: typeof currentState.index === 'number' ? currentState.index : null,
+        scrollX: window.scrollX,
+        scrollY: window.scrollY,
+        anchorHref: link.href,
+        anchorTop: link.getBoundingClientRect().top,
+        sourceView,
+        disableSharedElement,
+        clickedAt: Date.now(),
+      }));
+    } catch {
+      // The link still works normally when storage or history state is unavailable.
+    }
+  }, true);
+
+  document.addEventListener('astro:before-swap', (event) => {
+    const navigation = event as Event & { to?: URL; newDocument?: Document; direction?: string };
+    const targetPath = navigation.to
+      ? `${navigation.to.pathname}${navigation.to.search}${navigation.to.hash}`
+      : `${location.pathname}${location.search}${location.hash}`;
+    if (!location.pathname.includes('/album') && !targetPath.includes('/album')) return;
+
+    const root = document.documentElement;
+    if (previousScrollBehavior === null) {
+      previousScrollBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = 'auto';
+    }
+    if (navigation.newDocument) {
+      try {
+        prepareMasonryForSwap(navigation.newDocument);
+        const targetPath = `${navigation.to?.pathname ?? ''}${navigation.to?.search ?? ''}`;
+        const pending = JSON.parse(sessionStorage.getItem(ALBUM_PENDING_KEY) || 'null') as AlbumReturnState | null;
+        const currentIndex = history.state?.index;
+        const saved = typeof currentIndex === 'number' ? readAlbumReturnMap()[`source:${currentIndex}`] : null;
+
+        if (pending?.destination === targetPath && pending.disableSharedElement) {
+          navigation.newDocument.querySelector<HTMLElement>('.detail-image-wrap')?.style.setProperty('view-transition-name', 'none', 'important');
+        }
+        if (
+          navigation.direction === 'back' &&
+          saved?.sourcePath === targetPath &&
+          saved.disableSharedElement
+        ) {
+          if (saved.sourceView === 'home') {
+            const view = navigation.newDocument.querySelector<HTMLElement>('[data-home-view]');
+            const anchor = [...(view?.querySelectorAll<HTMLAnchorElement>('a.photo-card') ?? [])]
+              .find((link) => link.href === saved.anchorHref);
+            anchor?.style.setProperty('view-transition-name', 'none', 'important');
+            anchor?.querySelector<HTMLElement>('img, video')?.style.setProperty('view-transition-name', 'none', 'important');
+          } else {
+            navigation.newDocument.querySelector<HTMLElement>('.detail-image-wrap')
+              ?.style.setProperty('view-transition-name', 'none', 'important');
+          }
+        }
+      } catch {
+        // Keep the navigation working if a browser cannot measure the pre-swap layout.
+      }
+    }
+  });
+
+  document.addEventListener('astro:after-swap', (event) => {
+    const navigation = event as Event & { direction?: string };
+    try {
+      const currentPath = `${location.pathname}${location.search}${location.hash}`;
+      const currentIndex = history.state?.index;
+      const pending = JSON.parse(sessionStorage.getItem(ALBUM_PENDING_KEY) || 'null') as Omit<AlbumReturnState, 'targetIndex'> & { clickedAt?: number } | null;
+      if (
+        pending?.destination === `${location.pathname}${location.search}` &&
+        typeof currentIndex === 'number' &&
+        typeof pending.clickedAt === 'number' &&
+        Date.now() - pending.clickedAt < 60_000
+      ) {
+        const returnMap = readAlbumReturnMap();
+        const state = { ...pending, targetIndex: currentIndex };
+        returnMap[`target:${currentIndex}`] = state;
+        if (typeof state.sourceIndex === 'number') returnMap[`source:${state.sourceIndex}`] = state;
+        sessionStorage.setItem(ALBUM_RETURN_KEY, JSON.stringify(returnMap));
+      }
+      sessionStorage.removeItem(ALBUM_PENDING_KEY);
+
+      const saved = typeof currentIndex === 'number' ? readAlbumReturnMap()[`source:${currentIndex}`] : null;
+      if (
+        navigation.direction === 'back' &&
+        saved?.sourcePath === currentPath &&
+        typeof saved.sourceIndex === 'number' &&
+        saved.sourceIndex === currentIndex
+      ) {
+        window.scrollTo({ left: saved.scrollX, top: saved.scrollY, behavior: 'instant' });
+        const anchor = [...document.querySelectorAll<HTMLAnchorElement>('.album-container a.photo-card')]
+          .find((link) => link.href === saved.anchorHref);
+        if (anchor) {
+          const correction = anchor.getBoundingClientRect().top - saved.anchorTop;
+          if (Math.abs(correction) > 1) {
+            window.scrollTo({ left: window.scrollX, top: window.scrollY + correction, behavior: 'instant' });
+          }
+        }
+      }
+    } catch {
+      // Return history remains optional when session storage is unavailable.
+    }
+
+    if (previousScrollBehavior === null) return;
+    document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    previousScrollBehavior = null;
+  });
+
+  function setupPortfolioLightbox() {
+    const popover = document.querySelector<HTMLElement>('[data-portfolio-lightbox]');
+    if (!popover || popover.dataset.ready === 'true') return;
+    popover.dataset.ready = 'true';
+
+    const triggers = [...document.querySelectorAll<HTMLButtonElement>('[data-portfolio-lightbox-trigger]')];
+    const image = popover.querySelector<HTMLImageElement>('[data-lightbox-image]');
+    const title = popover.querySelector<HTMLElement>('[data-lightbox-title]');
+    const counter = popover.querySelector<HTMLElement>('[data-lightbox-counter]');
+    if (!image || !title || !counter || triggers.length === 0) return;
+    const lightboxImage = image as HTMLImageElement;
+    const lightboxTitle = title as HTMLElement;
+    const lightboxCounter = counter as HTMLElement;
+
+    const photos = triggers.map((trigger) => ({
+      src: trigger.querySelector('img')?.src ?? '',
+      title: trigger.querySelector('img')?.alt ?? '',
+      width: Number(trigger.querySelector('img')?.getAttribute('width')) || 0,
+      height: Number(trigger.querySelector('img')?.getAttribute('height')) || 0,
+    }));
+    let activeIndex = 0;
+
+    function showPhoto(index: number) {
+      activeIndex = (index + photos.length) % photos.length;
+      const photo = photos[activeIndex];
+      lightboxImage.src = photo.src;
+      lightboxImage.alt = photo.title;
+      if (photo.width) lightboxImage.width = photo.width;
+      else lightboxImage.removeAttribute('width');
+      if (photo.height) lightboxImage.height = photo.height;
+      else lightboxImage.removeAttribute('height');
+      lightboxTitle.textContent = photo.title;
+      lightboxCounter.textContent = `${activeIndex + 1} / ${photos.length}`;
+
+      const next = new Image();
+      next.src = photos[(activeIndex + 1) % photos.length].src;
+    }
+
+    const previousButton = popover.querySelector<HTMLButtonElement>('[data-lightbox-previous]');
+    const nextButton = popover.querySelector<HTMLButtonElement>('[data-lightbox-next]');
+    if (photos.length < 2) {
+      if (previousButton) previousButton.hidden = true;
+      if (nextButton) nextButton.hidden = true;
+    }
+
+    triggers.forEach((trigger, index) => trigger.addEventListener('click', () => {
+      showPhoto(index);
+      popover.showPopover();
+      popover.querySelector<HTMLButtonElement>('[data-lightbox-close]')?.focus({ preventScroll: true });
+    }));
+    previousButton?.addEventListener('click', () => showPhoto(activeIndex - 1));
+    nextButton?.addEventListener('click', () => showPhoto(activeIndex + 1));
+    popover.querySelector<HTMLButtonElement>('[data-lightbox-close]')?.addEventListener('click', () => popover.hidePopover());
+    popover.addEventListener('click', (event) => {
+      if (event.target === popover) popover.hidePopover();
+    });
+    popover.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        showPhoto(activeIndex - 1);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        showPhoto(activeIndex + 1);
+      }
+    });
+  }
+
+  function refreshMasonry(scope: ParentNode = document) {
+    requestAnimationFrame(() => {
+      scope.querySelectorAll<HTMLElement>('.masonry').forEach((masonry) => {
+        if (!masonry.offsetWidth) return;
+        const style = getComputedStyle(masonry);
+        const rowHeight = Number.parseFloat(style.gridAutoRows) || 8;
+        const rowGap = Number.parseFloat(style.rowGap) || 0;
+
+        masonry.querySelectorAll<HTMLElement>(':scope > .photo-card').forEach((card) => {
+          if (card.hidden) return;
+          const span = Math.max(1, Math.ceil((card.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap)));
+          card.style.gridRowEnd = `span ${span}`;
+        });
+      });
+    });
+  }
+
+  function setupMasonry() {
+    refreshMasonry();
+    document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('.masonry img, .masonry video').forEach((media) => {
+      media.addEventListener('load', () => refreshMasonry(), { once: true });
+      media.addEventListener('loadedmetadata', () => refreshMasonry(), { once: true });
+    });
+    if (document.fonts?.ready) document.fonts.ready.then(() => refreshMasonry());
+  }
+
+  function setupAlbumFilters() {
+    const root = document.querySelector<HTMLElement>('[data-album-filter]');
+    if (!root || root.dataset.ready === 'true') return;
+    root.dataset.ready = 'true';
+
+    const links = [...root.querySelectorAll<HTMLAnchorElement>('.archive-categories .category-pill')];
+    const homeView = root.querySelector<HTMLElement>('[data-home-view]');
+    const categoryView = root.querySelector<HTMLElement>('[data-category-view]');
+    const cards = [...root.querySelectorAll<HTMLElement>('[data-filter-card]')];
+    const empty = root.querySelector<HTMLElement>('[data-filter-empty]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let version = 0;
+
+    async function setCategory(category: string, animate: boolean, updateUrl: boolean) {
+      const currentVersion = ++version;
+      const targetView = category ? categoryView : homeView;
+      const previousView = category ? homeView : categoryView;
+      if (!targetView || !previousView) return;
+      const motion = animate && !reduceMotion;
+      const sameCategoryView = Boolean(category) && Boolean(categoryView && !categoryView.hidden);
+
+      links.forEach((link) => {
+        const active = (link.dataset.category || '').toLowerCase() === category.toLowerCase();
+        link.classList.toggle('is-active', active);
+        if (active) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
+
+      if (updateUrl) {
+        const selectedLink = links.find((link) => (link.dataset.category || '').toLowerCase() === category.toLowerCase());
+        const url = category ? selectedLink?.href : links.find((link) => !link.dataset.category)?.href;
+        if (url) {
+          const currentState = history.state && typeof history.state === 'object' ? history.state : {};
+          history.pushState({ ...currentState, scrollX: window.scrollX, scrollY: window.scrollY }, '', url);
+        }
+      }
+
+      const fadingView = !previousView.hidden ? previousView : sameCategoryView ? categoryView : null;
+      if (motion && fadingView) {
+        fadingView.getAnimations().forEach((animation) => animation.cancel());
+        await fadingView.animate(
+          [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(8px)' }],
+          { duration: 120, easing: 'ease-out' },
+        ).finished.catch(() => {});
+        if (currentVersion !== version) return;
+      }
+
+      cards.forEach((card) => {
+        card.hidden = Boolean(category) && card.dataset.category !== category.toLowerCase();
+      });
+      if (empty) empty.hidden = !category || cards.some((card) => !card.hidden);
+
+      if (previousView.hidden && !targetView.hidden) {
+        if (motion && sameCategoryView) targetView.animate(
+          [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+          { duration: 180, easing: 'ease-out' },
+        );
+        refreshMasonry(targetView);
+        return;
+      }
+      previousView.hidden = true;
+      targetView.hidden = false;
+      refreshMasonry(targetView);
+      if (motion) {
+        targetView.animate(
+          [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+          { duration: 180, easing: 'ease-out' },
+        );
+      }
+    }
+
+    links.forEach((link) => link.addEventListener('click', (event) => {
+      event.preventDefault();
+      setCategory(link.dataset.category || '', true, true);
+    }));
+
+    window.addEventListener('popstate', () => {
+      const selected = links.find((link) => new URL(link.href).pathname === location.pathname);
+      setCategory(selected?.dataset.category || '', false, false);
+    });
+
+    setCategory(root.dataset.activeCategory || '', false, false);
+  }
+
+  setupAlbumFilters();
+  setupMasonry();
+  setupPortfolioLightbox();
+  window.addEventListener('resize', () => refreshMasonry(), { passive: true });
+  document.addEventListener('astro:page-load', () => {
+    setupAlbumFilters();
+    setupMasonry();
+    setupPortfolioLightbox();
+  });
+</script>
+
+<style>
+  .album-container { width:100%; margin:0 auto; padding:1.5rem 0 3rem; }
+  .album-listing { min-height:65vh; }
+  .filter-view { opacity:1; transform:translateY(0); }
+  .filter-empty { margin:2rem 0; color:var(--text-soft); text-align:center; }
+  .masonry { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:8px; gap:1.5rem; align-items:start; }
+  .photo-card { display:block; position:relative; grid-row-end:span 1; width:100%; margin:0; overflow:hidden; color:var(--text); text-decoration:none; }
+  .photo-card img,.photo-card video { display:block; width:100%; height:auto; transition:transform .45s ease; }
+  .photo-card:hover img,.photo-card:hover video { transform:scale(1.025); }
+  .caption { position:absolute; inset:auto 0 0; display:flex; align-items:flex-end; justify-content:space-between; gap:.5rem; padding:2.7rem .9rem .8rem; color:#fff; background:linear-gradient(transparent,#000a); opacity:.88; transition:opacity .2s; }
+  .photo-card:hover .caption,.photo-card:focus-visible .caption { opacity:1; }
+  .caption-main { display:block; min-width:0; }
+  .caption b,.caption small { display:block; font-weight:500; }
+  .caption-main small { margin-top:.00rem; color:#e5e7eb; font-size:.88rem; font-weight:300; }
+  .caption .caption-author { flex:0 0 auto; max-width:45%; margin:0; color:#e5e7eb; font-size:.72rem; font-weight:300; line-height:1.25; text-align:right; }
+  .album-back { display:inline-flex; gap:.4rem; align-items:center; margin:0 0 2rem; color:var(--text-soft); text-decoration:none; }
+  .album-back:hover { color:var(--accent); }
+  .album-detail { display:grid; grid-template-columns:minmax(0,2fr) minmax(260px,1fr); gap:clamp(2rem,5vw,4rem); align-items:start; }
+  .detail-image-wrap { display:flex; align-items:center; justify-content:center; max-height:85vh; overflow:hidden; }
+  .detail-image-wrap img,.detail-image-wrap video { display:block; width:auto; height:auto; max-width:100%; max-height:85vh; object-fit:contain; }
+  .zoom-trigger { padding:0; border:0; background:transparent; cursor:zoom-in; }
+  .detail-info { position:sticky; top:2rem; padding-top:1rem; }
+  .detail-info h1 { margin:0 0 .5rem; font-size:clamp(1.8rem,3vw,2.5rem); font-weight:350; letter-spacing:.02em; }
+  .detail-info h2 { margin:0 0 2rem; color:var(--text-soft); font-size:1.1rem; font-weight:350; }
+  .metadata { margin-top:2.5rem; font-size:.95rem; }
+  .metadata p { display:grid; grid-template-columns:8rem 1fr; gap:.5rem; margin:.9rem 0; }
+  .metadata span { color:var(--text-soft); }
+  .metadata b { color:var(--text); font-weight:350; }
+  .portfolio-title { margin:0 0 2rem; font-size:clamp(1.8rem,3vw,2.6rem); font-weight:350; text-align:center; }
+  .portfolio-sequence { display:grid; gap:clamp(3rem,8vw,7rem); }
+  .portfolio-row { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(2rem,5vw,4rem); align-items:center; }
+  .portfolio-row.image-right-wide { grid-template-columns:minmax(0,1fr) minmax(0,2fr); }
+  .portfolio-row.image-right-wide .portfolio-image { grid-column:2; grid-row:1; }
+  .portfolio-row.image-right-wide .portfolio-info { grid-column:1; grid-row:1; }
+  .portfolio-image { display:flex; align-items:center; justify-content:center; min-width:0; }
+  .portfolio-lightbox-trigger { display:block; max-width:100%; padding:0; border:0; background:transparent; cursor:zoom-in; }
+  .portfolio-image img,.portfolio-image video { display:block; width:auto; height:auto; max-width:100%; max-height:78vh; object-fit:contain; }
+  .portfolio-info h2 { margin:0 0 .5rem; font-size:clamp(1.6rem,2.6vw,2.2rem); font-weight:350; }
+  .portfolio-info h3 { margin:0 0 1.5rem; color:var(--text-soft); font-size:1.05rem; font-weight:350; }
+  .related { margin:4rem 0 1rem; }
+  .related h2 { margin:0 0 1.5rem; font-size:1.7rem; font-weight:350; }
+  .portfolio-lightbox { box-sizing:border-box; position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; max-width:none; max-height:none; margin:0; padding:clamp(.75rem,3vw,2rem); border:0; overflow:hidden; color:#fff; background:rgba(12,10,9,.96); opacity:0; transform:scale(.985); transition:opacity 220ms ease,transform 220ms ease,overlay 220ms allow-discrete,display 220ms allow-discrete; }
+  .portfolio-lightbox:popover-open { display:grid; grid-template-columns:minmax(2.5rem,5rem) minmax(0,1fr) minmax(2.5rem,5rem); align-items:center; opacity:1; transform:scale(1); }
+  .portfolio-lightbox::backdrop { background:rgb(12 10 9 / .78); }
+  .portfolio-lightbox-content { grid-column:2; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; min-width:0; margin:0; }
+  .portfolio-lightbox-content img { display:block; max-width:100%; max-height:calc(100vh - 7rem); max-height:calc(100dvh - 7rem); object-fit:contain; }
+  .portfolio-lightbox-content figcaption { display:flex; justify-content:space-between; gap:1rem; width:min(100%,70rem); padding-top:.8rem; color:#fff; font-size:.9rem; }
+  .portfolio-lightbox-content figcaption strong { overflow:hidden; font-weight:400; text-overflow:ellipsis; white-space:nowrap; }
+  .portfolio-lightbox-content figcaption span { flex:0 0 auto; color:#c7c7c7; }
+  .portfolio-lightbox-close,.portfolio-lightbox-arrow { display:grid; place-items:center; width:3rem; height:3rem; padding:0; border:1px solid rgb(255 255 255 / .22); border-radius:50%; color:#fff; background:rgb(255 255 255 / .08); cursor:pointer; }
+  .portfolio-lightbox-close:hover,.portfolio-lightbox-arrow:hover { background:rgb(255 255 255 / .18); }
+  .portfolio-lightbox-close { position:absolute; top:1rem; right:1rem; z-index:1; font-size:1.8rem; line-height:1; }
+  .portfolio-lightbox-arrow { grid-row:1; z-index:1; font-size:1.5rem; }
+  .portfolio-lightbox-arrow.previous { grid-column:1; }
+  .portfolio-lightbox-arrow.next { grid-column:3; }
+  .zoom-popover { box-sizing:border-box; position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; max-width:none; max-height:none; margin:0; padding:0; border:0; overflow:hidden; background:rgba(12,10,9,.94); opacity:0; transform:scale(.98); transition:opacity 280ms ease,transform 280ms ease,overlay 280ms allow-discrete,display 280ms allow-discrete; }
+  .zoom-popover:popover-open { display:grid; place-items:center; opacity:1; transform:scale(1); }
+  .zoom-popover::backdrop { background:rgb(12 10 9 / .72); }
+  .zoom-close { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:100%; height:100%; padding:clamp(1rem,4vw,2.5rem); border:0; background:transparent; cursor:zoom-out; }
+  .zoom-close img { display:block; max-width:100%; max-height:calc(100vh - 2rem); max-height:calc(100dvh - 2rem); margin:auto; object-fit:contain; }
+  @media(min-width:900px) { .masonry { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media(max-width:760px) { .album-detail,.portfolio-row,.portfolio-row.image-right-wide { grid-template-columns:1fr; gap:1.5rem; } .portfolio-row .portfolio-image,.portfolio-row .portfolio-info { grid-column:1; grid-row:auto; } .detail-info { position:static; } .metadata { margin-top:1.5rem; } .portfolio-lightbox:popover-open { grid-template-columns:2.5rem minmax(0,1fr) 2.5rem; padding:.5rem; } .portfolio-lightbox-arrow { width:2.25rem; height:2.25rem; } }
+</style>

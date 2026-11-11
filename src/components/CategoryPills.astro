@@ -1,0 +1,35 @@
+---
+import { t } from '../i18n';
+import type { Language } from '../types';
+
+interface Props {
+  lang: Language;
+  categories: [string, number][];
+  active?: string;
+  allHref: string;
+  allLabel?: string;
+  totalCount?: number;
+  hrefForCategory: (category: string) => string;
+}
+
+const { lang, categories, active = '', allHref, allLabel, totalCount, hrefForCategory } = Astro.props;
+---
+
+<div class="archive-categories" role="group" aria-label={t(lang, 'archive.categories')} data-album-category-pills data-active-category={active}>
+  <a class:list={['category-pill', { 'is-active': !active }]} data-category="" href={allHref}>
+    <span>{allLabel ?? t(lang, 'archive.all')}</span>
+    <span class="filter-count">{totalCount ?? categories.reduce((sum, [, count]) => sum + count, 0)}</span>
+  </a>
+  {categories.map(([name, count]) => <a class:list={['category-pill', { 'is-active': active === name }]} data-category={name} href={hrefForCategory(name)}>
+    <span>{name}</span><span class="filter-count">{count}</span>
+  </a>)}
+</div>
+
+<style>
+  .archive-categories { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px; margin-bottom:1.3rem; }
+  .category-pill { display:inline-flex; align-items:center; gap:7px; padding:6px 15px; border:1px solid var(--border); border-radius:999px; background:var(--surface); color:var(--text-soft); font-size:.86rem; text-decoration:none; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; transition:background var(--transition-fast),color var(--transition-fast),border-color var(--transition-fast); }
+  .category-pill:hover { border-color:var(--hover); color:var(--hover); background:var(--surface-2); }
+  .category-pill.is-active { background:color-mix(in srgb,var(--sky) 14%,transparent); border-color:var(--sky); color:var(--sky); font-weight:600; }
+  .category-pill .filter-count { background:transparent; color:var(--text-faint); font-size:.72rem; line-height:1; }
+  .category-pill.is-active .filter-count { color:var(--sky); }
+</style>

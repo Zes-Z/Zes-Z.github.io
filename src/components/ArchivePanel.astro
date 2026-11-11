@@ -3,6 +3,7 @@
 import { t } from '../i18n';
 import type { Language } from '../types';
 import { archiveHref, archiveCategoryHref } from '../utils/paths';
+import CategoryPills from './CategoryPills.astro';
 
 export interface ArchivePostData {
   id: string;
@@ -39,21 +40,12 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
 
 <div class="archive-panel" data-archive-panel>
   <!-- 分类按钮 -->
-  <div class="archive-categories" role="group" aria-label={t(lang, 'archive.categories')}>
-    <a class="category-pill" data-category="" href={archiveHref(lang)}>
-      <span>{t(lang, 'archive.all')}</span>
-      <span class="filter-count">{posts.length}</span>
-    </a>
-
-    {
-      categories.map(([name, count]) => (
-        <a class="category-pill" data-category={name} href={archiveCategoryHref(lang, name)}>
-          <span>{name}</span>
-          <span class="filter-count">{count}</span>
-        </a>
-      ))
-    }
-  </div>
+  <CategoryPills
+    {lang}
+    {categories}
+    allHref={archiveHref(lang)}
+    hrefForCategory={(category) => archiveCategoryHref(lang, category)}
+  />
 
   <!-- 时间线 -->
   <div class="timeline" data-timeline>
@@ -543,60 +535,6 @@ const years = [...timeline.keys()].sort((a, b) => b - a);
     min-height: calc(100vh - 10rem);
     margin: 1.5rem auto 0;
     padding-bottom: 3rem;
-  }
-
-  /* 分类按钮 */
-  .archive-categories {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 1.3rem;
-  }
-
-  .category-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 15px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--surface);
-    color: var(--text-soft);
-    font-size: 0.86rem;
-    text-decoration: none;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    transition:
-      background var(--transition-fast),
-      color var(--transition-fast),
-      border-color var(--transition-fast);
-  }
-
-  .category-pill:hover {
-    border-color: var(--hover);
-    color: var(--hover);
-    background: var(--surface-2);
-  }
-
-  .category-pill.is-active {
-    background: color-mix(in srgb, var(--sky) 14%, transparent);
-    border-color: var(--sky);
-    color: var(--sky);
-    font-weight: 600;
-  }
-
-  .category-pill .filter-count {
-    background: transparent;
-    color: var(--text-faint);
-    font-size: 0.72rem;
-    line-height: 1;
-  }
-
-  .category-pill.is-active .filter-count {
-    color: var(--sky);
   }
 
   .chip-link {

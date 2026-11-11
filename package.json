@@ -8,11 +8,15 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "predev": "node cli/sync-gallery.mjs",
     "build": "astro check && astro build",
+    "prebuild": "node cli/sync-gallery.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
     "newpost": "tsx cli/newpost.ts newpost",
+    "newport": "tsx cli/newport.ts",
+    "gallery:sync": "node cli/sync-gallery.mjs",
     "format": "prettier --write ."
   },
   "dependencies": {

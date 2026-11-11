@@ -81,7 +81,7 @@ export function rssHref(lang: Language): string {
 }
 
 /** Route segments that exist identically in every language. */
-const SHARED_SEGMENTS = new Set(['archive', 'links']);
+const SHARED_SEGMENTS = new Set(['archive', 'links', 'album']);
 
 /**
  * Translate a URL of the current language into the same page in another

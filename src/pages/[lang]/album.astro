@@ -1,0 +1,14 @@
+---
+import AlbumLayout from '../../layouts/AlbumLayout.astro';
+import { siteConfig } from '../../site.config';
+import type { Language } from '../../types';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Language };
+const title = { zh: '相册', en: 'Album', ja: '写真集' }[lang];
+---
+
+<AlbumLayout lang={lang} title={title} />

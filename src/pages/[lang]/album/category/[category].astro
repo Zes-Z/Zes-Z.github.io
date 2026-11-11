@@ -1,0 +1,19 @@
+---
+import AlbumLayout from '../../../../layouts/AlbumLayout.astro';
+import { siteConfig } from '../../../../site.config';
+import type { Language } from '../../../../types';
+import { getAlbumEntries } from '../../../../utils/album';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.flatMap((lang) => {
+    const categories = [...new Set(getAlbumEntries(lang).map((entry) => entry.category.trim()).filter(Boolean))];
+    return categories.map((category) => ({ params: { lang, category: category.toLowerCase() }, props: { category } }));
+  });
+}
+
+const { lang, category } = Astro.params as { lang: Language; category: string };
+const { category: categoryName } = Astro.props as { category: string };
+const title = { zh: `相册 · ${categoryName}`, en: `Album · ${categoryName}`, ja: `写真集 · ${categoryName}` }[lang];
+---
+
+<AlbumLayout lang={lang} title={title} category={category} />

@@ -19,7 +19,7 @@ import { zestLoader } from './loaders/zest';
  *
  * gallery:
  *   src/content/gallery/photo-video.json
- *   src/content/gallery/<portfolio>/portfolio.json
+ *   src/content/gallery/<portfolio>/portfolio.md    # portfolio frontmatter + body photo records
  */
 
 export const collections = {

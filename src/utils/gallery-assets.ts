@@ -1,3 +1,5 @@
+import type { ImageMetadata } from 'astro';
+
 const galleryAssets = import.meta.glob<string>(
   '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,mp4,webm,mov,m4v}',
   {
@@ -5,6 +7,11 @@ const galleryAssets = import.meta.glob<string>(
     query: '?url',
     import: 'default',
   },
+);
+
+const galleryImageMetadata = import.meta.glob<ImageMetadata>(
+  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif}',
+  { eager: true, import: 'default' },
 );
 
 /**
@@ -18,6 +25,12 @@ const galleryAssets = import.meta.glob<string>(
 export function getGalleryAssetUrl(
   assetPath: string,
 ): string {
+  if (typeof assetPath !== 'string' || !assetPath.trim()) {
+    throw new TypeError(
+      `[Gallery] Expected an asset path string, received: ${String(assetPath)}`,
+    );
+  }
+
   const normalized = assetPath
     .replace(/^\/+/, '')
     .replaceAll('\\', '/');
@@ -33,4 +46,12 @@ export function getGalleryAssetUrl(
   }
 
   return url;
+}
+
+export function getGalleryImageDimensions(assetPath: string): { width: number; height: number } | undefined {
+  if (typeof assetPath !== 'string' || !assetPath.trim()) return undefined;
+
+  const normalized = assetPath.replace(/^\/+/, '').replaceAll('\\', '/');
+  const metadata = galleryImageMetadata[`/src/content/gallery/${normalized}`];
+  return metadata ? { width: metadata.width, height: metadata.height } : undefined;
 }

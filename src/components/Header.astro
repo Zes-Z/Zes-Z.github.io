@@ -76,7 +76,7 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
 
 ---
 
-<header class="site-header" data-header>
+<header class="site-header" data-header data-ready="false" transition:animate="none">
   <div class="header-inner">
     <nav class="site-nav" id="site-nav" data-nav>
       <ul>
@@ -100,7 +100,7 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
                 >
                   {item.icon && (
                     <span class="nav-icon">
-                      <img src={item.icon} alt="" decoding="async" />
+                      <img src={item.icon} alt="" width="20" height="20" loading="eager" fetchpriority="high" decoding="sync" />
                     </span>
                   )}
                   <span class="nav-label">{item.label}</span>
@@ -113,7 +113,7 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
                 >
                   {item.icon && (
                     <span class="nav-icon">
-                      <img src={item.icon} alt="" decoding="async" />
+                      <img src={item.icon} alt="" width="20" height="20" loading="eager" fetchpriority="high" decoding="sync" />
                     </span>
                   )}
                   <span class="nav-label">{item.label}</span>
@@ -194,121 +194,104 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
 
 
 <script>
-  /* ---------------------------------------------------------
-   * 汉堡菜单开合
-   * --------------------------------------------------------- */
-  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
-  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const menuOf = (button: HTMLElement) =>
+    button.parentElement?.querySelector<HTMLElement>('[data-nav-menu]') ?? null;
 
-  toggle?.addEventListener('click', () => {
-    const open = nav?.classList.toggle('is-open') ?? false;
-    toggle.setAttribute('aria-expanded', String(open));
-  });
-
-  /* ---------------------------------------------------------
-   * 顶栏导航分组(例如「生活」)的展开与收起
-   *
-   * 点击父项切换;点击别处或 Esc 关闭;点击面板内的链接后一并关闭。
-   * --------------------------------------------------------- */
-  const groupButtons = [
-    ...document.querySelectorAll<HTMLButtonElement>('#site-nav [data-nav-group]'),
-  ];
-
-  /** 找到分组按钮对应的展开面板。 */
-  const menuOf = (btn: HTMLElement) =>
-    btn.parentElement?.querySelector<HTMLElement>('[data-nav-menu]') ?? null;
+  const groupButtons = () =>
+    [...document.querySelectorAll<HTMLButtonElement>('#site-nav [data-nav-group]')];
 
   const closeGroups = (except?: HTMLElement) => {
-    groupButtons.forEach((btn) => {
-      if (btn === except) return;
-      btn.setAttribute('aria-expanded', 'false');
-      menuOf(btn)?.setAttribute('hidden', '');
+    groupButtons().forEach((button) => {
+      if (button === except) return;
+      button.setAttribute('aria-expanded', 'false');
+      menuOf(button)?.setAttribute('hidden', '');
     });
   };
 
-  const bindGroups = () => {
-    closeGroups();
+  const syncOverHero = () => {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    if (!header) return;
+    const hero = document.querySelector<HTMLElement>('.hero');
+    if (!hero) {
+      header.classList.remove('is-over-hero');
+      return;
+    }
+    header.classList.toggle(
+      'is-over-hero',
+      window.scrollY < hero.getBoundingClientRect().height - 40,
+    );
+  };
 
-    groupButtons.forEach((btn) => {
-      if (btn.dataset.groupReady === 'true') return;
-      btn.dataset.groupReady = 'true';
+  const syncScroll = () => {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    if (!header) return;
+    header.classList.toggle('not-top', window.scrollY > 20);
+    if (window.scrollY > 20 && groupButtons().some((button) => button.getAttribute('aria-expanded') === 'true')) {
+      closeGroups();
+    }
+    syncOverHero();
+  };
 
-      btn.addEventListener('click', (event) => {
+  const bindHeader = () => {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+    const nav = document.querySelector<HTMLElement>('[data-nav]');
+
+    if (!header) return;
+
+    if (toggle && toggle.dataset.ready !== 'true') {
+      toggle.dataset.ready = 'true';
+      toggle.addEventListener('click', () => {
+        const open = nav?.classList.toggle('is-open') ?? false;
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+    }
+
+    groupButtons().forEach((button) => {
+      if (button.dataset.ready === 'true') return;
+      button.dataset.ready = 'true';
+      button.addEventListener('click', (event) => {
         event.stopPropagation();
-        const menu = menuOf(btn);
+        const menu = menuOf(button);
         if (!menu) return;
-        // 先收起其它分组，再切换当前面板
-        closeGroups(btn);
+        closeGroups(button);
         const willOpen = menu.hasAttribute('hidden');
-        if (willOpen) menu.removeAttribute('hidden');
-        else menu.setAttribute('hidden', '');
-        btn.setAttribute('aria-expanded', String(willOpen));
+        menu.toggleAttribute('hidden', !willOpen);
+        button.setAttribute('aria-expanded', String(willOpen));
       });
     });
+
+    nav?.classList.remove('is-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    closeGroups();
+    syncScroll();
+
+    if (header.dataset.ready !== 'true') {
+      requestAnimationFrame(() => {
+        if (header.isConnected) header.dataset.ready = 'true';
+      });
+    }
   };
 
   document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement | null;
-    if (target?.closest('.has-children')) return;
-    closeGroups();
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest('[data-nav-menu] a')) {
+      closeGroups();
+      return;
+    }
+    if (!target.closest('.has-children')) closeGroups();
   });
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeGroups();
   });
 
-  // 面板内的链接跳转后,把面板收起(返回上一页时不会残留展开状态)
-  document.querySelectorAll<HTMLElement>('[data-nav-menu] a').forEach((link) => {
-    link.addEventListener('click', () => closeGroups());
-  });
-
-  bindGroups();
-
-  /* ---------------------------------------------------------
-   * 毛玻璃胶囊:滚动一定距离后切换 "not-top"(加底色/边框/阴影),
-   * 始终吸顶显示,不随下滑淡出
-   * --------------------------------------------------------- */
-  const header = document.querySelector<HTMLElement>('.site-header');
-
-  /**
-   * 展开块不常驻:一旦页面滚动就自动收回。
-   * 用与 not-top 相同的 20px 阈值,避免"刚下滑一点点面板还挂着"的割裂感。
-   * 每次滚动只判断一次、只在需要时改 DOM,不会影响滚动性能。
-   */
-  const syncGroups = () => {
-    if (window.scrollY <= 20) return;
-    if (!groupButtons.some((btn) => btn.getAttribute('aria-expanded') === 'true')) return;
-    closeGroups();
-  };
-
-  const syncScroll = () => {
-    if (!header) return;
-    header.classList.toggle('not-top', window.scrollY > 20);
-    syncGroups();
-    syncOverHero();
-  };
-
-  // 悬浮在大图上方时文字用白色(其它情况用普通导航色)
-  const syncOverHero = () => {
-    if (!header) return;
-    const hero = document.querySelector('.hero');
-    if (!hero) {
-      header.classList.remove('is-over-hero');
-      return;
-    }
-    const heroHeight = hero.getBoundingClientRect().height;
-    header.classList.toggle('is-over-hero', window.scrollY < heroHeight - 40);
-  };
-
   window.addEventListener('scroll', syncScroll, { passive: true });
-  syncScroll();
-
-  document.addEventListener('astro:page-load', () => {
-    nav?.classList.remove('is-open');
-    toggle?.setAttribute('aria-expanded', 'false');
-    bindGroups();
-    syncScroll();
-  });
+  window.addEventListener('pageshow', bindHeader);
+  document.addEventListener('astro:after-swap', syncScroll);
+  document.addEventListener('astro:page-load', bindHeader);
+  bindHeader();
 </script>
 
 <style>
@@ -336,6 +319,11 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
       background-color 0.2s,
       border-color 0.15s,
       box-shadow 0.2s;
+  }
+
+  .site-header[data-ready='false'],
+  .site-header[data-ready='false'] * {
+    transition: none !important;
   }
 
   /* 滚动后:毛玻璃胶囊(带底色/边框/阴影),并缩小为图标为主 */
@@ -401,13 +389,16 @@ const navItems = (siteConfig.nav as readonly RawItem[]).map((item) => {
   .nav-icon {
     display: inline-flex;
     flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
   }
   .nav-icon :global(img) {
     display: block;
-    width: auto;
-    height: auto;
-    max-width: 20px;
-    max-height: 20px;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
   }
   .nav-label {
     display: inline-block;

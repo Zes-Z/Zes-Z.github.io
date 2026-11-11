@@ -1,0 +1,29 @@
+---
+import AlbumLayout from '../../../../layouts/AlbumLayout.astro';
+import { siteConfig } from '../../../../site.config';
+import type { Language } from '../../../../types';
+import { getAlbumEntries, getAlbumHomeItems, type PortfolioCard } from '../../../../utils/album';
+import { withBase } from '../../../../utils/paths';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.flatMap((lang) => {
+    const portfolios = getAlbumHomeItems(lang).filter((item): item is PortfolioCard => 'count' in item);
+    return portfolios.flatMap((portfolio) =>
+      getAlbumEntries(lang)
+        .filter((entry) => entry.file.startsWith(`${portfolio.folder}/`))
+        .map((entry) => ({
+          params: { lang, id: entry.id },
+          props: { portfolioId: portfolio.id },
+        })),
+    );
+  });
+}
+
+const { lang, id } = Astro.params as { lang: Language; id: string };
+const { portfolioId } = Astro.props as { portfolioId: string };
+const entry = getAlbumEntries(lang).find((item) => item.id === id);
+const title = entry?.title ?? 'Album';
+const backHref = withBase(`/${lang}/album/portfolio/${portfolioId}`);
+---
+
+<AlbumLayout lang={lang} title={title} entryId={id} backHref={backHref} />
