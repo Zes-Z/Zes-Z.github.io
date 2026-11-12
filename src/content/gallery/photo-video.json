@@ -1,37 +1,40 @@
 {
-  "碧海蓝天.jpg": {
-    "draft": false,
-    "type": "photo",
-    "category": "landscape",
-    "tag": [],
-    "date": "2025-12-06",
-    "photographer": "zes",
-    "title": [
-      "Blue Sea and Sky",
-      "碧海蓝天",
-      "青い海と空"
-    ],
-    "related": []
-  },
   "大海 蓝天 白云 船.jpg": {
     "draft": false,
     "type": "photo",
     "category": "landscape",
     "tag": [],
+    "location": "",
     "date": "",
-    "photographer": "zes",
+    "photographer": "风太大没听清",
     "title": [
       "",
       "",
       ""
     ],
+    "description": "",
+    "text": [
+      "",
+      "",
+      ""
+    ],
+    "exif": {
+      "camera": "Canon EOS R8",
+      "lens": "",
+      "focalLength": "",
+      "aperture": "",
+      "shutterSpeed": "",
+      "iso": "",
+      "exposureCompensation": ""
+    },
     "related": []
   },
-  "海边庭院小屋落日.jpg": {
+  "IMG_0228.JPG": {
     "draft": false,
     "type": "photo",
     "category": "",
     "tag": [],
+    "location": "",
     "date": "",
     "photographer": "zes",
     "title": [
@@ -39,34 +42,21 @@
       "",
       ""
     ],
-    "related": []
-  },
-  "海绵宝宝自拍合照.jpg": {
-    "draft": false,
-    "type": "photo",
-    "category": "",
-    "tag": [],
-    "date": "",
-    "photographer": "zes",
-    "title": [
+    "description": "",
+    "text": [
       "",
       "",
       ""
     ],
-    "related": []
-  },
-  "黑白唯美少女.jpg": {
-    "draft": false,
-    "type": "photo",
-    "category": "portrait",
-    "tag": [],
-    "date": "",
-    "photographer": "zes",
-    "title": [
-      "",
-      "",
-      ""
-    ],
+    "exif": {
+      "camera": "Canon EOS R8",
+      "lens": "",
+      "focalLength": "",
+      "aperture": "",
+      "shutterSpeed": "",
+      "iso": "",
+      "exposureCompensation": ""
+    },
     "related": []
   }
 }

@@ -1,7 +1,7 @@
 import type { ImageMetadata } from 'astro';
 
 const galleryAssets = import.meta.glob<string>(
-  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,mp4,webm,mov,m4v}',
+  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,mp4,webm,mov,m4v,JPG,JPEG,PNG,WEBP,AVIF,GIF,MP4,WEBM,MOV,M4V}',
   {
     eager: true,
     query: '?url',
@@ -10,7 +10,7 @@ const galleryAssets = import.meta.glob<string>(
 );
 
 const galleryImageMetadata = import.meta.glob<ImageMetadata>(
-  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif}',
+  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,JPG,JPEG,PNG,WEBP,AVIF,GIF}',
   { eager: true, import: 'default' },
 );
 

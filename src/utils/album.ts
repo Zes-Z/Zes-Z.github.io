@@ -3,6 +3,16 @@ import type { Language } from '../types';
 import { withBase } from './paths';
 import { getGalleryAssetUrl, getGalleryImageDimensions } from './gallery-assets';
 
+export interface AlbumExif {
+  camera: string;
+  lens: string;
+  focalLength: string;
+  aperture: string;
+  shutterSpeed: string;
+  iso: string;
+  exposureCompensation: string;
+}
+
 export interface AlbumEntry {
   id: string;
   file: string;
@@ -11,9 +21,13 @@ export interface AlbumEntry {
   height?: number;
   kind: string;
   title: string;
+  location: string;
   date: string;
   category: string;
   photographer: string;
+  description: string;
+  text: string;
+  exif: AlbumExif;
   related: string[];
 }
 
@@ -39,7 +53,7 @@ const portfolioFiles = import.meta.glob<string>(
   '/src/content/gallery/**/portfolio.md', { eager: true, query: '?raw', import: 'default' },
 );
 const imageFiles = import.meta.glob<string>(
-  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,mp4,webm,mov,m4v}',
+  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,mp4,webm,mov,m4v,JPG,JPEG,PNG,WEBP,AVIF,GIF,MP4,WEBM,MOV,M4V}',
   { eager: true, query: '?url', import: 'default' },
 );
 
@@ -49,11 +63,15 @@ export function idFor(file: string) {
 
 function localizedField(value: unknown, lang: Language, fallback: string): string {
   if (typeof value === 'string' && value.trim()) return value.trim();
+  const languageIndex = lang === 'en' ? 0 : lang === 'zh' ? 1 : 2;
+  if (Array.isArray(value)) {
+    const candidate = value[languageIndex];
+    return typeof candidate === 'string' && candidate.trim() ? candidate.trim() : fallback;
+  }
   if (value && typeof value === 'object') {
     const translations = value as Partial<Record<Language, unknown>>;
-    for (const candidate of [translations[lang], translations.en, translations.zh, translations.ja]) {
-      if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
-    }
+    const candidate = translations[lang];
+    if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
   }
   return fallback;
 }
@@ -61,13 +79,59 @@ function localizedField(value: unknown, lang: Language, fallback: string): strin
 function localizedPhotoTitle(record: Record<string, any>, lang: Language, filename: string): string {
   const languageIndex = lang === 'en' ? 0 : lang === 'zh' ? 1 : 2;
   const fallback = filename.replace(/\.[^.]+$/, '');
+  let title: unknown;
   if (Array.isArray(record.title)) {
-    const title = record.title[languageIndex] || record.title.find((value: unknown) => typeof value === 'string' && value.trim());
-    return typeof title === 'string' && title.trim() ? title.trim() : fallback;
+    title = record.title[languageIndex];
+  } else if (typeof record.title === 'string') {
+    title = record.title;
+  } else if (record.title && typeof record.title === 'object') {
+    title = record.title[lang];
+  } else {
+    title = record[lang]?.title;
+  }
+  return typeof title === 'string' && title.trim() ? title.trim() : fallback;
+}
+
+function photoDescription(record: Record<string, any>): string {
+  return typeof record.description === 'string' ? record.description.trim() : '';
+}
+
+function localizedPhotoText(record: Record<string, any>, lang: Language): string {
+  const value = record.text;
+  const languageIndex = lang === 'zh' ? 0 : lang === 'en' ? 1 : 2;
+  if (Array.isArray(value)) {
+    return typeof value[languageIndex] === 'string' ? value[languageIndex].trim() : '';
+  }
+  if (value && typeof value === 'object') {
+    const localized = value[lang];
+    return typeof localized === 'string' ? localized.trim() : '';
   }
 
-  const legacyTitle = record[lang]?.title || record.en?.title || record.title;
-  return typeof legacyTitle === 'string' && legacyTitle.trim() ? legacyTitle.trim() : fallback;
+  // Before the `text` field was introduced, long descriptions used this field.
+  const legacy = record.description;
+  const legacyIndex = lang === 'en' ? 0 : lang === 'zh' ? 1 : 2;
+  if (Array.isArray(legacy)) return typeof legacy[legacyIndex] === 'string' ? legacy[legacyIndex].trim() : '';
+  if (legacy && typeof legacy === 'object') {
+    const localized = legacy[lang];
+    return typeof localized === 'string' ? localized.trim() : '';
+  }
+  return typeof legacy === 'string' ? legacy.trim() : '';
+}
+
+function photoExif(value: unknown): AlbumExif {
+  const record = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+  const stringValue = (field: string) => record[field] == null ? '' : String(record[field]).trim();
+  return {
+    camera: stringValue('camera'),
+    lens: stringValue('lens'),
+    focalLength: stringValue('focalLength'),
+    aperture: stringValue('aperture'),
+    shutterSpeed: stringValue('shutterSpeed'),
+    iso: stringValue('iso'),
+    exposureCompensation: stringValue('exposureCompensation'),
+  };
 }
 
 function photoRecordsFromBody(body: string): [string, Record<string, any>][] {
@@ -152,7 +216,9 @@ export function getAlbumEntries(lang: Language): AlbumEntry[] {
           id: idFor(file), file, src: withBase(getGalleryAssetUrl(file)), kind: item.type ?? 'photo',
           ...getGalleryImageDimensions(file),
           title: localizedPhotoTitle(item, lang, filename),
+          location: typeof item.location === 'string' ? item.location.trim() : '',
           date: item.date ?? '', category: item.category ?? '', photographer: item.photographer ?? '',
+          description: photoDescription(item), text: localizedPhotoText(item, lang), exif: photoExif(item.exif),
           related: Array.isArray(item.related) ? item.related.filter((value: unknown): value is string => typeof value === 'string') : [],
         });
       } catch { /* Metadata may contain files that have not been added yet. */ }
@@ -190,7 +256,8 @@ export function getAlbumEntries(lang: Language): AlbumEntry[] {
     entries.set(file, {
       id: idFor(file), file, src: withBase(url), kind: /\.(mp4|webm|mov|m4v)$/i.test(file) ? 'video' : 'photo',
       ...getGalleryImageDimensions(file),
-      title: name.replace(/\.[^.]+$/, ''), date: '', category: projectCategory, photographer: '', related: [],
+      title: name.replace(/\.[^.]+$/, ''), location: '', date: '', category: projectCategory, photographer: '',
+      description: '', text: '', exif: photoExif(undefined), related: [],
     });
   }
   return [...entries.values()];

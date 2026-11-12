@@ -15,6 +15,7 @@ draft: false
     "type": "photo",
     "category": "landscape",
     "tag": [],
+    "location": "",
     "date": "",
     "photographer": "zes",
     "title": [
@@ -22,6 +23,21 @@ draft: false
       "",
       ""
     ],
+    "description": "",
+    "text": [
+      "",
+      "",
+      ""
+    ],
+    "exif": {
+      "camera": "Canon EOS R8",
+      "lens": "",
+      "focalLength": "",
+      "aperture": "",
+      "shutterSpeed": "",
+      "iso": "",
+      "exposureCompensation": ""
+    },
     "related": [
       "海河边-IMG-2390",
       "海河边-IMG-2400"
@@ -33,6 +49,7 @@ draft: false
     "type": "photo",
     "category": "landscape",
     "tag": [],
+    "location": "",
     "date": "",
     "photographer": "zes",
     "title": [
@@ -40,6 +57,21 @@ draft: false
       "",
       ""
     ],
+    "description": "",
+    "text": [
+      "",
+      "",
+      ""
+    ],
+    "exif": {
+      "camera": "Canon EOS R8",
+      "lens": "",
+      "focalLength": "",
+      "aperture": "",
+      "shutterSpeed": "",
+      "iso": "",
+      "exposureCompensation": ""
+    },
     "related": [
       "海河边-IMG-2372",
       "海河边-IMG-2400"
@@ -51,6 +83,7 @@ draft: false
     "type": "photo",
     "category": "landscape",
     "tag": [],
+    "location": "",
     "date": "",
     "photographer": "zes",
     "title": [
@@ -58,6 +91,21 @@ draft: false
       "",
       ""
     ],
+    "description": "",
+    "text": [
+      "",
+      "",
+      ""
+    ],
+    "exif": {
+      "camera": "Canon EOS R8",
+      "lens": "",
+      "focalLength": "",
+      "aperture": "",
+      "shutterSpeed": "",
+      "iso": "",
+      "exposureCompensation": ""
+    },
     "related": [
       "海河边-IMG-2372",
       "海河边-IMG-2390"

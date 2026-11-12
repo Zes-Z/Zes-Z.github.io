@@ -49,14 +49,44 @@ function normalizedRecord(file, saved = {}, defaultCategory = '') {
         saved.zh?.title ?? legacyTitle.zh ?? singleTitle,
         saved.ja?.title ?? legacyTitle.ja ?? singleTitle,
       ];
+  const legacyDescription = saved.description;
+  const textValues = Array.isArray(saved.text) && saved.text.length > 0
+    ? saved.text
+    : saved.text && typeof saved.text === 'object' && !Array.isArray(saved.text)
+      ? [saved.text.zh, saved.text.en, saved.text.ja]
+      : Array.isArray(legacyDescription)
+        ? [legacyDescription[1], legacyDescription[0], legacyDescription[2]]
+        : legacyDescription && typeof legacyDescription === 'object'
+          ? [legacyDescription.zh, legacyDescription.en, legacyDescription.ja]
+          : ['', '', ''];
+  const savedExif = saved.exif && typeof saved.exif === 'object' && !Array.isArray(saved.exif)
+    ? saved.exif
+    : {};
+  const exifValue = (key) => {
+    const value = savedExif[key];
+    return value == null ? '' : String(value);
+  };
+  const camera = exifValue('camera');
   return {
     draft: typeof saved.draft === 'boolean' ? saved.draft : false,
     type: videoPattern.test(file) ? 'video' : 'photo',
     category,
     tag: Array.isArray(saved.tag) ? saved.tag : [],
+    location: typeof saved.location === 'string' ? saved.location : '',
     date: saved.date ?? '',
     photographer: saved.photographer ?? 'zes',
     title: [0, 1, 2].map((index) => typeof titles[index] === 'string' ? titles[index] : ''),
+    description: typeof legacyDescription === 'string' ? legacyDescription : '',
+    text: [0, 1, 2].map((index) => typeof textValues[index] === 'string' ? textValues[index] : ''),
+    exif: {
+      camera: camera.toLowerCase() === 'canon eos r8' ? 'Canon EOS R8' : camera || 'Canon EOS R8',
+      lens: exifValue('lens'),
+      focalLength: exifValue('focalLength'),
+      aperture: exifValue('aperture'),
+      shutterSpeed: exifValue('shutterSpeed'),
+      iso: exifValue('iso'),
+      exposureCompensation: exifValue('exposureCompensation'),
+    },
     related: Array.isArray(saved.related) ? saved.related : [],
   };
 }

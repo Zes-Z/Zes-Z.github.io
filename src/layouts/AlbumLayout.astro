@@ -16,15 +16,34 @@ interface Props {
 
 const { lang, title, entryId, portfolioId, category, backHref } = Astro.props;
 const words = {
-  zh: { all: '全部', back: '返回照片墙', categories: '分类', date: '日期', photographer: '作者', related: '相关照片', portfolio: '作品集', zoom: '查看大图', close: '关闭大图', previous: '上一张', next: '下一张', empty: '没有符合当前分类的照片。' },
-  en: { all: 'All', back: 'Back to gallery', categories: 'Categories', date: 'Date', photographer: 'Photographer', related: 'Related Images', portfolio: 'Portfolio', zoom: 'View larger image', close: 'Close larger image', previous: 'Previous image', next: 'Next image', empty: 'No photos match this category.' },
-  ja: { all: 'すべて', back: '写真一覧に戻る', categories: 'カテゴリ', date: '日付', photographer: '撮影者', related: '関連写真', portfolio: 'ポートフォリオ', zoom: '拡大表示', close: '拡大画像を閉じる', previous: '前の写真', next: '次の写真', empty: 'このカテゴリに一致する写真はありません。' },
+  zh: { all: '全部', back: '返回照片墙', categories: '分类', category: '分类', location: '地点', date: '时间', photographer: '作者', camera: '相机', lens: '镜头', focalLength: '焦段', aperture: '光圈', shutterSpeed: '快门', iso: '感光度', exposureCompensation: '曝光补偿', related: '相关照片', portfolio: '作品集', zoom: '查看大图', close: '关闭大图', previous: '上一张', next: '下一张', empty: '没有符合当前分类的照片。' },
+  en: { all: 'All', back: 'Back to gallery', categories: 'Categories', category: 'Category', location: 'Location', date: 'Date', photographer: 'Photographer', camera: 'Camera', lens: 'Lens', focalLength: 'Focal length', aperture: 'Aperture', shutterSpeed: 'Shutter speed', iso: 'ISO', exposureCompensation: 'Exposure compensation', related: 'Related Images', portfolio: 'Portfolio', zoom: 'View larger image', close: 'Close larger image', previous: 'Previous image', next: 'Next image', empty: 'No photos match this category.' },
+  ja: { all: 'すべて', back: '写真一覧に戻る', categories: 'カテゴリ', category: 'カテゴリ', location: '場所', date: '日時', photographer: '撮影者', camera: 'カメラ', lens: 'レンズ', focalLength: '焦点距離', aperture: '絞り', shutterSpeed: 'シャッター速度', iso: 'ISO', exposureCompensation: '露出補正', related: '関連写真', portfolio: 'ポートフォリオ', zoom: '拡大表示', close: '拡大画像を閉じる', previous: '前の写真', next: '次の写真', empty: 'このカテゴリに一致する写真はありません。' },
 }[lang];
 const albumHref = withBase(`/${lang}/album`);
 const allEntries = getAlbumEntries(lang);
 const homeItems = getAlbumHomeItems(lang);
 const portfolio = homeItems.find((item): item is PortfolioCard => 'count' in item && item.id === portfolioId);
 const detail = allEntries.find((item) => item.id === entryId);
+const getExifGroups = (item: AlbumEntry) => {
+  const { focalLength, aperture, shutterSpeed, iso, exposureCompensation } = item.exif;
+  const apertureValue = aperture ? `F${aperture.replace(/^f\/?/i, '')}` : '';
+  const shutterValue = shutterSpeed
+    ? /(?:s|sec)$/i.test(shutterSpeed) ? shutterSpeed : `${shutterSpeed}s`
+    : '';
+  const isoValue = iso ? `ISO${iso.replace(/^iso\s*/i, '')}` : '';
+  const exposureValue = exposureCompensation
+    ? /ev$/i.test(exposureCompensation) ? exposureCompensation : `${exposureCompensation}EV`
+    : '';
+  const focalLengthValue = focalLength
+    ? /mm$/i.test(focalLength) ? focalLength : `${focalLength}mm`
+    : '';
+  return [
+    { kind: 'primary', values: [apertureValue, shutterValue, isoValue] },
+    { kind: 'secondary', values: [exposureValue, focalLengthValue].filter(Boolean) },
+  ].filter((group) => group.values.some(Boolean));
+};
+const exifGroups = detail ? getExifGroups(detail) : [];
 const uniqueByImage = (items: AlbumEntry[]) => {
   const unique = new Map<string, AlbumEntry>();
   for (const item of items) if (!unique.has(item.src)) unique.set(item.src, item);
@@ -49,20 +68,34 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
 
 <BaseLayout lang={lang} title={title} transitions>
   {detail ? <div class="album-detail-shell">
+    <a class="album-back" href={back} aria-label={words.back} title={words.back}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7" /></svg>
+    </a>
     <div class="album-container">
-      <a class="album-back" href={back}><span aria-hidden="true">←</span>{words.back}</a>
       <section class="album-detail">
         <div class="detail-image-wrap" transition:name={`image-${detail.id}`}>
           {detail.kind === 'video' ? <video src={detail.src} controls playsinline /> : <button class="zoom-trigger" type="button" popovertarget="album-image-zoom" aria-label={`${words.zoom}: ${detail.title}`}><img src={detail.src} alt={detail.title} width={detail.width} height={detail.height} loading="eager" /></button>}
         </div>
         <aside class="detail-info">
           <h1>{detail.title}</h1>
-          {detail.category && <h2>{detail.category}</h2>}
-          <div class="metadata">
-            {detail.category && <p><span>{words.categories}</span><b>{detail.category}</b></p>}
-            {detail.date && <p><span>{words.date}</span><b>{detail.date}</b></p>}
-            {detail.photographer && <p><span>{words.photographer}</span><b>{detail.photographer}</b></p>}
-          </div>
+          {(detail.location || detail.date || detail.photographer) && <div class="detail-meta-section detail-identification">
+            {(detail.location || detail.date) && <div class="detail-place-date">
+              <span>{detail.location}</span>
+              <time>{detail.date}</time>
+            </div>}
+            {detail.photographer && <div class="detail-author"><span>by</span><strong>{detail.photographer}</strong></div>}
+          </div>}
+          {exifGroups.length > 0 && <div class="detail-meta-section detail-exif-block">
+            {exifGroups.map((group) => <div class:list={['detail-exif-row', `detail-exif-row-${group.kind}`]}>
+              {group.kind === 'primary'
+                ? group.values.filter(Boolean).map((value, index) => <span>{index > 0 && <span aria-hidden="true">·</span>}{value}</span>)
+                : group.values.map((value) => <span>{value}</span>)}
+            </div>)}
+          </div>}
+          {(detail.category || detail.text) && <div class="detail-meta-section detail-copy-block">
+            {detail.category && <a class="detail-category" href={withBase(`/${lang}/album/category/${encodeURIComponent(detail.category.toLowerCase())}`)} aria-label={`${words.category}: ${detail.category}`}>{detail.category}</a>}
+            {detail.text && <p class="detail-description">{detail.text}</p>}
+          </div>}
         </aside>
       </section>
       {related.length > 0 && <section class="related">
@@ -80,7 +113,9 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
     </div>
     {detail.kind !== 'video' && <div id="album-image-zoom" popover class="zoom-popover"><button class="zoom-close" type="button" popovertarget="album-image-zoom" popovertargetaction="hide" aria-label={words.close}><img src={largeImage} alt={detail.title} /></button></div>}
   </div> : portfolio ? <div class="album-container portfolio-page">
-    <a class="album-back" href={albumHref}><span aria-hidden="true">←</span>{words.back}</a>
+    <a class="album-back" href={albumHref} aria-label={words.back} title={words.back}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7" /></svg>
+    </a>
     <h1 class="portfolio-title">{portfolio.title}</h1>
     <div class="portfolio-sequence">
       {activeEntries.map((item, index) => <section class:list={[
@@ -98,12 +133,24 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
         </div>
         <aside class="portfolio-info">
           <h2>{item.title}</h2>
-          {item.category && <h3>{item.category}</h3>}
-          <div class="metadata">
-            {item.category && <p><span>{words.categories}</span><b>{item.category}</b></p>}
-            {item.date && <p><span>{words.date}</span><b>{item.date}</b></p>}
-            {item.photographer && <p><span>{words.photographer}</span><b>{item.photographer}</b></p>}
-          </div>
+          {(item.location || item.date || item.photographer) && <div class="detail-meta-section detail-identification">
+            {(item.location || item.date) && <div class="detail-place-date">
+              <span>{item.location}</span>
+              <time>{item.date}</time>
+            </div>}
+            {item.photographer && <div class="detail-author"><span>by</span><strong>{item.photographer}</strong></div>}
+          </div>}
+          {getExifGroups(item).length > 0 && <div class="detail-meta-section detail-exif-block">
+            {getExifGroups(item).map((group) => <div class:list={['detail-exif-row', `detail-exif-row-${group.kind}`]}>
+              {group.kind === 'primary'
+                ? group.values.filter(Boolean).map((value, index) => <span>{index > 0 && <span aria-hidden="true">·</span>}{value}</span>)
+                : group.values.map((value) => <span>{value}</span>)}
+            </div>)}
+          </div>}
+          {(item.category || item.text) && <div class="detail-meta-section detail-copy-block">
+            {item.category && <a class="detail-category" href={withBase(`/${lang}/album/category/${encodeURIComponent(item.category.toLowerCase())}`)} aria-label={`${words.category}: ${item.category}`}>{item.category}</a>}
+            {item.text && <p class="detail-description">{item.text}</p>}
+          </div>}
         </aside>
       </section>)}
     </div>
@@ -146,8 +193,7 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
           </a> : <a class="photo-card" href={srcForEntry(item)} transition:name={`image-${item.id}`}>
             {item.kind === 'video' ? <video src={item.src} muted playsinline preload="metadata" /> : <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />}
             <span class="caption">
-              <span class="caption-main"><b>{item.title}</b>{item.category && <small>{item.category}</small>}</span>
-              {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
+              <span class="caption-main"><b>{item.title}</b>{item.description && <small>{item.description}</small>}</span>
             </span>
           </a>)}
         </div>
@@ -157,8 +203,7 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
           {categoryEntries.map((item) => <a class="photo-card" data-filter-card data-category={item.category.toLowerCase()} hidden={Boolean(category) && item.category.toLowerCase() !== category?.toLowerCase()} href={srcForEntry(item)} transition:name={`image-${item.id}`}>
             {item.kind === 'video' ? <video src={item.src} muted playsinline preload="metadata" /> : <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />}
             <span class="caption">
-              <span class="caption-main"><b>{item.title}</b><small>{item.category}</small></span>
-              {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
+              <span class="caption-main"><b>{item.title}</b>{item.description && <small>{item.description}</small>}</span>
             </span>
           </a>)}
         </div>
@@ -460,7 +505,19 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
 
         masonry.querySelectorAll<HTMLElement>(':scope > .photo-card').forEach((card) => {
           if (card.hidden) return;
-          const span = Math.max(1, Math.ceil((card.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap)));
+          const media = card.querySelector<HTMLImageElement | HTMLVideoElement>('img, video');
+          if (!media) return;
+          const mediaWidth = media instanceof HTMLImageElement
+            ? media.naturalWidth || Number(media.getAttribute('width'))
+            : media.videoWidth || Number(media.getAttribute('width'));
+          const mediaHeight = media instanceof HTMLImageElement
+            ? media.naturalHeight || Number(media.getAttribute('height'))
+            : media.videoHeight || Number(media.getAttribute('height'));
+          const cardWidth = card.clientWidth;
+          const contentHeight = mediaWidth > 0 && mediaHeight > 0
+            ? cardWidth * mediaHeight / mediaWidth
+            : media.getBoundingClientRect().height || cardWidth * .75;
+          const span = Math.max(1, Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap)));
           card.style.gridRowEnd = `span ${span}`;
         });
       });
@@ -472,6 +529,7 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
     document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('.masonry img, .masonry video').forEach((media) => {
       media.addEventListener('load', () => refreshMasonry(), { once: true });
       media.addEventListener('loadedmetadata', () => refreshMasonry(), { once: true });
+      if (media instanceof HTMLImageElement && media.complete) refreshMasonry();
     });
     if (document.fonts?.ready) document.fonts.ready.then(() => refreshMasonry());
   }
@@ -576,30 +634,45 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
   .album-listing { min-height:65vh; }
   .filter-view { opacity:1; transform:translateY(0); }
   .filter-empty { margin:2rem 0; color:var(--text-soft); text-align:center; }
-  .masonry { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:8px; gap:1.5rem; align-items:start; }
+  .masonry { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:6px; column-gap:1.5rem; row-gap:6px; align-items:start; }
   .photo-card { display:block; position:relative; grid-row-end:span 1; width:100%; margin:0; overflow:hidden; color:var(--text); text-decoration:none; }
   .photo-card img,.photo-card video { display:block; width:100%; height:auto; transition:transform .45s ease; }
   .photo-card:hover img,.photo-card:hover video { transform:scale(1.025); }
-  .caption { position:absolute; inset:auto 0 0; display:flex; align-items:flex-end; justify-content:space-between; gap:.5rem; padding:2.7rem .9rem .8rem; color:#fff; background:linear-gradient(transparent,#000a); opacity:.88; transition:opacity .2s; }
+  .caption { position:absolute; inset:auto 0 0; display:flex; align-items:flex-end; justify-content:space-between; gap:.5rem; padding:1.25rem .7rem .5rem; color:#fff; background:linear-gradient(transparent,#000a); opacity:.88; transition:opacity .2s; }
   .photo-card:hover .caption,.photo-card:focus-visible .caption { opacity:1; }
   .caption-main { display:block; min-width:0; }
   .caption b,.caption small { display:block; font-weight:500; }
-  .caption-main small { margin-top:.00rem; color:#e5e7eb; font-size:.88rem; font-weight:300; }
+  .caption b { display:-webkit-box; overflow:hidden; font-size:.82rem; line-height:1.25; -webkit-box-orient:vertical; -webkit-line-clamp:1; }
+  .caption-main small { display:-webkit-box; overflow:hidden; margin-top:.22rem; color:#e5e7eb; font-size:.72rem; font-weight:300; line-height:1.25; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
   .caption .caption-author { flex:0 0 auto; max-width:45%; margin:0; color:#e5e7eb; font-size:.72rem; font-weight:300; line-height:1.25; text-align:right; }
-  .album-back { display:inline-flex; gap:.4rem; align-items:center; margin:0 0 2rem; color:var(--text-soft); text-decoration:none; }
-  .album-back:hover { color:var(--accent); }
+  .album-back { position:fixed; z-index:20; top:5.5rem; left:max(.75rem,calc((100vw - var(--container-max)) / 2 + var(--gutter) - 3.25rem)); display:grid; place-items:center; width:2.75rem; height:2.75rem; border:1px solid var(--border); border-radius:50%; color:var(--text-soft); background:var(--surface); box-shadow:var(--shadow); text-decoration:none; transition:color .18s,border-color .18s,transform .18s; }
+  .album-back svg { width:1.2rem; height:1.2rem; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; }
+  .album-back:hover,.album-back:focus-visible { transform:translateX(-2px); border-color:var(--sky); color:var(--sky); background:color-mix(in srgb,var(--sky) 10%,var(--surface)); }
+  .album-detail-shell .album-container,.portfolio-page { padding-top:1.65rem; }
   .album-detail { display:grid; grid-template-columns:minmax(0,2fr) minmax(260px,1fr); gap:clamp(2rem,5vw,4rem); align-items:start; }
-  .detail-image-wrap { display:flex; align-items:center; justify-content:center; max-height:85vh; overflow:hidden; }
-  .detail-image-wrap img,.detail-image-wrap video { display:block; width:auto; height:auto; max-width:100%; max-height:85vh; object-fit:contain; }
+  .detail-image-wrap { display:flex; align-items:center; justify-content:center; max-height:85vh; max-height:min(85vh,calc(100dvh - 6rem)); overflow:hidden; }
+  .detail-image-wrap img,.detail-image-wrap video { display:block; width:auto; height:auto; max-width:100%; max-height:85vh; max-height:min(85vh,calc(100dvh - 6rem)); object-fit:contain; }
   .zoom-trigger { padding:0; border:0; background:transparent; cursor:zoom-in; }
   .detail-info { position:sticky; top:2rem; padding-top:1rem; }
   .detail-info h1 { margin:0 0 .5rem; font-size:clamp(1.8rem,3vw,2.5rem); font-weight:350; letter-spacing:.02em; }
-  .detail-info h2 { margin:0 0 2rem; color:var(--text-soft); font-size:1.1rem; font-weight:350; }
+  .detail-meta-section { padding:1rem 0; font-size:1rem; }
+  .detail-meta-section + .detail-meta-section { border-top:1px solid var(--border); }
+  .detail-identification { display:grid; gap:1rem; margin-top:.25rem; color:var(--text-soft); font-size:1.02rem; }
+  .detail-place-date,.detail-author { display:grid; grid-template-columns:6rem max-content; justify-content:start; align-items:baseline; gap:1rem; }
+  .detail-place-date { color:var(--text); font-size:1.08rem; font-weight:550; font-variant-numeric:tabular-nums; }
+  .detail-author > span,.detail-author > strong { color:var(--text); font-size:1.02rem; font-weight:550; }
+  .detail-exif-block,.detail-copy-block { display:grid; gap:.9rem; }
+  .detail-exif-row-primary { display:flex; align-items:center; gap:.55rem; overflow-x:auto; color:var(--text); font-size:1rem; font-weight:500; font-variant-numeric:tabular-nums; white-space:nowrap; scrollbar-width:thin; }
+  .detail-exif-row-primary > span { display:flex; flex:0 0 auto; align-items:center; gap:.55rem; }
+  .detail-exif-row-secondary { display:grid; grid-template-columns:6rem max-content; justify-content:start; gap:1rem; color:var(--text); font-size:1rem; font-weight:500; font-variant-numeric:tabular-nums; }
+  .detail-category { justify-self:start; padding:.3rem .8rem; border:1px solid var(--border); border-radius:999px; color:var(--text-soft); font-size:1rem; font-weight:500; line-height:1.7; text-decoration:none; transition:color .18s,background .18s,border-color .18s; }
+  .detail-category:hover,.detail-category:focus-visible { border-color:var(--sky); color:var(--sky); background:color-mix(in srgb,var(--sky) 10%,transparent); }
+  .detail-description { margin:0; color:var(--text-soft); font-family:'Baskerville','Times New Roman','Kaiti SC','STKaiti','KaiTi','Yu Mincho',serif; font-size:1.16rem; font-style:italic; font-weight:350; line-height:2; letter-spacing:.035em; white-space:pre-wrap; }
   .metadata { margin-top:2.5rem; font-size:.95rem; }
   .metadata p { display:grid; grid-template-columns:8rem 1fr; gap:.5rem; margin:.9rem 0; }
   .metadata span { color:var(--text-soft); }
   .metadata b { color:var(--text); font-weight:350; }
-  .portfolio-title { margin:0 0 2rem; font-size:clamp(1.8rem,3vw,2.6rem); font-weight:350; text-align:center; }
+  .portfolio-title { margin:0 0 1.25rem; font-size:clamp(1.8rem,3vw,2.6rem); font-weight:350; text-align:center; }
   .portfolio-sequence { display:grid; gap:clamp(3rem,8vw,7rem); }
   .portfolio-row { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(2rem,5vw,4rem); align-items:center; }
   .portfolio-row.image-right-wide { grid-template-columns:minmax(0,1fr) minmax(0,2fr); }
@@ -610,7 +683,7 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
   .portfolio-image img,.portfolio-image video { display:block; width:auto; height:auto; max-width:100%; max-height:78vh; object-fit:contain; }
   .portfolio-info h2 { margin:0 0 .5rem; font-size:clamp(1.6rem,2.6vw,2.2rem); font-weight:350; }
   .portfolio-info h3 { margin:0 0 1.5rem; color:var(--text-soft); font-size:1.05rem; font-weight:350; }
-  .related { margin:4rem 0 1rem; }
+  .related { margin:3rem 0 1rem; }
   .related h2 { margin:0 0 1.5rem; font-size:1.7rem; font-weight:350; }
   .portfolio-lightbox { box-sizing:border-box; position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; max-width:none; max-height:none; margin:0; padding:clamp(.75rem,3vw,2rem); border:0; overflow:hidden; color:#fff; background:rgba(12,10,9,.96); opacity:0; transform:scale(.985); transition:opacity 220ms ease,transform 220ms ease,overlay 220ms allow-discrete,display 220ms allow-discrete; }
   .portfolio-lightbox:popover-open { display:grid; grid-template-columns:minmax(2.5rem,5rem) minmax(0,1fr) minmax(2.5rem,5rem); align-items:center; opacity:1; transform:scale(1); }
@@ -632,5 +705,5 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
   .zoom-close { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:100%; height:100%; padding:clamp(1rem,4vw,2.5rem); border:0; background:transparent; cursor:zoom-out; }
   .zoom-close img { display:block; max-width:100%; max-height:calc(100vh - 2rem); max-height:calc(100dvh - 2rem); margin:auto; object-fit:contain; }
   @media(min-width:900px) { .masonry { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-  @media(max-width:760px) { .album-detail,.portfolio-row,.portfolio-row.image-right-wide { grid-template-columns:1fr; gap:1.5rem; } .portfolio-row .portfolio-image,.portfolio-row .portfolio-info { grid-column:1; grid-row:auto; } .detail-info { position:static; } .metadata { margin-top:1.5rem; } .portfolio-lightbox:popover-open { grid-template-columns:2.5rem minmax(0,1fr) 2.5rem; padding:.5rem; } .portfolio-lightbox-arrow { width:2.25rem; height:2.25rem; } }
+  @media(max-width:760px) { .album-back { top:5rem; left:.5rem; width:2.4rem; height:2.4rem; } .album-detail,.portfolio-row,.portfolio-row.image-right-wide { grid-template-columns:1fr; gap:1.5rem; } .portfolio-row .portfolio-image,.portfolio-row .portfolio-info { grid-column:1; grid-row:auto; } .detail-info { position:static; } .metadata { margin-top:1.5rem; } .portfolio-lightbox:popover-open { grid-template-columns:2.5rem minmax(0,1fr) 2.5rem; padding:.5rem; } .portfolio-lightbox-arrow { width:2.25rem; height:2.25rem; } }
 </style>
