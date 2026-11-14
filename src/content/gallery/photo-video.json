@@ -62,7 +62,7 @@
   "IMG_2372.JPG": {
     "draft": false,
     "type": "photo",
-    "category": "",
+    "category": "landscape",
     "tag": [],
     "location": "",
     "date": "",
@@ -92,7 +92,7 @@
   "IMG_2373.JPG": {
     "draft": false,
     "type": "photo",
-    "category": "",
+    "category": "landscape",
     "tag": [],
     "location": "",
     "date": "",
@@ -122,37 +122,7 @@
   "IMG_2390.JPG": {
     "draft": false,
     "type": "photo",
-    "category": "",
-    "tag": [],
-    "location": "",
-    "date": "",
-    "photographer": "zes",
-    "title": [
-      "",
-      "",
-      ""
-    ],
-    "description": "",
-    "text": [
-      "",
-      "",
-      ""
-    ],
-    "exif": {
-      "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
-    },
-    "related": []
-  },
-  "IMG_2394.JPG": {
-    "draft": false,
-    "type": "photo",
-    "category": "",
+    "category": "landscape",
     "tag": [],
     "location": "",
     "date": "",
