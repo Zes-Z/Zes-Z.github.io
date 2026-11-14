@@ -179,7 +179,7 @@ welcome: [
         cn: '微信',
         jap: 'WeChat',
         },
-        wechatId: 'Zes234-INTJ',
+        wechatId: 'Zes4u2',
         href: '#',
         icon: 'wechat',
         },
