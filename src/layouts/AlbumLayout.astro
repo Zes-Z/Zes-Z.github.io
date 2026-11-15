@@ -15,201 +15,754 @@ interface Props {
 }
 
 const { lang, title, entryId, portfolioId, category, backHref } = Astro.props;
+
 const words = {
-  zh: { all: '全部', back: '返回照片墙', categories: '分类', category: '分类', location: '地点', date: '时间', photographer: '作者', camera: '相机', lens: '镜头', focalLength: '焦段', aperture: '光圈', shutterSpeed: '快门', iso: '感光度', exposureCompensation: '曝光补偿', related: '相关照片', portfolio: '作品集', zoom: '查看大图', close: '关闭大图', previous: '上一张', next: '下一张', empty: '没有符合当前分类的照片。' },
-  en: { all: 'All', back: 'Back to gallery', categories: 'Categories', category: 'Category', location: 'Location', date: 'Date', photographer: 'Photographer', camera: 'Camera', lens: 'Lens', focalLength: 'Focal length', aperture: 'Aperture', shutterSpeed: 'Shutter speed', iso: 'ISO', exposureCompensation: 'Exposure compensation', related: 'Related Images', portfolio: 'Portfolio', zoom: 'View larger image', close: 'Close larger image', previous: 'Previous image', next: 'Next image', empty: 'No photos match this category.' },
-  ja: { all: 'すべて', back: '写真一覧に戻る', categories: 'カテゴリ', category: 'カテゴリ', location: '場所', date: '日時', photographer: '撮影者', camera: 'カメラ', lens: 'レンズ', focalLength: '焦点距離', aperture: '絞り', shutterSpeed: 'シャッター速度', iso: 'ISO', exposureCompensation: '露出補正', related: '関連写真', portfolio: 'ポートフォリオ', zoom: '拡大表示', close: '拡大画像を閉じる', previous: '前の写真', next: '次の写真', empty: 'このカテゴリに一致する写真はありません。' },
+  zh: {
+    all: '全部',
+    back: '返回照片墙',
+    categories: '分类',
+    category: '分类',
+    location: '地点',
+    date: '时间',
+    photographer: '作者',
+    camera: '相机',
+    lens: '镜头',
+    focalLength: '焦段',
+    aperture: '光圈',
+    shutterSpeed: '快门',
+    iso: '感光度',
+    exposureCompensation: '曝光补偿',
+    related: '相关照片',
+    portfolio: '作品集',
+    zoom: '查看大图',
+    close: '关闭大图',
+    previous: '上一张',
+    next: '下一张',
+    empty: '没有符合当前分类的照片。',
+    description: '简述',
+    story: '故事'
+  },
+  en: {
+    all: 'All',
+    back: 'Back to gallery',
+    categories: 'Categories',
+    category: 'Category',
+    location: 'Location',
+    date: 'Date',
+    photographer: 'Photographer',
+    camera: 'Camera',
+    lens: 'Lens',
+    focalLength: 'Focal length',
+    aperture: 'Aperture',
+    shutterSpeed: 'Shutter speed',
+    iso: 'ISO',
+    exposureCompensation: 'Exposure compensation',
+    related: 'Related Images',
+    portfolio: 'Portfolio',
+    zoom: 'View larger image',
+    close: 'Close larger image',
+    previous: 'Previous image',
+    next: 'Next image',
+    empty: 'No photos match this category.',
+    description: 'Description',
+    story: 'Story'
+  },
+  ja: {
+    all: 'すべて',
+    back: '写真一覧に戻る',
+    categories: 'カテゴリ',
+    category: 'カテゴリ',
+    location: '場所',
+    date: '日時',
+    photographer: '撮影者',
+    camera: 'カメラ',
+    lens: 'レンズ',
+    focalLength: '焦点距離',
+    aperture: '絞り',
+    shutterSpeed: 'シャッター速度',
+    iso: 'ISO',
+    exposureCompensation: '露出補正',
+    related: '関連写真',
+    portfolio: 'ポートフォリオ',
+    zoom: '拡大表示',
+    close: '拡大画像を閉じる',
+    previous: '前の写真',
+    next: '次の写真',
+    empty: 'このカテゴリに一致する写真はありません。',
+    description: '説明',
+    story: 'ストーリー'
+  }
 }[lang];
+
 const albumHref = withBase(`/${lang}/album`);
 const allEntries = getAlbumEntries(lang);
 const homeItems = getAlbumHomeItems(lang);
-const portfolio = homeItems.find((item): item is PortfolioCard => 'count' in item && item.id === portfolioId);
+
+const portfolio = homeItems.find(
+  (item): item is PortfolioCard => 'count' in item && item.id === portfolioId
+);
+
 const detail = allEntries.find((item) => item.id === entryId);
+
 const getExifGroups = (item: AlbumEntry) => {
-  const { focalLength, aperture, shutterSpeed, iso, exposureCompensation } = item.exif;
-  const apertureValue = aperture ? `F${aperture.replace(/^f\/?/i, '')}` : '';
+  const {
+    focalLength,
+    aperture,
+    shutterSpeed,
+    iso,
+    exposureCompensation
+  } = item.exif;
+
+  const apertureValue = aperture
+    ? `f/${aperture.replace(/^F\/?/i, '')}`
+    : '';
+
   const shutterValue = shutterSpeed
-    ? /(?:s|sec)$/i.test(shutterSpeed) ? shutterSpeed : `${shutterSpeed}s`
+    ? /(?:s|sec)$/i.test(shutterSpeed)
+      ? shutterSpeed
+      : `${shutterSpeed}s`
     : '';
-  const isoValue = iso ? `ISO${iso.replace(/^iso\s*/i, '')}` : '';
+
+  const isoValue = iso
+    ? `ISO${iso.replace(/^iso\s*/i, '')}`
+    : '';
+
   const exposureValue = exposureCompensation
-    ? /ev$/i.test(exposureCompensation) ? exposureCompensation : `${exposureCompensation}EV`
+    ? /ev$/i.test(exposureCompensation)
+      ? exposureCompensation
+      : `${exposureCompensation} EV`
     : '';
+
   const focalLengthValue = focalLength
-    ? /mm$/i.test(focalLength) ? focalLength : `${focalLength}mm`
+    ? /mm$/i.test(focalLength)
+      ? focalLength
+      : `${focalLength}mm`
     : '';
+
   return [
-    { kind: 'primary', values: [apertureValue, shutterValue, isoValue] },
-    { kind: 'secondary', values: [exposureValue, focalLengthValue].filter(Boolean) },
-  ].filter((group) => group.values.some(Boolean));
+    {
+      kind: 'primary',
+      values: [
+        [apertureValue, shutterValue, isoValue]
+          .filter(Boolean)
+          .join(' · ')
+      ].filter(Boolean)
+    },
+    {
+      kind: 'secondary',
+      values: [focalLengthValue, exposureValue].filter(Boolean)
+    }
+  ].filter((group) => group.values.length > 0);
 };
+
 const exifGroups = detail ? getExifGroups(detail) : [];
+
 const uniqueByImage = (items: AlbumEntry[]) => {
   const unique = new Map<string, AlbumEntry>();
-  for (const item of items) if (!unique.has(item.src)) unique.set(item.src, item);
+
+  for (const item of items) {
+    if (!unique.has(item.src)) unique.set(item.src, item);
+  }
+
   return [...unique.values()];
 };
+
 const activeEntries: AlbumEntry[] = portfolio
   ? allEntries.filter((item) => item.file.startsWith(`${portfolio.folder}/`))
   : category
-    ? uniqueByImage(allEntries.filter((item) => item.category.toLowerCase() === category.toLowerCase()))
+    ? uniqueByImage(
+        allEntries.filter(
+          (item) => item.category.toLowerCase() === category.toLowerCase()
+        )
+      )
     : allEntries.filter((item) => !item.file.includes('/'));
+
 const portfolioImages = activeEntries.filter((item) => item.kind !== 'video');
-const portfolioImageIndex = new Map(portfolioImages.map((item, index) => [item.id, index]));
-const categories = [...new Set(allEntries.map((item) => item.category.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-const categoryCounts = categories.map((name) => [name, new Set(allEntries.filter((item) => item.category === name).map((item) => item.src)).size] as [string, number]);
+
+const portfolioImageIndex = new Map(
+  portfolioImages.map((item, index) => [item.id, index])
+);
+
+const categories = [
+  ...new Set(
+    allEntries.map((item) => item.category.trim()).filter(Boolean)
+  )
+].sort((a, b) => a.localeCompare(b));
+
+const categoryCounts = categories.map((name) => [
+  name,
+  new Set(
+    allEntries
+      .filter((item) => item.category === name)
+      .map((item) => item.src)
+  ).size
+] as [string, number]);
+
 const relatedIds = new Set(detail?.related ?? []);
-const related = uniqueByImage(allEntries.filter((item) => relatedIds.has(item.id))).slice(0, 8);
-const categoryEntries = uniqueByImage(allEntries.filter((item) => item.category.trim()));
-const srcForEntry = (item: AlbumEntry) => withBase(`/${lang}/album/${encodeURIComponent(item.id)}`);
-const back = backHref ?? (portfolio ? withBase(`/${lang}/album/portfolio/${encodeURIComponent(portfolio.id)}`) : albumHref);
-const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'}width=2400` : '';
+
+const related = uniqueByImage(
+  allEntries.filter((item) => relatedIds.has(item.id))
+).slice(0, 8);
+
+const categoryEntries = uniqueByImage(
+  allEntries.filter((item) => item.category.trim())
+);
+
+const srcForEntry = (item: AlbumEntry) =>
+  withBase(`/${lang}/album/${encodeURIComponent(item.id)}`);
+
+const back = backHref ?? (
+  portfolio
+    ? withBase(`/${lang}/album/portfolio/${encodeURIComponent(portfolio.id)}`)
+    : albumHref
+);
+
+const largeImage = detail
+  ? `${detail.src}${detail.src.includes('?') ? '&' : '?'}width=2400`
+  : '';
 ---
 
 <BaseLayout lang={lang} title={title} transitions>
-  {detail ? <div class="album-detail-shell">
-    <a class="album-back" href={back} aria-label={words.back} title={words.back}>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7" /></svg>
-    </a>
-    <div class="album-container">
-      <section class="album-detail">
-        <div class="detail-image-wrap" transition:name={`image-${detail.id}`}>
-          {detail.kind === 'video' ? <video src={detail.src} controls playsinline /> : <button class="zoom-trigger" type="button" popovertarget="album-image-zoom" aria-label={`${words.zoom}: ${detail.title}`}><img src={detail.src} alt={detail.title} width={detail.width} height={detail.height} loading="eager" /></button>}
-        </div>
-        <aside class="detail-info">
-          <h1>{detail.title}</h1>
-          {(detail.location || detail.date || detail.photographer) && <div class="detail-meta-section detail-identification">
-            {(detail.location || detail.date) && <div class="detail-place-date">
-              <span>{detail.location}</span>
-              <time>{detail.date}</time>
-            </div>}
-            {detail.photographer && <div class="detail-author"><span>by</span><strong>{detail.photographer}</strong></div>}
-          </div>}
-          {exifGroups.length > 0 && <div class="detail-meta-section detail-exif-block">
-            {exifGroups.map((group) => <div class:list={['detail-exif-row', `detail-exif-row-${group.kind}`]}>
-              {group.kind === 'primary'
-                ? group.values.filter(Boolean).map((value, index) => <span>{index > 0 && <span aria-hidden="true">·</span>}{value}</span>)
-                : group.values.map((value) => <span>{value}</span>)}
-            </div>)}
-          </div>}
-          {(detail.category || detail.text) && <div class="detail-meta-section detail-copy-block">
-            {detail.category && <a class="detail-category" href={withBase(`/${lang}/album/category/${encodeURIComponent(detail.category.toLowerCase())}`)} aria-label={`${words.category}: ${detail.category}`}>{detail.category}</a>}
-            {detail.text && <p class="detail-description">{detail.text}</p>}
-          </div>}
-        </aside>
-      </section>
-      {related.length > 0 && <section class="related">
-        <h2>{words.related}</h2>
-        <div class="masonry">
-      {related.map((item) => <a class="photo-card" href={srcForEntry(item)}>
-            <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />
-          <span class="caption">
-            <span class="caption-main"><b>{item.title}</b>{item.category && <small>{item.category}</small>}</span>
-            {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
-          </span>
-          </a>)}
-        </div>
-      </section>}
-    </div>
-    {detail.kind !== 'video' && <div id="album-image-zoom" popover class="zoom-popover"><button class="zoom-close" type="button" popovertarget="album-image-zoom" popovertargetaction="hide" aria-label={words.close}><img src={largeImage} alt={detail.title} /></button></div>}
-  </div> : portfolio ? <div class="album-container portfolio-page">
-    <a class="album-back" href={albumHref} aria-label={words.back} title={words.back}>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 7-7m-7 7 7 7" /></svg>
-    </a>
-    <h1 class="portfolio-title">{portfolio.title}</h1>
-    <div class="portfolio-sequence">
-      {activeEntries.map((item, index) => <section class:list={[
-        'portfolio-row',
-        { 'image-right-wide': index % 2 === 1 },
-      ]}>
-        <div class="portfolio-image">
-          {item.kind === 'video' ? <video src={item.src} controls playsinline /> : <button
-            class="portfolio-lightbox-trigger"
+  {detail ? (
+    <div class="album-detail-shell">
+      <a class="album-back" href={back} aria-label={words.back} title={words.back}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
+        </svg>
+      </a>
+
+      <div class="album-container">
+        <section class="album-detail">
+          <div class="detail-image-wrap" transition:name={`image-${detail.id}`}>
+            {detail.kind === 'video' ? (
+              <video src={detail.src} controls playsinline />
+            ) : (
+              <button
+                class="zoom-trigger"
+                type="button"
+                popovertarget="album-image-zoom"
+                aria-label={`${words.zoom}: ${detail.title}`}
+              >
+                <img
+                  src={detail.src}
+                  alt={detail.title}
+                  width={detail.width}
+                  height={detail.height}
+                  loading="eager"
+                />
+              </button>
+            )}
+          </div>
+
+          <aside class="detail-info">
+            <h1>{detail.title}</h1>
+
+            <!-- 日期、地点 -->
+            {(detail.location || detail.date) && (
+              <div class="detail-meta-section detail-identification">
+                <div class="detail-meta-grid">
+                  {detail.date && (
+                    <div class="detail-meta-item">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="5" width="18" height="16" rx="2" />
+                        <path d="M16 3v4M8 3v4M3 10h18" />
+                      </svg>
+                      <time>{detail.date}</time>
+                    </div>
+                  )}
+
+                  {detail.location && (
+                    <div class="detail-meta-item">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
+                        <circle cx="12" cy="10" r="2.5" />
+                      </svg>
+                      <span>{detail.location}</span>
+                    </div>
+                  )}
+
+                  {detail.photographer && (
+                    <div class="detail-meta-item">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 21a8 8 0 0 1 16 0" />
+                      </svg>
+                      <span>by {detail.photographer}</span>
+                    </div>
+                  )}
+
+                  {detail.category && (
+                    <div class="detail-meta-item">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+                        <circle cx="8" cy="8" r="1.5" />
+                      </svg>
+                      <a
+                        class="detail-category"
+                        href={withBase(`/${lang}/album/category/${encodeURIComponent(detail.category.toLowerCase())}`)}
+                        aria-label={`${words.category}: ${detail.category}`}
+                      >
+                        {detail.category}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <!-- EXIF 信息 -->
+            {exifGroups.length > 0 && (
+              <div class="detail-meta-section detail-exif-block">
+                {exifGroups.map((group) => (
+                  <div class:list={['detail-exif-row', `detail-exif-row-${group.kind}`]}>
+                    {group.kind === 'primary' ? (
+                      group.values.map((value) => (
+                        <div class="detail-meta-item detail-exif-primary">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" />
+                            <circle cx="12" cy="13" r="4" />
+                          </svg>
+                          <span>{value}</span>
+                        </div>
+                      ))
+                    ) : (
+                      group.values.map((value, index) => (
+                        <div class="detail-meta-item">
+                          {index === 0 ? (
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <circle cx="12" cy="12" r="3" />
+                              <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" />
+                            </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <circle cx="12" cy="12" r="4" />
+                              <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+                            </svg>
+                          )}
+                          <span>{value}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <!-- 简述和故事 -->
+            {(detail.description || detail.text) && (
+              <div class="detail-meta-section detail-copy-block">
+                {detail.description && (
+                  <div class="detail-description-row">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="metadata-icon"
+                    >
+                      <path d="m21 17-2.156-1.868A.5.5 0 0 0 18 15.5v.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1c0-2.545-3.991-3.97-8.5-4a1 1 0 0 0 0 5c4.153 0 4.745-11.295 5.708-13.5a2.5 2.5 0 1 1 3.31 3.284"/>
+                      <path d="M3 21h18"/>
+                    </svg>
+                    <p class="detail-description">{detail.description}</p>
+                  </div>
+                )}
+
+                {detail.text && (
+                  <div class="detail-story-row">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="metadata-icon"
+                    >
+                      <path d="M12 5v16"/>
+                      <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/>
+                    </svg>
+                    <p class="detail-story">{detail.text}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </aside>
+        </section>
+
+        {related.length > 0 && (
+          <section class="related">
+            <h2>{words.related}</h2>
+            <div class="masonry">
+              {related.map((item) => (
+                <a class="photo-card" href={srcForEntry(item)}>
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    width={item.width}
+                    height={item.height}
+                    loading="lazy"
+                  />
+                  <span class="caption">
+                    <span class="caption-main">
+                      <b>{item.title}</b>
+                      {item.category && <small>{item.category}</small>}
+                    </span>
+                    {item.photographer && (
+                      <small class="caption-author">
+                        {words.photographer}: {item.photographer}
+                      </small>
+                    )}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      {detail.kind !== 'video' && (
+        <div id="album-image-zoom" popover class="zoom-popover">
+          <button
+            class="zoom-close"
             type="button"
-            data-portfolio-lightbox-trigger
-            data-lightbox-index={portfolioImageIndex.get(item.id)}
-            aria-label={`${words.zoom}: ${item.title}`}
-          ><img src={item.src} alt={item.title} width={item.width} height={item.height} loading={index < 2 ? 'eager' : 'lazy'} /></button>}
+            popovertarget="album-image-zoom"
+            popovertargetaction="hide"
+            aria-label={words.close}
+          >
+            <img src={largeImage} alt={detail.title} />
+          </button>
         </div>
-        <aside class="portfolio-info">
-          <h2>{item.title}</h2>
-          {(item.location || item.date || item.photographer) && <div class="detail-meta-section detail-identification">
-            {(item.location || item.date) && <div class="detail-place-date">
-              <span>{item.location}</span>
-              <time>{item.date}</time>
-            </div>}
-            {item.photographer && <div class="detail-author"><span>by</span><strong>{item.photographer}</strong></div>}
-          </div>}
-          {getExifGroups(item).length > 0 && <div class="detail-meta-section detail-exif-block">
-            {getExifGroups(item).map((group) => <div class:list={['detail-exif-row', `detail-exif-row-${group.kind}`]}>
-              {group.kind === 'primary'
-                ? group.values.filter(Boolean).map((value, index) => <span>{index > 0 && <span aria-hidden="true">·</span>}{value}</span>)
-                : group.values.map((value) => <span>{value}</span>)}
-            </div>)}
-          </div>}
-          {(item.category || item.text) && <div class="detail-meta-section detail-copy-block">
-            {item.category && <a class="detail-category" href={withBase(`/${lang}/album/category/${encodeURIComponent(item.category.toLowerCase())}`)} aria-label={`${words.category}: ${item.category}`}>{item.category}</a>}
-            {item.text && <p class="detail-description">{item.text}</p>}
-          </div>}
-        </aside>
-      </section>)}
+      )}
     </div>
-    {portfolioImages.length > 0 && <div class="portfolio-lightbox" popover data-portfolio-lightbox>
-      <button class="portfolio-lightbox-close" type="button" data-lightbox-close aria-label={words.close}>×</button>
-      <button class="portfolio-lightbox-arrow previous" type="button" data-lightbox-previous aria-label={words.previous}>←</button>
-      <figure class="portfolio-lightbox-content">
-        <img
-          data-lightbox-image
-          src={portfolioImages[0].src}
-          alt={portfolioImages[0].title}
-          width={portfolioImages[0].width}
-          height={portfolioImages[0].height}
+  ) : portfolio ? (
+    <div class="album-container portfolio-page">
+      <a class="album-back" href={albumHref} aria-label={words.back} title={words.back}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
+        </svg>
+      </a>
+
+      <h1 class="portfolio-title">{portfolio.title}</h1>
+
+      <div class="portfolio-sequence">
+        {activeEntries.map((item, index) => (
+          <section class:list={[
+            'portfolio-row',
+            { 'image-right-wide': index % 2 === 1 },
+          ]}>
+            <div class="portfolio-image">
+              {item.kind === 'video' ? (
+                <video src={item.src} controls playsinline />
+              ) : (
+                <button
+                  class="portfolio-lightbox-trigger"
+                  type="button"
+                  data-portfolio-lightbox-trigger
+                  data-lightbox-index={portfolioImageIndex.get(item.id)}
+                  aria-label={`${words.zoom}: ${item.title}`}
+                >
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    width={item.width}
+                    height={item.height}
+                    loading={index < 2 ? 'eager' : 'lazy'}
+                  />
+                </button>
+              )}
+            </div>
+
+            <aside class="portfolio-info">
+              <h2>{item.title}</h2>
+
+              {(item.location || item.date || item.photographer || item.category) && (
+                <div class="detail-meta-section detail-identification">
+                  <div class="detail-meta-grid">
+                    {item.date && (
+                      <div class="detail-meta-item">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="3" y="5" width="18" height="16" rx="2" />
+                          <path d="M16 3v4M8 3v4M3 10h18" />
+                        </svg>
+                        <time>{item.date}</time>
+                      </div>
+                    )}
+
+                    {item.location && (
+                      <div class="detail-meta-item">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
+                          <circle cx="12" cy="10" r="2.5" />
+                        </svg>
+                        <span>{item.location}</span>
+                      </div>
+                    )}
+
+                    {item.photographer && (
+                      <div class="detail-meta-item">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <circle cx="12" cy="8" r="4" />
+                          <path d="M4 21a8 8 0 0 1 16 0" />
+                        </svg>
+                        <span>by {item.photographer}</span>
+                      </div>
+                    )}
+
+                    {item.category && (
+                      <div class="detail-meta-item">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+                          <circle cx="8" cy="8" r="1.5" />
+                        </svg>
+                        <a
+                          class="detail-category"
+                          href={withBase(`/${lang}/album/category/${encodeURIComponent(item.category.toLowerCase())}`)}
+                          aria-label={`${words.category}: ${item.category}`}
+                        >
+                          {item.category}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {getExifGroups(item).length > 0 && (
+                <div class="detail-meta-section detail-exif-block">
+                  {getExifGroups(item).map((group) => (
+                    <div class:list={['detail-exif-row', `detail-exif-row-${group.kind}`]}>
+                      {group.kind === 'primary' ? (
+                        group.values.map((value) => (
+                          <div class="detail-meta-item detail-exif-primary">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" />
+                              <circle cx="12" cy="13" r="4" />
+                            </svg>
+                            <span>{value}</span>
+                          </div>
+                        ))
+                      ) : (
+                        group.values.map((value, index) => (
+                          <div class="detail-meta-item">
+                            {index === 0 ? (
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" />
+                              </svg>
+                            ) : (
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="4" />
+                                <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+                              </svg>
+                            )}
+                            <span>{value}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {(item.description || item.text) && (
+                <div class="detail-meta-section detail-copy-block">
+                  {item.description && (
+                    <div class="detail-description-row">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 5h16M4 10h16M4 15h10M4 20h7" />
+                      </svg>
+                      <p class="detail-description">{item.description}</p>
+                    </div>
+                  )}
+
+                  {item.text && (
+                    <div class="detail-story-row">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h2v-7H5v-2a7 7 0 0 1 14 0v2h-2v7h2a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9Z" />
+                        <path d="M9 14h6" />
+                      </svg>
+                      <p class="detail-story">{item.text}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </aside>
+          </section>
+        ))}
+      </div>
+
+      {portfolioImages.length > 0 && (
+        <div class="portfolio-lightbox" popover data-portfolio-lightbox>
+          <button
+            class="portfolio-lightbox-close"
+            type="button"
+            data-lightbox-close
+            aria-label={words.close}
+          >
+            ×
+          </button>
+
+          <button
+            class="portfolio-lightbox-arrow previous"
+            type="button"
+            data-lightbox-previous
+            aria-label={words.previous}
+          >
+            ←
+          </button>
+
+          <figure class="portfolio-lightbox-content">
+            <img
+              data-lightbox-image
+              src={portfolioImages[0].src}
+              alt={portfolioImages[0].title}
+              width={portfolioImages[0].width}
+              height={portfolioImages[0].height}
+            />
+            <figcaption>
+              <strong data-lightbox-title>{portfolioImages[0].title}</strong>
+              <span data-lightbox-counter>1 / {portfolioImages.length}</span>
+            </figcaption>
+          </figure>
+
+          <button
+            class="portfolio-lightbox-arrow next"
+            type="button"
+            data-lightbox-next
+            aria-label={words.next}
+          >
+            →
+          </button>
+        </div>
+      )}
+    </div>
+  ) : (
+    <div
+      class="album-container album-listing"
+      data-album-filter
+      data-active-category={category ?? ''}
+    >
+      {categories.length > 0 && (
+        <CategoryPills
+          lang={lang}
+          categories={categoryCounts}
+          active={category
+            ? categories.find((name) => name.toLowerCase() === category.toLowerCase()) ?? ''
+            : ''}
+          allHref={albumHref}
+          allLabel={words.all}
+          totalCount={homeItems.length}
+          hrefForCategory={(name) =>
+            withBase(`/${lang}/album/category/${encodeURIComponent(name.toLowerCase())}`)}
         />
-        <figcaption>
-          <strong data-lightbox-title>{portfolioImages[0].title}</strong>
-          <span data-lightbox-counter>1 / {portfolioImages.length}</span>
-        </figcaption>
-      </figure>
-      <button class="portfolio-lightbox-arrow next" type="button" data-lightbox-next aria-label={words.next}>→</button>
-    </div>}
-  </div> : <div class="album-container album-listing" data-album-filter data-active-category={category ?? ''}>
-    {categories.length > 0 && <CategoryPills
-      lang={lang}
-      categories={categoryCounts}
-      active={category ? categories.find((name) => name.toLowerCase() === category.toLowerCase()) ?? '' : ''}
-      allHref={albumHref}
-      allLabel={words.all}
-      totalCount={homeItems.length}
-      hrefForCategory={(name) => withBase(`/${lang}/album/category/${encodeURIComponent(name.toLowerCase())}`)}
-    />}
-    <div class="filter-view" data-home-view hidden={Boolean(category)}>
+      )}
+
+      <div class="filter-view" data-home-view hidden={Boolean(category)}>
         <div class="masonry">
-          {homeItems.map((item) => 'count' in item ? <a class="photo-card portfolio-card" href={withBase(`/${lang}/album/portfolio/${encodeURIComponent(item.id)}`)} aria-label={item.title}>
-            <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" transition:name={`portfolio-${item.id}`} />
-            <span class="caption">
-              <span class="caption-main"><b>{item.title}</b><small>{words.portfolio} · {item.count}{item.category && ` · ${item.category}`}</small></span>
-              {item.photographer && <small class="caption-author">{words.photographer}: {item.photographer}</small>}
-            </span>
-          </a> : <a class="photo-card" href={srcForEntry(item)} transition:name={`image-${item.id}`}>
-            {item.kind === 'video' ? <video src={item.src} muted playsinline preload="metadata" /> : <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />}
-            <span class="caption">
-              <span class="caption-main"><b>{item.title}</b>{item.description && <small>{item.description}</small>}</span>
-            </span>
-          </a>)}
+          {homeItems.map((item) =>
+            'count' in item ? (
+              <a
+                class="photo-card portfolio-card"
+                href={withBase(`/${lang}/album/portfolio/${encodeURIComponent(item.id)}`)}
+                aria-label={item.title}
+              >
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  width={item.width}
+                  height={item.height}
+                  loading="lazy"
+                  transition:name={`portfolio-${item.id}`}
+                />
+                <span class="caption">
+                  <span class="caption-main">
+                    <b>{item.title}</b>
+                    <small>
+                      {words.portfolio} · {item.count}
+                      {item.category && ` · ${item.category}`}
+                    </small>
+                  </span>
+                  {item.photographer && (
+                    <small class="caption-author">
+                      {words.photographer}: {item.photographer}
+                    </small>
+                  )}
+                </span>
+              </a>
+            ) : (
+              <a
+                class="photo-card"
+                href={srcForEntry(item)}
+                transition:name={`image-${item.id}`}
+              >
+                {item.kind === 'video' ? (
+                  <video src={item.src} muted playsinline preload="metadata" />
+                ) : (
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    width={item.width}
+                    height={item.height}
+                    loading="lazy"
+                  />
+                )}
+                <span class="caption">
+                  <span class="caption-main">
+                    <b>{item.title}</b>
+                    {item.description && <small>{item.description}</small>}
+                  </span>
+                </span>
+              </a>
+            )
+          )}
         </div>
-    </div>
-    <div class="filter-view" data-category-view hidden={!category} aria-live="polite">
+      </div>
+
+      <div
+        class="filter-view"
+        data-category-view
+        hidden={!category}
+        aria-live="polite"
+      >
         <div class="masonry">
-          {categoryEntries.map((item) => <a class="photo-card" data-filter-card data-category={item.category.toLowerCase()} hidden={Boolean(category) && item.category.toLowerCase() !== category?.toLowerCase()} href={srcForEntry(item)} transition:name={`image-${item.id}`}>
-            {item.kind === 'video' ? <video src={item.src} muted playsinline preload="metadata" /> : <img src={item.src} alt={item.title} width={item.width} height={item.height} loading="lazy" />}
-            <span class="caption">
-              <span class="caption-main"><b>{item.title}</b>{item.description && <small>{item.description}</small>}</span>
-            </span>
-          </a>)}
+          {categoryEntries.map((item) => (
+            <a
+              class="photo-card"
+              data-filter-card
+              data-category={item.category.toLowerCase()}
+              hidden={Boolean(category) && item.category.toLowerCase() !== category?.toLowerCase()}
+              href={srcForEntry(item)}
+              transition:name={`image-${item.id}`}
+            >
+              {item.kind === 'video' ? (
+                <video src={item.src} muted playsinline preload="metadata" />
+              ) : (
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  width={item.width}
+                  height={item.height}
+                  loading="lazy"
+                />
+              )}
+              <span class="caption">
+                <span class="caption-main">
+                  <b>{item.title}</b>
+                  {item.description && <small>{item.description}</small>}
+                </span>
+              </span>
+            </a>
+          ))}
         </div>
+
         <p class="filter-empty" data-filter-empty hidden>{words.empty}</p>
+      </div>
     </div>
-  </div>}
+  )}
 </BaseLayout>
 
 <script>
@@ -232,7 +785,9 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
 
   function readAlbumReturnMap(): Record<string, AlbumReturnState> {
     try {
-      return JSON.parse(sessionStorage.getItem(ALBUM_RETURN_KEY) || '{}') as Record<string, AlbumReturnState>;
+      return JSON.parse(
+        sessionStorage.getItem(ALBUM_RETURN_KEY) || '{}'
+      ) as Record<string, AlbumReturnState>;
     } catch {
       return {};
     }
@@ -242,35 +797,72 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
     const container = document.querySelector<HTMLElement>('.album-container');
     const shell = document.querySelector<HTMLElement>('.container-x');
     const shellStyle = shell ? getComputedStyle(shell) : null;
+
     const shellWidth = shell && shellStyle
-      ? shell.clientWidth - Number.parseFloat(shellStyle.paddingLeft) - Number.parseFloat(shellStyle.paddingRight)
+      ? shell.clientWidth
+        - Number.parseFloat(shellStyle.paddingLeft)
+        - Number.parseFloat(shellStyle.paddingRight)
       : document.documentElement.clientWidth;
+
     const masonryWidth = container?.getBoundingClientRect().width || shellWidth;
 
     const probe = document.createElement('div');
     probe.className = 'masonry';
+
     const targetMasonry = newDocument.querySelector<HTMLElement>('.masonry');
+
     targetMasonry?.getAttributeNames()
       .filter((name) => name.startsWith('data-astro-cid-'))
       .forEach((name) => probe.setAttribute(name, ''));
-    probe.style.cssText = `position:fixed;left:-10000px;top:0;width:${masonryWidth}px;visibility:hidden;pointer-events:none`;
+
+    probe.style.cssText = `
+      position:fixed;
+      left:-10000px;
+      top:0;
+      width:${masonryWidth}px;
+      visibility:hidden;
+      pointer-events:none
+    `;
+
     document.body.append(probe);
+
     const style = getComputedStyle(probe);
-    const columns = Math.max(1, style.gridTemplateColumns.split(/\s+/).filter(Boolean).length);
+    const columns = Math.max(
+      1,
+      style.gridTemplateColumns.split(/\s+/).filter(Boolean).length
+    );
     const rowHeight = Number.parseFloat(style.gridAutoRows) || 8;
     const rowGap = Number.parseFloat(style.rowGap) || 0;
     const columnGap = Number.parseFloat(style.columnGap) || 0;
+
     probe.remove();
 
-    const cardWidth = (masonryWidth - columnGap * (columns - 1)) / columns;
+    const cardWidth = (
+      masonryWidth - columnGap * (columns - 1)
+    ) / columns;
+
     newDocument.querySelectorAll<HTMLElement>('.masonry').forEach((masonry) => {
       masonry.querySelectorAll<HTMLElement>(':scope > .photo-card').forEach((card) => {
         const image = card.querySelector<HTMLImageElement>('img');
         const video = card.querySelector<HTMLVideoElement>('video');
-        const mediaWidth = Number(image?.getAttribute('width') ?? video?.getAttribute('width'));
-        const mediaHeight = Number(image?.getAttribute('height') ?? video?.getAttribute('height'));
-        const ratio = mediaWidth > 0 && mediaHeight > 0 ? mediaHeight / mediaWidth : 0.5;
-        const span = Math.max(1, Math.ceil((cardWidth * ratio + rowGap) / (rowHeight + rowGap)));
+
+        const mediaWidth = Number(
+          image?.getAttribute('width') ?? video?.getAttribute('width')
+        );
+
+        const mediaHeight = Number(
+          image?.getAttribute('height') ?? video?.getAttribute('height')
+        );
+
+        const ratio = mediaWidth > 0 && mediaHeight > 0
+          ? mediaHeight / mediaWidth
+          : 0.5;
+
+        const span = Math.max(
+          1,
+          Math.ceil((cardWidth * ratio + rowGap) / (rowHeight + rowGap))
+        );
+
         card.style.gridRowEnd = `span ${span}`;
       });
     });
@@ -281,98 +873,180 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
     if (!(target instanceof Element)) return;
 
     const backLink = target.closest<HTMLAnchorElement>('.album-back');
+
     if (backLink) {
       try {
         const index = history.state?.index;
-        const saved = typeof index === 'number' ? readAlbumReturnMap()[`target:${index}`] : null;
+
+        const saved = typeof index === 'number'
+          ? readAlbumReturnMap()[`target:${index}`]
+          : null;
+
         const destination = `${location.pathname}${location.search}`;
-        if (saved?.destination === destination && saved.targetIndex === index) {
+
+        if (
+          saved?.destination === destination &&
+          saved.targetIndex === index
+        ) {
           event.preventDefault();
           history.back();
         }
       } catch {
         // Keep the normal href behavior when session storage is unavailable.
       }
+
       return;
     }
 
-    const link = target.closest<HTMLAnchorElement>('.album-container a.photo-card');
-    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = target.closest<HTMLAnchorElement>(
+      '.album-container a.photo-card'
+    );
+
+    if (
+      !link ||
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) return;
 
     try {
       const targetUrl = new URL(link.href, location.href);
+
       if (targetUrl.origin !== location.origin) return;
+
       const homeView = document.querySelector<HTMLElement>('[data-home-view]');
       const categoryView = document.querySelector<HTMLElement>('[data-category-view]');
+
       const sourceView = link.closest('[data-home-view]') && !homeView?.hidden
         ? 'home'
         : link.closest('[data-category-view]') && !categoryView?.hidden
           ? 'category'
           : 'other';
+
       const disableSharedElement = sourceView !== 'category';
+
       if (disableSharedElement) {
         link.style.setProperty('view-transition-name', 'none', 'important');
-        link.querySelector<HTMLElement>('img, video')?.style.setProperty('view-transition-name', 'none', 'important');
+
+        link.querySelector<HTMLElement>('img, video')
+          ?.style.setProperty('view-transition-name', 'none', 'important');
+
         if (sourceView === 'other') {
           document.querySelector<HTMLElement>('.detail-image-wrap')
             ?.style.setProperty('view-transition-name', 'none', 'important');
         }
       }
-      const currentState = history.state && typeof history.state === 'object' ? history.state : {};
-      history.replaceState({ ...currentState, scrollX: window.scrollX, scrollY: window.scrollY }, '');
-      sessionStorage.setItem(ALBUM_PENDING_KEY, JSON.stringify({
-        destination: `${targetUrl.pathname}${targetUrl.search}`,
-        sourcePath: `${location.pathname}${location.search}${location.hash}`,
-        sourceIndex: typeof currentState.index === 'number' ? currentState.index : null,
-        scrollX: window.scrollX,
-        scrollY: window.scrollY,
-        anchorHref: link.href,
-        anchorTop: link.getBoundingClientRect().top,
-        sourceView,
-        disableSharedElement,
-        clickedAt: Date.now(),
-      }));
+
+      const currentState = history.state && typeof history.state === 'object'
+        ? history.state
+        : {};
+
+      history.replaceState(
+        {
+          ...currentState,
+          scrollX: window.scrollX,
+          scrollY: window.scrollY
+        },
+        ''
+      );
+
+      sessionStorage.setItem(
+        ALBUM_PENDING_KEY,
+        JSON.stringify({
+          destination: `${targetUrl.pathname}${targetUrl.search}`,
+          sourcePath: `${location.pathname}${location.search}${location.hash}`,
+          sourceIndex: typeof currentState.index === 'number'
+            ? currentState.index
+            : null,
+          scrollX: window.scrollX,
+          scrollY: window.scrollY,
+          anchorHref: link.href,
+          anchorTop: link.getBoundingClientRect().top,
+          sourceView,
+          disableSharedElement,
+          clickedAt: Date.now()
+        })
+      );
     } catch {
       // The link still works normally when storage or history state is unavailable.
     }
   }, true);
 
   document.addEventListener('astro:before-swap', (event) => {
-    const navigation = event as Event & { to?: URL; newDocument?: Document; direction?: string };
+    const navigation = event as Event & {
+      to?: URL;
+      newDocument?: Document;
+      direction?: string;
+    };
+
     const targetPath = navigation.to
       ? `${navigation.to.pathname}${navigation.to.search}${navigation.to.hash}`
       : `${location.pathname}${location.search}${location.hash}`;
-    if (!location.pathname.includes('/album') && !targetPath.includes('/album')) return;
+
+    if (
+      !location.pathname.includes('/album') &&
+      !targetPath.includes('/album')
+    ) return;
 
     const root = document.documentElement;
+
     if (previousScrollBehavior === null) {
       previousScrollBehavior = root.style.scrollBehavior;
       root.style.scrollBehavior = 'auto';
     }
+
     if (navigation.newDocument) {
       try {
         prepareMasonryForSwap(navigation.newDocument);
-        const targetPath = `${navigation.to?.pathname ?? ''}${navigation.to?.search ?? ''}`;
-        const pending = JSON.parse(sessionStorage.getItem(ALBUM_PENDING_KEY) || 'null') as AlbumReturnState | null;
+
+        const targetPath = `${
+          navigation.to?.pathname ?? ''
+        }${navigation.to?.search ?? ''}`;
+
+        const pending = JSON.parse(
+          sessionStorage.getItem(ALBUM_PENDING_KEY) || 'null'
+        ) as AlbumReturnState | null;
+
         const currentIndex = history.state?.index;
-        const saved = typeof currentIndex === 'number' ? readAlbumReturnMap()[`source:${currentIndex}`] : null;
+
+        const saved = typeof currentIndex === 'number'
+          ? readAlbumReturnMap()[`source:${currentIndex}`]
+          : null;
 
         if (pending?.destination === targetPath && pending.disableSharedElement) {
-          navigation.newDocument.querySelector<HTMLElement>('.detail-image-wrap')?.style.setProperty('view-transition-name', 'none', 'important');
+          navigation.newDocument
+            .querySelector<HTMLElement>('.detail-image-wrap')
+            ?.style.setProperty('view-transition-name', 'none', 'important');
         }
+
         if (
           navigation.direction === 'back' &&
           saved?.sourcePath === targetPath &&
           saved.disableSharedElement
         ) {
           if (saved.sourceView === 'home') {
-            const view = navigation.newDocument.querySelector<HTMLElement>('[data-home-view]');
-            const anchor = [...(view?.querySelectorAll<HTMLAnchorElement>('a.photo-card') ?? [])]
-              .find((link) => link.href === saved.anchorHref);
-            anchor?.style.setProperty('view-transition-name', 'none', 'important');
-            anchor?.querySelector<HTMLElement>('img, video')?.style.setProperty('view-transition-name', 'none', 'important');
+            const view = navigation.newDocument.querySelector<HTMLElement>(
+              '[data-home-view]'
+            );
+
+            const anchor = [
+              ...(view?.querySelectorAll<HTMLAnchorElement>('a.photo-card') ?? [])
+            ].find((link) => link.href === saved.anchorHref);
+
+            anchor?.style.setProperty(
+              'view-transition-name',
+              'none',
+              'important'
+            );
+
+            anchor?.querySelector<HTMLElement>('img, video')
+              ?.style.setProperty('view-transition-name', 'none', 'important');
           } else {
-            navigation.newDocument.querySelector<HTMLElement>('.detail-image-wrap')
+            navigation.newDocument
+              .querySelector<HTMLElement>('.detail-image-wrap')
               ?.style.setProperty('view-transition-name', 'none', 'important');
           }
         }
@@ -383,11 +1057,20 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
   });
 
   document.addEventListener('astro:after-swap', (event) => {
-    const navigation = event as Event & { direction?: string };
+    const navigation = event as Event & {
+      direction?: string;
+    };
+
     try {
       const currentPath = `${location.pathname}${location.search}${location.hash}`;
       const currentIndex = history.state?.index;
-      const pending = JSON.parse(sessionStorage.getItem(ALBUM_PENDING_KEY) || 'null') as Omit<AlbumReturnState, 'targetIndex'> & { clickedAt?: number } | null;
+
+      const pending = JSON.parse(
+        sessionStorage.getItem(ALBUM_PENDING_KEY) || 'null'
+      ) as (
+        Omit<AlbumReturnState, 'targetIndex'> & { clickedAt?: number }
+      ) | null;
+
       if (
         pending?.destination === `${location.pathname}${location.search}` &&
         typeof currentIndex === 'number' &&
@@ -395,27 +1078,57 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
         Date.now() - pending.clickedAt < 60_000
       ) {
         const returnMap = readAlbumReturnMap();
-        const state = { ...pending, targetIndex: currentIndex };
+
+        const state = {
+          ...pending,
+          targetIndex: currentIndex
+        };
+
         returnMap[`target:${currentIndex}`] = state;
-        if (typeof state.sourceIndex === 'number') returnMap[`source:${state.sourceIndex}`] = state;
-        sessionStorage.setItem(ALBUM_RETURN_KEY, JSON.stringify(returnMap));
+
+        if (typeof state.sourceIndex === 'number') {
+          returnMap[`source:${state.sourceIndex}`] = state;
+        }
+
+        sessionStorage.setItem(
+          ALBUM_RETURN_KEY,
+          JSON.stringify(returnMap)
+        );
       }
+
       sessionStorage.removeItem(ALBUM_PENDING_KEY);
 
-      const saved = typeof currentIndex === 'number' ? readAlbumReturnMap()[`source:${currentIndex}`] : null;
+      const saved = typeof currentIndex === 'number'
+        ? readAlbumReturnMap()[`source:${currentIndex}`]
+        : null;
+
       if (
         navigation.direction === 'back' &&
         saved?.sourcePath === currentPath &&
         typeof saved.sourceIndex === 'number' &&
         saved.sourceIndex === currentIndex
       ) {
-        window.scrollTo({ left: saved.scrollX, top: saved.scrollY, behavior: 'instant' });
-        const anchor = [...document.querySelectorAll<HTMLAnchorElement>('.album-container a.photo-card')]
-          .find((link) => link.href === saved.anchorHref);
+        window.scrollTo({
+          left: saved.scrollX,
+          top: saved.scrollY,
+          behavior: 'instant'
+        });
+
+        const anchor = [
+          ...document.querySelectorAll<HTMLAnchorElement>(
+            '.album-container a.photo-card'
+          )
+        ].find((link) => link.href === saved.anchorHref);
+
         if (anchor) {
           const correction = anchor.getBoundingClientRect().top - saved.anchorTop;
+
           if (Math.abs(correction) > 1) {
-            window.scrollTo({ left: window.scrollX, top: window.scrollY + correction, behavior: 'instant' });
+            window.scrollTo({
+              left: window.scrollX,
+              top: window.scrollY + correction,
+              behavior: 'instant'
+            });
           }
         }
       }
@@ -424,20 +1137,40 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
     }
 
     if (previousScrollBehavior === null) return;
+
     document.documentElement.style.scrollBehavior = previousScrollBehavior;
     previousScrollBehavior = null;
   });
 
   function setupPortfolioLightbox() {
-    const popover = document.querySelector<HTMLElement>('[data-portfolio-lightbox]');
+    const popover = document.querySelector<HTMLElement>(
+      '[data-portfolio-lightbox]'
+    );
+
     if (!popover || popover.dataset.ready === 'true') return;
+
     popover.dataset.ready = 'true';
 
-    const triggers = [...document.querySelectorAll<HTMLButtonElement>('[data-portfolio-lightbox-trigger]')];
-    const image = popover.querySelector<HTMLImageElement>('[data-lightbox-image]');
-    const title = popover.querySelector<HTMLElement>('[data-lightbox-title]');
-    const counter = popover.querySelector<HTMLElement>('[data-lightbox-counter]');
+    const triggers = [
+      ...document.querySelectorAll<HTMLButtonElement>(
+        '[data-portfolio-lightbox-trigger]'
+      )
+    ];
+
+    const image = popover.querySelector<HTMLImageElement>(
+      '[data-lightbox-image]'
+    );
+
+    const title = popover.querySelector<HTMLElement>(
+      '[data-lightbox-title]'
+    );
+
+    const counter = popover.querySelector<HTMLElement>(
+      '[data-lightbox-counter]'
+    );
+
     if (!image || !title || !counter || triggers.length === 0) return;
+
     const lightboxImage = image as HTMLImageElement;
     const lightboxTitle = title as HTMLElement;
     const lightboxCounter = counter as HTMLElement;
@@ -445,20 +1178,30 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
     const photos = triggers.map((trigger) => ({
       src: trigger.querySelector('img')?.src ?? '',
       title: trigger.querySelector('img')?.alt ?? '',
-      width: Number(trigger.querySelector('img')?.getAttribute('width')) || 0,
-      height: Number(trigger.querySelector('img')?.getAttribute('height')) || 0,
+      width: Number(
+        trigger.querySelector('img')?.getAttribute('width')
+      ) || 0,
+      height: Number(
+        trigger.querySelector('img')?.getAttribute('height')
+      ) || 0
     }));
+
     let activeIndex = 0;
 
     function showPhoto(index: number) {
       activeIndex = (index + photos.length) % photos.length;
+
       const photo = photos[activeIndex];
+
       lightboxImage.src = photo.src;
       lightboxImage.alt = photo.title;
+
       if (photo.width) lightboxImage.width = photo.width;
       else lightboxImage.removeAttribute('width');
+
       if (photo.height) lightboxImage.height = photo.height;
       else lightboxImage.removeAttribute('height');
+
       lightboxTitle.textContent = photo.title;
       lightboxCounter.textContent = `${activeIndex + 1} / ${photos.length}`;
 
@@ -466,24 +1209,46 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
       next.src = photos[(activeIndex + 1) % photos.length].src;
     }
 
-    const previousButton = popover.querySelector<HTMLButtonElement>('[data-lightbox-previous]');
-    const nextButton = popover.querySelector<HTMLButtonElement>('[data-lightbox-next]');
+    const previousButton = popover.querySelector<HTMLButtonElement>(
+      '[data-lightbox-previous]'
+    );
+
+    const nextButton = popover.querySelector<HTMLButtonElement>(
+      '[data-lightbox-next]'
+    );
+
     if (photos.length < 2) {
       if (previousButton) previousButton.hidden = true;
       if (nextButton) nextButton.hidden = true;
     }
 
-    triggers.forEach((trigger, index) => trigger.addEventListener('click', () => {
-      showPhoto(index);
-      popover.showPopover();
-      popover.querySelector<HTMLButtonElement>('[data-lightbox-close]')?.focus({ preventScroll: true });
-    }));
-    previousButton?.addEventListener('click', () => showPhoto(activeIndex - 1));
-    nextButton?.addEventListener('click', () => showPhoto(activeIndex + 1));
-    popover.querySelector<HTMLButtonElement>('[data-lightbox-close]')?.addEventListener('click', () => popover.hidePopover());
+    triggers.forEach((trigger, index) => {
+      trigger.addEventListener('click', () => {
+        showPhoto(index);
+        popover.showPopover();
+
+        popover
+          .querySelector<HTMLButtonElement>('[data-lightbox-close]')
+          ?.focus({ preventScroll: true });
+      });
+    });
+
+    previousButton?.addEventListener('click', () => {
+      showPhoto(activeIndex - 1);
+    });
+
+    nextButton?.addEventListener('click', () => {
+      showPhoto(activeIndex + 1);
+    });
+
+    popover
+      .querySelector<HTMLButtonElement>('[data-lightbox-close]')
+      ?.addEventListener('click', () => popover.hidePopover());
+
     popover.addEventListener('click', (event) => {
       if (event.target === popover) popover.hidePopover();
     });
+
     popover.addEventListener('keydown', (event) => {
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
@@ -499,25 +1264,41 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
     requestAnimationFrame(() => {
       scope.querySelectorAll<HTMLElement>('.masonry').forEach((masonry) => {
         if (!masonry.offsetWidth) return;
+
         const style = getComputedStyle(masonry);
         const rowHeight = Number.parseFloat(style.gridAutoRows) || 8;
         const rowGap = Number.parseFloat(style.rowGap) || 0;
 
-        masonry.querySelectorAll<HTMLElement>(':scope > .photo-card').forEach((card) => {
+        masonry.querySelectorAll<HTMLElement>(
+          ':scope > .photo-card'
+        ).forEach((card) => {
           if (card.hidden) return;
-          const media = card.querySelector<HTMLImageElement | HTMLVideoElement>('img, video');
+
+          const media = card.querySelector<
+            HTMLImageElement | HTMLVideoElement
+          >('img, video');
+
           if (!media) return;
+
           const mediaWidth = media instanceof HTMLImageElement
             ? media.naturalWidth || Number(media.getAttribute('width'))
             : media.videoWidth || Number(media.getAttribute('width'));
+
           const mediaHeight = media instanceof HTMLImageElement
             ? media.naturalHeight || Number(media.getAttribute('height'))
             : media.videoHeight || Number(media.getAttribute('height'));
+
           const cardWidth = card.clientWidth;
+
           const contentHeight = mediaWidth > 0 && mediaHeight > 0
             ? cardWidth * mediaHeight / mediaWidth
             : media.getBoundingClientRect().height || cardWidth * .75;
-          const span = Math.max(1, Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap)));
+
+          const span = Math.max(
+            1,
+            Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap))
+          );
+
           card.style.gridRowEnd = `span ${span}`;
         });
       });
@@ -526,92 +1307,189 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
 
   function setupMasonry() {
     refreshMasonry();
-    document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('.masonry img, .masonry video').forEach((media) => {
+
+    document.querySelectorAll<HTMLImageElement | HTMLVideoElement>(
+      '.masonry img, .masonry video'
+    ).forEach((media) => {
       media.addEventListener('load', () => refreshMasonry(), { once: true });
       media.addEventListener('loadedmetadata', () => refreshMasonry(), { once: true });
-      if (media instanceof HTMLImageElement && media.complete) refreshMasonry();
+
+      if (media instanceof HTMLImageElement && media.complete) {
+        refreshMasonry();
+      }
     });
-    if (document.fonts?.ready) document.fonts.ready.then(() => refreshMasonry());
+
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => refreshMasonry());
+    }
   }
 
   function setupAlbumFilters() {
     const root = document.querySelector<HTMLElement>('[data-album-filter]');
+
     if (!root || root.dataset.ready === 'true') return;
+
     root.dataset.ready = 'true';
 
-    const links = [...root.querySelectorAll<HTMLAnchorElement>('.archive-categories .category-pill')];
+    const links = [
+      ...root.querySelectorAll<HTMLAnchorElement>(
+        '.archive-categories .category-pill'
+      )
+    ];
+
     const homeView = root.querySelector<HTMLElement>('[data-home-view]');
     const categoryView = root.querySelector<HTMLElement>('[data-category-view]');
-    const cards = [...root.querySelectorAll<HTMLElement>('[data-filter-card]')];
+
+    const cards = [
+      ...root.querySelectorAll<HTMLElement>('[data-filter-card]')
+    ];
+
     const empty = root.querySelector<HTMLElement>('[data-filter-empty]');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
     let version = 0;
 
-    async function setCategory(category: string, animate: boolean, updateUrl: boolean) {
+    async function setCategory(
+      category: string,
+      animate: boolean,
+      updateUrl: boolean
+    ) {
       const currentVersion = ++version;
+
       const targetView = category ? categoryView : homeView;
       const previousView = category ? homeView : categoryView;
+
       if (!targetView || !previousView) return;
+
       const motion = animate && !reduceMotion;
-      const sameCategoryView = Boolean(category) && Boolean(categoryView && !categoryView.hidden);
+
+      const sameCategoryView = Boolean(category) &&
+        Boolean(categoryView && !categoryView.hidden);
 
       links.forEach((link) => {
-        const active = (link.dataset.category || '').toLowerCase() === category.toLowerCase();
+        const active = (
+          link.dataset.category || ''
+        ).toLowerCase() === category.toLowerCase();
+
         link.classList.toggle('is-active', active);
+
         if (active) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
       });
 
       if (updateUrl) {
-        const selectedLink = links.find((link) => (link.dataset.category || '').toLowerCase() === category.toLowerCase());
-        const url = category ? selectedLink?.href : links.find((link) => !link.dataset.category)?.href;
+        const selectedLink = links.find(
+          (link) => (
+            link.dataset.category || ''
+          ).toLowerCase() === category.toLowerCase()
+        );
+
+        const url = category
+          ? selectedLink?.href
+          : links.find((link) => !link.dataset.category)?.href;
+
         if (url) {
-          const currentState = history.state && typeof history.state === 'object' ? history.state : {};
-          history.pushState({ ...currentState, scrollX: window.scrollX, scrollY: window.scrollY }, '', url);
+          const currentState = history.state &&
+            typeof history.state === 'object'
+            ? history.state
+            : {};
+
+          history.pushState(
+            {
+              ...currentState,
+              scrollX: window.scrollX,
+              scrollY: window.scrollY
+            },
+            '',
+            url
+          );
         }
       }
 
-      const fadingView = !previousView.hidden ? previousView : sameCategoryView ? categoryView : null;
+      const fadingView = !previousView.hidden
+        ? previousView
+        : sameCategoryView
+          ? categoryView
+          : null;
+
       if (motion && fadingView) {
         fadingView.getAnimations().forEach((animation) => animation.cancel());
+
         await fadingView.animate(
-          [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(8px)' }],
-          { duration: 120, easing: 'ease-out' },
+          [
+            { opacity: 1, transform: 'translateY(0)' },
+            { opacity: 0, transform: 'translateY(8px)' }
+          ],
+          {
+            duration: 120,
+            easing: 'ease-out'
+          }
         ).finished.catch(() => {});
+
         if (currentVersion !== version) return;
       }
 
       cards.forEach((card) => {
-        card.hidden = Boolean(category) && card.dataset.category !== category.toLowerCase();
+        card.hidden = Boolean(category) &&
+          card.dataset.category !== category.toLowerCase();
       });
-      if (empty) empty.hidden = !category || cards.some((card) => !card.hidden);
+
+      if (empty) {
+        empty.hidden = !category || cards.some((card) => !card.hidden);
+      }
 
       if (previousView.hidden && !targetView.hidden) {
-        if (motion && sameCategoryView) targetView.animate(
-          [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
-          { duration: 180, easing: 'ease-out' },
-        );
+        if (motion && sameCategoryView) {
+          targetView.animate(
+            [
+              { opacity: 0, transform: 'translateY(8px)' },
+              { opacity: 1, transform: 'translateY(0)' }
+            ],
+            {
+              duration: 180,
+              easing: 'ease-out'
+            }
+          );
+        }
+
         refreshMasonry(targetView);
         return;
       }
+
       previousView.hidden = true;
       targetView.hidden = false;
+
       refreshMasonry(targetView);
+
       if (motion) {
         targetView.animate(
-          [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
-          { duration: 180, easing: 'ease-out' },
+          [
+            { opacity: 0, transform: 'translateY(8px)' },
+            { opacity: 1, transform: 'translateY(0)' }
+          ],
+          {
+            duration: 180,
+            easing: 'ease-out'
+          }
         );
       }
     }
 
-    links.forEach((link) => link.addEventListener('click', (event) => {
-      event.preventDefault();
-      setCategory(link.dataset.category || '', true, true);
-    }));
+    links.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        setCategory(link.dataset.category || '', true, true);
+      });
+    });
 
     window.addEventListener('popstate', () => {
-      const selected = links.find((link) => new URL(link.href).pathname === location.pathname);
+      const selected = links.find(
+        (link) => new URL(link.href).pathname === location.pathname
+      );
+
       setCategory(selected?.dataset.category || '', false, false);
     });
 
@@ -621,7 +1499,13 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
   setupAlbumFilters();
   setupMasonry();
   setupPortfolioLightbox();
-  window.addEventListener('resize', () => refreshMasonry(), { passive: true });
+
+  window.addEventListener(
+    'resize',
+    () => refreshMasonry(),
+    { passive: true }
+  );
+
   document.addEventListener('astro:page-load', () => {
     setupAlbumFilters();
     setupMasonry();
@@ -630,80 +1514,689 @@ const largeImage = detail ? `${detail.src}${detail.src.includes('?') ? '&' : '?'
 </script>
 
 <style>
-  .album-container { width:100%; margin:0 auto; padding:1.5rem 0 3rem; }
-  .album-listing { min-height:65vh; }
-  .filter-view { opacity:1; transform:translateY(0); }
-  .filter-empty { margin:2rem 0; color:var(--text-soft); text-align:center; }
-  .masonry { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:6px; column-gap:1.5rem; row-gap:6px; align-items:start; }
-  .photo-card { display:block; position:relative; grid-row-end:span 1; width:100%; margin:0; overflow:hidden; color:var(--text); text-decoration:none; }
-  .photo-card img,.photo-card video { display:block; width:100%; height:auto; transition:transform .45s ease; }
-  .photo-card:hover img,.photo-card:hover video { transform:scale(1.025); }
-  .caption { position:absolute; inset:auto 0 0; display:flex; align-items:flex-end; justify-content:space-between; gap:.5rem; padding:1.25rem .7rem .5rem; color:#fff; background:linear-gradient(transparent,#000a); opacity:.88; transition:opacity .2s; }
-  .photo-card:hover .caption,.photo-card:focus-visible .caption { opacity:1; }
-  .caption-main { display:block; min-width:0; }
-  .caption b,.caption small { display:block; font-weight:500; }
-  .caption b { display:-webkit-box; overflow:hidden; font-size:.82rem; line-height:1.25; -webkit-box-orient:vertical; -webkit-line-clamp:1; }
-  .caption-main small { display:-webkit-box; overflow:hidden; margin-top:.22rem; color:#e5e7eb; font-size:.72rem; font-weight:300; line-height:1.25; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
-  .caption .caption-author { flex:0 0 auto; max-width:45%; margin:0; color:#e5e7eb; font-size:.72rem; font-weight:300; line-height:1.25; text-align:right; }
-  .album-back { position:fixed; z-index:20; top:5.5rem; left:max(.75rem,calc((100vw - var(--container-max)) / 2 + var(--gutter) - 3.25rem)); display:grid; place-items:center; width:2.75rem; height:2.75rem; border:1px solid var(--border); border-radius:50%; color:var(--text-soft); background:var(--surface); box-shadow:var(--shadow); text-decoration:none; transition:color .18s,border-color .18s,transform .18s; }
-  .album-back svg { width:1.2rem; height:1.2rem; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; }
-  .album-back:hover,.album-back:focus-visible { transform:translateX(-2px); border-color:var(--sky); color:var(--sky); background:color-mix(in srgb,var(--sky) 10%,var(--surface)); }
-  .album-detail-shell .album-container,.portfolio-page { padding-top:1.65rem; }
-  .album-detail { display:grid; grid-template-columns:minmax(0,2fr) minmax(260px,1fr); gap:clamp(2rem,5vw,4rem); align-items:start; }
-  .detail-image-wrap { display:flex; align-items:center; justify-content:center; max-height:85vh; max-height:min(85vh,calc(100dvh - 6rem)); overflow:hidden; }
-  .detail-image-wrap img,.detail-image-wrap video { display:block; width:auto; height:auto; max-width:100%; max-height:85vh; max-height:min(85vh,calc(100dvh - 6rem)); object-fit:contain; }
-  .zoom-trigger { padding:0; border:0; background:transparent; cursor:zoom-in; }
-  .detail-info { position:sticky; top:2rem; padding-top:1rem; }
-  .detail-info h1 { margin:0 0 .5rem; font-size:clamp(1.8rem,3vw,2.5rem); font-weight:350; letter-spacing:.02em; }
-  .detail-meta-section { padding:1rem 0; font-size:1rem; }
-  .detail-meta-section + .detail-meta-section { border-top:1px solid var(--border); }
-  .detail-identification { display:grid; gap:1rem; margin-top:.25rem; color:var(--text-soft); font-size:1.02rem; }
-  .detail-place-date,.detail-author { display:grid; grid-template-columns:6rem max-content; justify-content:start; align-items:baseline; gap:1rem; }
-  .detail-place-date { color:var(--text); font-size:1.08rem; font-weight:550; font-variant-numeric:tabular-nums; }
-  .detail-author > span,.detail-author > strong { color:var(--text); font-size:1.02rem; font-weight:550; }
-  .detail-exif-block,.detail-copy-block { display:grid; gap:.9rem; }
-  .detail-exif-row-primary { display:flex; align-items:center; gap:.55rem; overflow-x:auto; color:var(--text); font-size:1rem; font-weight:500; font-variant-numeric:tabular-nums; white-space:nowrap; scrollbar-width:thin; }
-  .detail-exif-row-primary > span { display:flex; flex:0 0 auto; align-items:center; gap:.55rem; }
-  .detail-exif-row-secondary { display:grid; grid-template-columns:6rem max-content; justify-content:start; gap:1rem; color:var(--text); font-size:1rem; font-weight:500; font-variant-numeric:tabular-nums; }
-  .detail-category { justify-self:start; padding:.3rem .8rem; border:1px solid var(--border); border-radius:999px; color:var(--text-soft); font-size:1rem; font-weight:500; line-height:1.7; text-decoration:none; transition:color .18s,background .18s,border-color .18s; }
-  .detail-category:hover,.detail-category:focus-visible { border-color:var(--sky); color:var(--sky); background:color-mix(in srgb,var(--sky) 10%,transparent); }
-  .detail-description { margin:0; color:var(--text-soft); font-family:'Baskerville','Times New Roman','Kaiti SC','STKaiti','KaiTi','Yu Mincho',serif; font-size:1.16rem; font-style:italic; font-weight:350; line-height:2; letter-spacing:.035em; white-space:pre-wrap; }
-  .metadata { margin-top:2.5rem; font-size:.95rem; }
-  .metadata p { display:grid; grid-template-columns:8rem 1fr; gap:.5rem; margin:.9rem 0; }
-  .metadata span { color:var(--text-soft); }
-  .metadata b { color:var(--text); font-weight:350; }
-  .portfolio-title { margin:0 0 1.25rem; font-size:clamp(1.8rem,3vw,2.6rem); font-weight:350; text-align:center; }
-  .portfolio-sequence { display:grid; gap:clamp(3rem,8vw,7rem); }
-  .portfolio-row { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:clamp(2rem,5vw,4rem); align-items:center; }
-  .portfolio-row.image-right-wide { grid-template-columns:minmax(0,1fr) minmax(0,2fr); }
-  .portfolio-row.image-right-wide .portfolio-image { grid-column:2; grid-row:1; }
-  .portfolio-row.image-right-wide .portfolio-info { grid-column:1; grid-row:1; }
-  .portfolio-image { display:flex; align-items:center; justify-content:center; min-width:0; }
-  .portfolio-lightbox-trigger { display:block; max-width:100%; padding:0; border:0; background:transparent; cursor:zoom-in; }
-  .portfolio-image img,.portfolio-image video { display:block; width:auto; height:auto; max-width:100%; max-height:78vh; object-fit:contain; }
-  .portfolio-info h2 { margin:0 0 .5rem; font-size:clamp(1.6rem,2.6vw,2.2rem); font-weight:350; }
-  .portfolio-info h3 { margin:0 0 1.5rem; color:var(--text-soft); font-size:1.05rem; font-weight:350; }
-  .related { margin:3rem 0 1rem; }
-  .related h2 { margin:0 0 1.5rem; font-size:1.7rem; font-weight:350; }
-  .portfolio-lightbox { box-sizing:border-box; position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; max-width:none; max-height:none; margin:0; padding:clamp(.75rem,3vw,2rem); border:0; overflow:hidden; color:#fff; background:rgba(12,10,9,.96); opacity:0; transform:scale(.985); transition:opacity 220ms ease,transform 220ms ease,overlay 220ms allow-discrete,display 220ms allow-discrete; }
-  .portfolio-lightbox:popover-open { display:grid; grid-template-columns:minmax(2.5rem,5rem) minmax(0,1fr) minmax(2.5rem,5rem); align-items:center; opacity:1; transform:scale(1); }
-  .portfolio-lightbox::backdrop { background:rgb(12 10 9 / .78); }
-  .portfolio-lightbox-content { grid-column:2; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; min-width:0; margin:0; }
-  .portfolio-lightbox-content img { display:block; max-width:100%; max-height:calc(100vh - 7rem); max-height:calc(100dvh - 7rem); object-fit:contain; }
-  .portfolio-lightbox-content figcaption { display:flex; justify-content:space-between; gap:1rem; width:min(100%,70rem); padding-top:.8rem; color:#fff; font-size:.9rem; }
-  .portfolio-lightbox-content figcaption strong { overflow:hidden; font-weight:400; text-overflow:ellipsis; white-space:nowrap; }
-  .portfolio-lightbox-content figcaption span { flex:0 0 auto; color:#c7c7c7; }
-  .portfolio-lightbox-close,.portfolio-lightbox-arrow { display:grid; place-items:center; width:3rem; height:3rem; padding:0; border:1px solid rgb(255 255 255 / .22); border-radius:50%; color:#fff; background:rgb(255 255 255 / .08); cursor:pointer; }
-  .portfolio-lightbox-close:hover,.portfolio-lightbox-arrow:hover { background:rgb(255 255 255 / .18); }
-  .portfolio-lightbox-close { position:absolute; top:1rem; right:1rem; z-index:1; font-size:1.8rem; line-height:1; }
-  .portfolio-lightbox-arrow { grid-row:1; z-index:1; font-size:1.5rem; }
-  .portfolio-lightbox-arrow.previous { grid-column:1; }
-  .portfolio-lightbox-arrow.next { grid-column:3; }
-  .zoom-popover { box-sizing:border-box; position:fixed; inset:0; width:100vw; height:100vh; height:100dvh; max-width:none; max-height:none; margin:0; padding:0; border:0; overflow:hidden; background:rgba(12,10,9,.94); opacity:0; transform:scale(.98); transition:opacity 280ms ease,transform 280ms ease,overlay 280ms allow-discrete,display 280ms allow-discrete; }
-  .zoom-popover:popover-open { display:grid; place-items:center; opacity:1; transform:scale(1); }
-  .zoom-popover::backdrop { background:rgb(12 10 9 / .72); }
-  .zoom-close { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:100%; height:100%; padding:clamp(1rem,4vw,2.5rem); border:0; background:transparent; cursor:zoom-out; }
-  .zoom-close img { display:block; max-width:100%; max-height:calc(100vh - 2rem); max-height:calc(100dvh - 2rem); margin:auto; object-fit:contain; }
-  @media(min-width:900px) { .masonry { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-  @media(max-width:760px) { .album-back { top:5rem; left:.5rem; width:2.4rem; height:2.4rem; } .album-detail,.portfolio-row,.portfolio-row.image-right-wide { grid-template-columns:1fr; gap:1.5rem; } .portfolio-row .portfolio-image,.portfolio-row .portfolio-info { grid-column:1; grid-row:auto; } .detail-info { position:static; } .metadata { margin-top:1.5rem; } .portfolio-lightbox:popover-open { grid-template-columns:2.5rem minmax(0,1fr) 2.5rem; padding:.5rem; } .portfolio-lightbox-arrow { width:2.25rem; height:2.25rem; } }
+  .album-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem 0 3rem;
+  }
+
+  .album-listing {
+    min-height: 65vh;
+  }
+
+  .filter-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .filter-empty {
+    margin: 2rem 0;
+    color: var(--text-soft);
+    text-align: center;
+  }
+
+  .masonry {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 6px;
+    column-gap: 1.5rem;
+    row-gap: 6px;
+    align-items: start;
+  }
+
+  .photo-card {
+    display: block;
+    position: relative;
+    grid-row-end: span 1;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .photo-card img,
+  .photo-card video {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform .45s ease;
+  }
+
+  .photo-card:hover img,
+  .photo-card:hover video {
+    transform: scale(1.025);
+  }
+
+  .caption {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: 1.25rem .7rem .5rem;
+    color: #fff;
+    background: linear-gradient(transparent, #000a);
+    opacity: .88;
+    transition: opacity .2s;
+  }
+
+  .photo-card:hover .caption,
+  .photo-card:focus-visible .caption {
+    opacity: 1;
+  }
+
+  .caption-main {
+    display: block;
+    min-width: 0;
+  }
+
+  .caption b,
+  .caption small {
+    display: block;
+    font-weight: 500;
+  }
+
+  .caption b {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: .82rem;
+    line-height: 1.25;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .caption-main small {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-top: .22rem;
+    color: #e5e7eb;
+    font-size: .72rem;
+    font-weight: 300;
+    line-height: 1.25;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .caption .caption-author {
+    flex: 0 0 auto;
+    max-width: 45%;
+    margin: 0;
+    color: #e5e7eb;
+    font-size: .72rem;
+    font-weight: 300;
+    line-height: 1.25;
+    text-align: right;
+  }
+
+  .album-back {
+    position: fixed;
+    z-index: 20;
+    top: 5.5rem;
+    left: max(.75rem, calc((100vw - var(--container-max)) / 2 + var(--gutter) - 3.25rem));
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-soft);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    transition: color .18s, border-color .18s, transform .18s;
+  }
+
+  .album-back svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+  }
+
+  .album-back:hover,
+  .album-back:focus-visible {
+    transform: translateX(-2px);
+    border-color: var(--sky);
+    color: var(--sky);
+    background: color-mix(in srgb, var(--sky) 10%, var(--surface));
+  }
+
+  .album-detail-shell .album-container,
+  .portfolio-page {
+    padding-top: 1.65rem;
+  }
+
+  .album-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  .detail-image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 85vh;
+    max-height: min(85vh, calc(100dvh - 6rem));
+    overflow: hidden;
+  }
+
+  .detail-image-wrap img,
+  .detail-image-wrap video {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 85vh;
+    max-height: min(85vh, calc(100dvh - 6rem));
+    object-fit: contain;
+  }
+
+  .zoom-trigger {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .detail-info {
+    position: sticky;
+    top: 2rem;
+    padding-top: 1rem;
+    min-width: 0;
+  }
+
+  .detail-info h1 {
+    margin: 0 0 .5rem;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 350;
+    letter-spacing: .02em;
+  }
+
+  /* 元信息分区 */
+  .detail-meta-section {
+    padding: 1rem 0;
+    font-size: 1rem;
+  }
+
+  .detail-meta-section + .detail-meta-section {
+    border-top: 1px solid var(--border);
+  }
+
+  /* 日期、地点、作者、分类：两列 */
+  .detail-identification {
+    margin-top: .25rem;
+    color: var(--text-soft);
+  }
+
+  .detail-meta-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 1.5rem;
+    row-gap: 1.25rem;
+  }
+
+  .detail-meta-item {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    min-width: 0;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 450;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .detail-meta-item > svg,
+  .detail-description-row > svg,
+  .detail-story-row > svg {
+    flex: 0 0 1.35rem;
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: none;
+    stroke: var(--text-soft);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  .detail-meta-item > span,
+  .detail-meta-item > time {
+    min-width: 0;
+  }
+
+  /* 分类标签 */
+  .detail-category {
+    display: inline-block;
+    padding: .12rem .7rem;
+    border: 0;
+    border-radius: 999px;
+    color: var(--text);
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+    font-size: .95rem;
+    font-weight: 500;
+    line-height: 1.6;
+    text-decoration: none;
+    transition: color .18s, background .18s;
+  }
+
+  .detail-category:hover,
+  .detail-category:focus-visible {
+    color: var(--sky);
+    background: color-mix(in srgb, var(--sky) 10%, transparent);
+  }
+
+  /* EXIF */
+  .detail-exif-block {
+    display: grid;
+    gap: 1.15rem;
+  }
+
+  .detail-exif-row-primary {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .detail-exif-primary {
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .detail-exif-row-secondary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 1.5rem;
+    align-items: center;
+  }
+
+  /* description 和 text */
+  .detail-copy-block {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .detail-description-row,
+  .detail-story-row {
+    display: flex;
+    align-items: flex-start;
+    gap: .7rem;
+    min-width: 0;
+  }
+
+  .detail-description-row > svg,
+  .detail-story-row > svg {
+    margin-top: .25rem;
+  }
+
+  .detail-description,
+  .detail-story {
+    min-width: 0;
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .detail-story {
+    font-family: 'Baskerville', 'Times New Roman', 'Kaiti SC', 'STKaiti', 'KaiTi', 'Yu Mincho', serif;
+    font-size: 1.08rem;
+    font-style: italic;
+    font-weight: 350;
+    line-height: 2;
+    letter-spacing: .035em;
+  }
+
+  .metadata {
+    margin-top: 2.5rem;
+    font-size: .95rem;
+  }
+
+  .metadata p {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: .5rem;
+    margin: .9rem 0;
+  }
+
+  .metadata span {
+    color: var(--text-soft);
+  }
+
+  .metadata b {
+    color: var(--text);
+    font-weight: 350;
+  }
+
+  .portfolio-title {
+    margin: 0 0 1.25rem;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 350;
+    text-align: center;
+  }
+
+  .portfolio-sequence {
+    display: grid;
+    gap: clamp(3rem, 8vw, 7rem);
+  }
+
+  .portfolio-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  .portfolio-row.image-right-wide {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+
+  .portfolio-row.image-right-wide .portfolio-image {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .portfolio-row.image-right-wide .portfolio-info {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .portfolio-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .portfolio-lightbox-trigger {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .portfolio-image img,
+  .portfolio-image video {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+  }
+
+  .portfolio-info {
+    min-width: 0;
+  }
+
+  .portfolio-info h2 {
+    margin: 0 0 .5rem;
+    font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+    font-weight: 350;
+  }
+
+  .portfolio-info h3 {
+    margin: 0 0 1.5rem;
+    color: var(--text-soft);
+    font-size: 1.05rem;
+    font-weight: 350;
+  }
+
+  .related {
+    margin: 3rem 0 1rem;
+  }
+
+  .related h2 {
+    margin: 0 0 1.5rem;
+    font-size: 1.7rem;
+    font-weight: 350;
+  }
+
+  .portfolio-lightbox {
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: clamp(.75rem, 3vw, 2rem);
+    border: 0;
+    overflow: hidden;
+    color: #fff;
+    background: rgba(12, 10, 9, .96);
+    opacity: 0;
+    transform: scale(.985);
+    transition: opacity 220ms ease, transform 220ms ease, overlay 220ms allow-discrete, display 220ms allow-discrete;
+  }
+
+  .portfolio-lightbox:popover-open {
+    display: grid;
+    grid-template-columns: minmax(2.5rem, 5rem) minmax(0, 1fr) minmax(2.5rem, 5rem);
+    align-items: center;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .portfolio-lightbox::backdrop {
+    background: rgb(12 10 9 / .78);
+  }
+
+  .portfolio-lightbox-content {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .portfolio-lightbox-content img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100vh - 7rem);
+    max-height: calc(100dvh - 7rem);
+    object-fit: contain;
+  }
+
+  .portfolio-lightbox-content figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    width: min(100%, 70rem);
+    padding-top: .8rem;
+    color: #fff;
+    font-size: .9rem;
+  }
+
+  .portfolio-lightbox-content figcaption strong {
+    overflow: hidden;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .portfolio-lightbox-content figcaption span {
+    flex: 0 0 auto;
+    color: #c7c7c7;
+  }
+
+  .portfolio-lightbox-close,
+  .portfolio-lightbox-arrow {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / .22);
+    border-radius: 50%;
+    color: #fff;
+    background: rgb(255 255 255 / .08);
+    cursor: pointer;
+  }
+
+  .portfolio-lightbox-close:hover,
+  .portfolio-lightbox-arrow:hover {
+    background: rgb(255 255 255 / .18);
+  }
+
+  .portfolio-lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .portfolio-lightbox-arrow {
+    grid-row: 1;
+    z-index: 1;
+    font-size: 1.5rem;
+  }
+
+  .portfolio-lightbox-arrow.previous {
+    grid-column: 1;
+  }
+
+  .portfolio-lightbox-arrow.next {
+    grid-column: 3;
+  }
+
+  .zoom-popover {
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: rgba(12, 10, 9, .94);
+    opacity: 0;
+    transform: scale(.98);
+    transition: opacity 280ms ease, transform 280ms ease, overlay 280ms allow-discrete, display 280ms allow-discrete;
+  }
+
+  .zoom-popover:popover-open {
+    display: grid;
+    place-items: center;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .zoom-popover::backdrop {
+    background: rgb(12 10 9 / .72);
+  }
+
+  .zoom-close {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: clamp(1rem, 4vw, 2.5rem);
+    border: 0;
+    background: transparent;
+    cursor: zoom-out;
+  }
+
+  .zoom-close img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    object-fit: contain;
+  }
+
+  @media (min-width: 900px) {
+    .masonry {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .album-back {
+      top: 5rem;
+      left: .5rem;
+      width: 2.4rem;
+      height: 2.4rem;
+    }
+
+    .album-detail,
+    .portfolio-row,
+    .portfolio-row.image-right-wide {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .portfolio-row .portfolio-image,
+    .portfolio-row .portfolio-info {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    .detail-info {
+      position: static;
+    }
+
+    .detail-meta-grid {
+      column-gap: .8rem;
+    }
+
+    .detail-meta-item {
+      gap: .5rem;
+      font-size: .95rem;
+    }
+
+    .detail-meta-item > svg,
+    .detail-description-row > svg,
+    .detail-story-row > svg {
+      flex-basis: 1.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+
+    .detail-exif-row-secondary {
+      column-gap: .8rem;
+    }
+
+    .metadata {
+      margin-top: 1.5rem;
+    }
+
+    .portfolio-lightbox:popover-open {
+      grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+      padding: .5rem;
+    }
+
+    .portfolio-lightbox-arrow {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+  }
 </style>

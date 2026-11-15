@@ -59,13 +59,13 @@
     },
     "related": []
   },
-  "IMG_2372.JPG": {
+  "IMG_1945.JPG": {
     "draft": false,
     "type": "photo",
-    "category": "landscape",
+    "category": "",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-06-04",
     "photographer": "zes",
     "title": [
       "",
@@ -80,12 +80,42 @@
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "50mm",
+      "aperture": "f/3.2",
+      "shutterSpeed": "1/500s",
+      "iso": "3200",
+      "exposureCompensation": "+0.33 EV"
+    },
+    "related": []
+  },
+  "IMG_2372.JPG": {
+    "draft": false,
+    "type": "photo",
+    "category": "landscape",
+    "tag": [],
+    "location": "",
+    "date": "2026-10-26",
+    "photographer": "zes",
+    "title": [
+      "",
+      "",
+      ""
+    ],
+    "description": "",
+    "text": [
+      "",
+      "",
+      ""
+    ],
+    "exif": {
+      "camera": "Canon EOS R8",
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/2.8",
+      "shutterSpeed": "1/2000s",
+      "iso": "100",
+      "exposureCompensation": "+0.67 EV"
     },
     "related": []
   },
@@ -95,7 +125,7 @@
     "category": "landscape",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-10-26",
     "photographer": "zes",
     "title": [
       "",
@@ -110,12 +140,12 @@
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/13",
+      "shutterSpeed": "1/100s",
+      "iso": "100",
+      "exposureCompensation": "+0.33 EV"
     },
     "related": []
   },
@@ -125,7 +155,7 @@
     "category": "landscape",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-10-26",
     "photographer": "zes",
     "title": [
       "",
@@ -140,12 +170,12 @@
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "50mm",
+      "aperture": "f/2.8",
+      "shutterSpeed": "1/1000s",
+      "iso": "100",
+      "exposureCompensation": "0 EV"
     },
     "related": []
   },
@@ -155,7 +185,7 @@
     "category": "",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-10-26",
     "photographer": "zes",
     "title": [
       "",
@@ -170,12 +200,12 @@
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/9",
+      "shutterSpeed": "1/100s",
+      "iso": "100",
+      "exposureCompensation": "-0.33 EV"
     },
     "related": []
   }

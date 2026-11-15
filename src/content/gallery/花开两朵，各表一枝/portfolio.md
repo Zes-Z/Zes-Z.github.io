@@ -16,7 +16,7 @@ draft: false
     "category": "flower",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-04-05",
     "photographer": "zes",
     "title": [
       "",
@@ -31,12 +31,12 @@ draft: false
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "45mm",
+      "aperture": "f/22",
+      "shutterSpeed": "1/3200s",
+      "iso": "6400",
+      "exposureCompensation": "0 EV"
     },
     "related": [
       "花开两朵-各表一枝-IMG-0630-1",
@@ -54,7 +54,7 @@ draft: false
     "category": "flower",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-04-05",
     "photographer": "zes",
     "title": [
       "",
@@ -69,12 +69,12 @@ draft: false
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/22",
+      "shutterSpeed": "1/80s",
+      "iso": "200",
+      "exposureCompensation": "0 EV"
     },
     "related": [
       "花开两朵-各表一枝-IMG-0621-1",
@@ -92,7 +92,7 @@ draft: false
     "category": "flower",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-04-05",
     "photographer": "zes",
     "title": [
       "",
@@ -107,12 +107,12 @@ draft: false
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/2.8",
+      "shutterSpeed": "1/2500s",
+      "iso": "160",
+      "exposureCompensation": "0 EV"
     },
     "related": [
       "花开两朵-各表一枝-IMG-0621-1",
@@ -130,7 +130,7 @@ draft: false
     "category": "flower",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-04-05",
     "photographer": "zes",
     "title": [
       "",
@@ -145,12 +145,12 @@ draft: false
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/2.8",
+      "shutterSpeed": "1/16000s",
+      "iso": "2500",
+      "exposureCompensation": "0 EV"
     },
     "related": [
       "花开两朵-各表一枝-IMG-0621-1",
@@ -168,7 +168,7 @@ draft: false
     "category": "flower",
     "tag": [],
     "location": "",
-    "date": "",
+    "date": "2026-05-05",
     "photographer": "zes",
     "title": [
       "",
@@ -183,12 +183,12 @@ draft: false
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/2.8",
+      "shutterSpeed": "1/1250s",
+      "iso": "100",
+      "exposureCompensation": "-0.33 EV"
     },
     "related": [
       "花开两朵-各表一枝-IMG-0621-1",
@@ -226,7 +226,7 @@ draft: false
       "aperture": "F2.8",
       "shutterSpeed": "1/30s",
       "iso": "100",
-      "exposureCompensation": ""
+      "exposureCompensation": "-1 EV"
     },
     "related": [
       "花开两朵-各表一枝-IMG-0621-1",
@@ -243,28 +243,28 @@ draft: false
     "type": "photo",
     "category": "flower",
     "tag": [],
-    "location": "",
-    "date": "",
+    "location": "天津",
+    "date": "2026-05-05",
     "photographer": "zes",
     "title": [
       "",
       "",
       ""
     ],
-    "description": "",
+    "description": "简短的描述",
     "text": [
-      "",
+      "一小段故事",
       "",
       ""
     ],
     "exif": {
       "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
+      "lens": "RF28-70mm F2.8 IS STM",
+      "focalLength": "70mm",
+      "aperture": "f/2.8",
+      "shutterSpeed": "1/4000s",
+      "iso": "200",
+      "exposureCompensation": "-0.33 EV"
     },
     "related": [
       "花开两朵-各表一枝-IMG-0621-1",
