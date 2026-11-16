@@ -120,8 +120,8 @@ async function newPost() {
         message: 'Category',
         choices: [
           {
-            title: 'Omnium',
-            value: 'Omnium',
+            title: 'Musing', 
+            value: 'Musing',
           },
           {
             title: 'Math & Coding',

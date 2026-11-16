@@ -2,7 +2,7 @@
 title: "Link to something"
 description: ""
 pubDate: "2026-04-11"
-category: Omnium
+category: Musing
 tag: [links]
 
 postImage: "./海浪海鸥.jpg"

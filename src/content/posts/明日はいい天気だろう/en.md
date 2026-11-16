@@ -3,7 +3,7 @@
 title: Tomorrow Will Probably Be Nice Weather
 description: ""
 pubDate: 2026-05-20
-category: "Omnium"
+category: "Musing"
 tag: [capriccio]
 postImage: " "
 homepined: false
