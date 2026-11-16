@@ -22,6 +22,7 @@ const nextLabel = t(next, 'lang.name');
   <a
     class="icon-btn lang-btn"
     href={localizePath(pathname, next)}
+    data-language-switch
     aria-label={`${t(lang, 'lang.switch')} → ${nextLabel}`}
   >
     <span class="nav-icon">
@@ -30,6 +31,22 @@ const nextLabel = t(next, 'lang.name');
     <span class="lang-current">{lang.toUpperCase()}</span>
   </a>
 </language-picker>
+
+<script>
+  // Astro builds this header with a pathname, but the current query/hash can
+  // be client-side state (for example an archive filter or post section).
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const link = event.target.closest<HTMLAnchorElement>('[data-language-switch]');
+    if (!link) return;
+
+    const destination = new URL(link.href);
+    const current = new URL(window.location.href);
+    destination.search = current.search;
+    destination.hash = current.hash;
+    link.href = destination.href;
+  });
+</script>
 
 <style>
   language-picker {

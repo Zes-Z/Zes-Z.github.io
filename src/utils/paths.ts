@@ -80,51 +80,33 @@ export function rssHref(lang: Language): string {
   return withBase(`/${lang}/rss.xml`);
 }
 
-/** Route segments that exist identically in every language. */
-const SHARED_SEGMENTS = new Set(['archive', 'links', 'album']);
-
 /**
  * Translate a URL of the current language into the same page in another
- * language. Unknown routes fall back to the target language home page.
+ * language. Page paths and query parameters are kept intact; only the leading
+ * language segment changes. This also covers new and nested routes without
+ * needing to maintain a separate allowlist.
  */
 export function localizePath(
   pathname: string,
   targetLang: Language,
 ): string {
-  const stripped = pathname.replace(basePath(), '');
-  const segments = stripped.split('/').filter(Boolean);
+  const base = basePath();
+  const withoutBase = base && (pathname === base || pathname.startsWith(`${base}/`))
+    ? pathname.slice(base.length)
+    : pathname;
+  const suffixAt = withoutBase.search(/[?#]/);
+  const pathOnly = suffixAt < 0 ? withoutBase : withoutBase.slice(0, suffixAt);
+  const suffix = suffixAt < 0 ? '' : withoutBase.slice(suffixAt);
+  const segments = pathOnly.split('/').filter(Boolean);
 
-  if (
-    segments[0] === 'en' ||
-    segments[0] === 'zh' ||
-    segments[0] === 'ja'
-  ) {
-    segments.shift();
-  }
+  if (siteConfig.langs.includes(segments[0] as Language)) segments.shift();
 
-  if (segments.length === 0) {
-    return homeHref(targetLang);
-  }
+  const localizedPath = withLang(
+    targetLang,
+    segments.length ? `/${segments.join('/')}` : '/',
+  );
 
-  if (SHARED_SEGMENTS.has(segments[0])) {
-    return withBase(
-      withLang(targetLang, `/${segments.join('/')}`),
-    );
-  }
-
-  if (segments[0] === 'posts' && segments.length > 1) {
-    // 保留完整的多级文章路径：
-    // /posts/电路学
-    // /posts/电路学/一、基本电路观念
-    // /posts/电路学/一、基本电路观念/电路变量
-    const slug = segments.slice(1).join('/');
-
-    return withBase(
-      withLang(targetLang, `/posts/${slug}`),
-    );
-  }
-
-  return homeHref(targetLang);
+  return `${withBase(localizedPath)}${suffix}`;
 }
 
 /** Default language entry used by the root redirect. */

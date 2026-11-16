@@ -12,7 +12,9 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-const pathname = Astro.url.pathname;
+// Pass the query string too, so stateful pages (such as archive filters)
+// remain on the same view when the language changes.
+const pathname = `${Astro.url.pathname}${Astro.url.search}`;
 
 type Href = string | ((l: Language) => string);
 
