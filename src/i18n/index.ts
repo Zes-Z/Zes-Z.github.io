@@ -1,5 +1,5 @@
 import type { Language, LocalizedText } from '../types';
-import { siteConfig } from '../site.config';
+import { siteConfig } from '../../SiteConfig';
 
 /** UI string dictionary for English (the key source of truth). */
 const en = {

@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
 import type { APIRoute } from 'astro';
-import { siteConfig, siteSubtitle } from '../../site.config';
+import { siteConfig, siteSubtitle } from '../../../SiteConfig';
 import { localize } from '../../i18n';
 import type { Language } from '../../types';
 import { getPublishedPosts, slugOf } from '../../utils/posts';

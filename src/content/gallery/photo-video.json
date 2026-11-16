@@ -1,34 +1,4 @@
 {
-  "大海 蓝天 白云 船.jpg": {
-    "draft": false,
-    "type": "photo",
-    "category": "landscape",
-    "tag": [],
-    "location": "",
-    "date": "",
-    "photographer": "风太大没听清",
-    "title": [
-      "",
-      "",
-      ""
-    ],
-    "description": "",
-    "text": [
-      "",
-      "",
-      ""
-    ],
-    "exif": {
-      "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
-    },
-    "related": []
-  },
   "IMG_0228.jpg": {
     "draft": false,
     "type": "photo",

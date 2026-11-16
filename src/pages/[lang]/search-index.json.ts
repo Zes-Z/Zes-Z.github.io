@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import type { SearchIndexItem } from '../../types';
-import { siteConfig } from '../../site.config';
+import { siteConfig } from '../../../SiteConfig';
 import { getPublishedPosts, slugOf } from '../../utils/posts';
 import { postHref } from '../../utils/paths';
 import { markdownToText } from '../../utils/markdown';

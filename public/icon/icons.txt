@@ -4,10 +4,10 @@
 # by URL (`/icon/<name>.svg`, base-aware via `iconSrc()` in `src/icons/index.ts`).
 #
 # There is no `color/` layer and no monochrome fallback set anymore: an icon is
-# just a file in this directory, resolved by its basename from `site.config.ts`.
+# just a file in this directory, resolved by its basename from `SiteConfig.ts`.
 #
 # ---------------------------------------------------------------------------
-# NAVIGATION (site.config.ts nav[].icon)
+# NAVIGATION (SiteConfig.ts nav[].icon)
 #   home     -> /icon/home.svg
 #   archive  -> /icon/archive.svg
 #   gallery  -> /icon/gallery.svg
@@ -16,7 +16,7 @@
 # LANGUAGE BUTTON
 #   globe    -> /icon/globe.svg
 #
-# 「链接」 PANEL (site.config.ts menu[].icon)
+# 「链接」 PANEL (SiteConfig.ts menu[].icon)
 #   link     -> /icon/link.svg
 #   github   -> /icon/github.svg
 #   email    -> /icon/email.svg

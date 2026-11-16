@@ -1,11 +1,10 @@
-import type { Language } from '../types';
-import { siteConfig } from '../site.config';
+import { LANGUAGES, type Language } from '../types';
 
 /**
  * 站点部署子路径(base,如 GitHub Pages 项目页的 `/repo/`)。
  * 所有站内绝对路径都应经过 withBase 处理,否则项目页部署会 404。
  */
-export function basePath(): string {
+function basePath(): string {
   return import.meta.env.BASE_URL.replace(/\/$/, '');
 }
 
@@ -49,16 +48,6 @@ export const IMAGE_FALLBACK =
       '</svg>'
   );
 
-/** Prefix a path with its language segment. */
-export function withLang(lang: Language, path = '/'): string {
-  const clean = path.startsWith('/') ? path : `/${path}`;
-  return `/${lang}${clean === '/' ? '' : clean}`;
-}
-
-export function homeHref(lang: Language): string {
-  return withBase(`/${lang}`);
-}
-
 export function postHref(lang: Language, slug: string): string {
   return withBase(`/${lang}/posts/${slug}`);
 }
@@ -70,14 +59,6 @@ export function archiveHref(lang: Language): string {
 /** Archive page filtered by a category, e.g. `/zh/archive?category=Musing`. */
 export function archiveCategoryHref(lang: Language, category: string): string {
   return `${archiveHref(lang)}?category=${encodeURIComponent(category)}`;
-}
-
-export function linksHref(lang: Language): string {
-  return withBase(`/${lang}/links`);
-}
-
-export function rssHref(lang: Language): string {
-  return withBase(`/${lang}/rss.xml`);
 }
 
 /**
@@ -99,19 +80,11 @@ export function localizePath(
   const suffix = suffixAt < 0 ? '' : withoutBase.slice(suffixAt);
   const segments = pathOnly.split('/').filter(Boolean);
 
-  if (siteConfig.langs.includes(segments[0] as Language)) segments.shift();
+  if (LANGUAGES.some((lang) => lang === segments[0])) segments.shift();
 
-  const localizedPath = withLang(
-    targetLang,
-    segments.length ? `/${segments.join('/')}` : '/',
-  );
+  const localizedPath = `/${targetLang}${segments.length ? `/${segments.join('/')}` : ''}`;
 
   return `${withBase(localizedPath)}${suffix}`;
-}
-
-/** Default language entry used by the root redirect. */
-export function defaultHome(): string {
-  return homeHref(siteConfig.defaultLang);
 }
 
 export function iconSrc(name: string): string {

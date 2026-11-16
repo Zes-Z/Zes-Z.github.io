@@ -1,7 +1,7 @@
 ---
 // 根路径:直接渲染默认语言的主页(不做跳转中转,点击网址即进入主页)
 import HomePage from '../components/HomePage.astro';
-import { siteConfig } from '../site.config';
+import { siteConfig } from '../../SiteConfig';
 ---
 
 <HomePage lang={siteConfig.defaultLang} />

@@ -10,7 +10,7 @@ import matter from 'gray-matter';
  * - Normalize `tag` to string[]
  * - Use file creation time as the fallback for `pubDate`
  */
-export async function parseZestFile(
+async function parseZestFile(
   content: string,
   filePath: string,
 ): Promise<{

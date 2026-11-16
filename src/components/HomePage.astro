@@ -2,12 +2,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from './Hero.astro';
 import PinnedGrid from './PinnedGrid.astro';
-import { siteConfig, siteSubtitle } from '../site.config';
+import { siteConfig, siteSubtitle } from '../../SiteConfig';
 import { t, localize } from '../i18n';
 import type { Language } from '../types';
 import { getPinnedPosts, slugOf } from '../utils/posts';
-import { archiveHref, postHref } from '../utils/paths';
-import { resolvePostImage, postImageCandidates } from '../utils/images';
+import { postHref } from '../utils/paths';
+import { postImageCandidates } from '../utils/images';
 
 interface Props {
   lang: Language;

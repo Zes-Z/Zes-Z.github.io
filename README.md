@@ -8,10 +8,10 @@
 - **正则搜索** — 顶部导航搜索按钮弹出面板,支持普通/正则两种模式、命中高亮与键盘导航
 - **archive 归档页** — 顶部**分类胶囊(单选,含每类篇数)**;未筛选时按年份倒序的时间线,选中某个分类后切换为瀑布流(每行 1–3 个文章块,2:3 / 3:2 / 1:1 三种图片比例,角落显示文章名与日期)
 - **Home 首页** — 全屏图柔和淡入淡出 → 置顶文章块(主图展示)
-- **about 页** — 独立的海洋蓝个人页(`SelfLayout`),含首页 / 关于 / 技能 / 作品 / 留言墙分节与锚点导航
+- **about 页** — 独立的海洋蓝个人页(`AboutLayout`),含首页 / 关于 / 技能 / 作品 / 留言墙分节与锚点导航
 - **友链页** — 全屏淡入图 + 好友块(每行 2–3 列,左图右两行文字)
 - **RSS 订阅** — 三语各生成 RSS 2.0 订阅源,顶栏链接块提供 RSS 入口 + `<head>` 自动发现
-- **顶栏链接块** — 顶栏最左侧带「链接」文字的按钮,展开后竖向排出一列彩色图标,收纳 GitHub / 邮箱 / 云盘 / 微信 / RSS(条目可在 `site.config.ts` 自由增改)
+- **顶栏链接块** — 顶栏最左侧带「链接」文字的按钮,展开后竖向排出一列彩色图标,收纳 GitHub / 邮箱 / 云盘 / 微信 / RSS(条目可在 `SiteConfig.ts` 自由增改)
 - **文章能力** — Markdown + GFM、数学公式(KaTeX)、图片、视频、Shiki 代码高亮;支持 callout 提示框、定义列表、任务清单、脚注
 - **阅读体验** — 文章页顶部细进度条 + 右侧吸顶大纲(TOC),随滚动高亮
 - **全局** — 所有页面保留比例侧边留白;所有板块化对象统一圆角
@@ -39,15 +39,15 @@ pnpm newport        # 交互式新建作品集文件夹和 portfolio.md
 
 1. 仓库 **Settings → Pages → Source** 选择 **GitHub Actions**;
 2. **base 自动推导**:构建时会根据仓库自动加子路径——项目页(`user.github.io/<repo>`)自动用 `/<repo>/`,用户页(`user.github.io`)用 `/`;也可用环境变量 `ASTRO_BASE` 手动指定;
-3. 建议把 `src/site.config.ts` 的 **`siteUrl`** 改成你的真实站点地址(RSS 与规范链接会用到,如 `https://user.github.io/<repo>/`)。
+3. 建议把根目录 `SiteConfig.ts` 的 **`siteUrl`** 改成你的真实站点地址(RSS 与规范链接会用到,如 `https://user.github.io/<repo>/`)。
 
 ## 站点配置
 
-所有站点级自定义集中在 `src/site.config.ts`:站点名称/副标题/描述(三语)、favicon、默认语言、全屏图、置顶数量等。
+所有站点级自定义集中在根目录 `SiteConfig.ts`:站点名称/副标题/描述(三语)、favicon、默认语言、全屏图、置顶数量等。
 
 ### 顶部导航
 
-导航栏由 `site.config.ts` 的 `nav` 数组驱动,可自由增改条目(内置页面用函数生成各语言路径,外链直接写 URL):
+导航栏由 `SiteConfig.ts` 的 `nav` 数组驱动,可自由增改条目(内置页面用函数生成各语言路径,外链直接写 URL):
 
 ```ts
 nav: [
@@ -77,7 +77,7 @@ nav: [
 
 ### 搜索右侧的链接块
 
-原来位于页脚的图标栏已移除,其条目由 `site.config.ts` 的 `menu` 数组驱动,
+原来位于页脚的图标栏已移除,其条目由 `SiteConfig.ts` 的 `menu` 数组驱动,
 在顶栏右侧渲染成一个带「链接」文字的按钮,点开向下弹出面板:
 
 顶栏控件顺序为:**「链接」→ 语言 → 搜索 → 主题**。
@@ -190,18 +190,18 @@ draft: false
 - **顶部进度条**:阅读时顶部有一条细进度条,随滚动位置填充;
 - **右侧大纲(TOC)**:文章 h2–h4 标题生成吸顶大纲,随滚动高亮当前章节;窄屏(<1024px)自动隐藏。
 
-### 独立页面(`src/content/pages/<name>/`)
+### 独立页面(`src/content/welcome-site/`)
 
-供 `/{lang}/welcome-site` 这类"内容驱动"的静态页使用:一个页面一个文件夹,内含
-`zh.md` / `en.md` / `ja.md`,由 `getEntry('pages', '<lang>/<name>')` 读取后渲染 Markdown。
+供 `/{lang}/welcome-site` 这类"内容驱动"的静态页使用,内含
+`zh.md` / `en.md` / `ja.md`,由 `getEntry('pages', '<lang>')` 读取后渲染 Markdown。
 
 目前仓库里只有 `welcome-site`(首页左下角欢迎块指向的介绍页)。
 `about` 页**不**走这套机制——它是 `src/pages/[lang]/about.astro` 里的独立个人页,
-使用 `SelfLayout` + `self.css`,与内容集合无关。
+使用 `AboutLayout` + `self.css`,与内容集合无关。
 
-### 友链数据(`src/site.config.ts` 的 `friends`)
+### 友链数据(`SiteConfig.ts` 的 `friends`)
 
-友链数据**不在** `src/content/` 下,而是与其它站点配置一起放在 `src/site.config.ts` 的 `friends` 数组里:
+友链分组配置在 `SiteConfig.ts` 的 `friends` 数组里;好友条目数据从 `src/content/friends.json` 读取:
 
 ```json
 [
@@ -273,7 +273,7 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 顶栏组件用 `<img src={iconSrc(name)}>` 读取,不再内联 SVG,也不再区分
 `color/` 彩色层与单色兜底层。
 
-- 新增图标:在 `public/icon/` 放 `<name>.svg`,然后在 `site.config.ts` 里写 `icon: '<name>'`;
+- 新增图标:在 `public/icon/` 放 `<name>.svg`,然后在 `SiteConfig.ts` 里写 `icon: '<name>'`;
 - 换图标:直接用同名文件覆盖 `public/icon/<name>.svg` 即可,不用改配置或组件;
 - 搜索 / 主题 / 汉堡 这几个功能性按钮仍内联 `currentColor` 单色 SVG,
   以便在大图 Hero 上跟随文字变白;
@@ -309,7 +309,7 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 ### 浏览器翻译提示
 
 语言用 URL 前缀路由,Chrome 每次切到另一种语言都会判定为"外语页"并弹翻译提示。
-`BaseLayout` / `SelfLayout` 的 `<head>` 里已加:
+`BaseLayout` / `AboutLayout` 的 `<head>` 里已加:
 
 ```html
 <meta name="google" content="notranslate" />
@@ -320,12 +320,12 @@ Astro 7 · TypeScript · Tailwind CSS 4 · @astrojs/rss · unified(remark-gfm / 
 
 ## 项目结构要点
 
-- `src/site.config.ts` — 站点级配置(nav / menu / hero 图 / 主题背景色 …);友链数据在 `src/content/data/friends.json`
+- `SiteConfig.ts` — 站点级配置(nav / menu / hero 图 / 主题背景色 …);友链数据在 `src/content/friends.json`
 - `src/loaders/zest.ts` — 自定义内容 loader:文件夹多语结构 → `id = <lang>/<slug>`,自动判定子文档与 `pubDate`
 - `src/utils/markdown.ts` — unified 渲染管线(指令、代码块工具栏、KaTeX、Shiki 双主题、TOC 收集)
-- `src/scripts/masonry.ts` — 归档页使用的密铺瀑布流(最短列绝对定位)
-- `cli/newpost.ts` — `pnpm newpost` 交互式新建文章
-- `cli/newport.ts` — `pnpm newport` 交互式新建作品集
+- `src/components/ArchivePanel.astro` — 归档页筛选与瀑布流
+- `src/pages/[lang]/album/[...path].astro` — 相册子页面路由;URL 结构仍包含分类、作品集和照片路径
+- `cli/new.ts` — `pnpm newpost` 和 `pnpm newport` 共用的交互式内容创建入口
 
 ## 关于 `pubDate` 的注意事项
 

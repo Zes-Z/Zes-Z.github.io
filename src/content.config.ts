@@ -17,9 +17,6 @@ import { zestLoader } from './loaders/zest';
  * pages:
  *   src/content/welcome-site/{zh,en,ja}.md
  *
- * gallery:
- *   src/content/gallery/photo-video.json
- *   src/content/gallery/<portfolio>/portfolio.md    # portfolio frontmatter + body photo records
  */
 
 export const collections = {
@@ -78,9 +75,4 @@ export const collections = {
       pubDate: z.coerce.date().optional(),
     }),
   }),
-
-  // ===================================================
-  // Gallery
-  // ===================================================
-
 };

@@ -1,5 +1,5 @@
-import friendsData from './content/friends.json';
-import type { Language, LocalizedText, FriendGroup } from './types';
+import friendsData from './src/content/friends.json';
+import type { Language, LocalizedText, FriendGroup } from './src/types';
 
 /**
  * Central site configuration for the Zest theme.
@@ -298,8 +298,8 @@ export function siteSubtitle(): LocalizedText | undefined {
 //      - 分组内容:上方 `nav[].children` 与 `menu`
 
 //   2) 归档图片墙
-//      - 比例集见 src/utils/ratio.ts 的 MASONRY_RATIOS
-//      - 布局算法见 src/scripts/masonry.ts 的 initMasonry
+//      - 归档卡片的比例集合在这里配置
+//      - 瀑布流布局见 src/components/ArchivePanel.astro
 //      - 容器见 src/components/ArchivePanel.astro(.masonry-media)
 
 //   3) 友链页

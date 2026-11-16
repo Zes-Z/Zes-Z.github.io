@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import { siteConfig } from './src/site.config';
+import { siteConfig } from './SiteConfig';
 
 // GitHub Pages 子路径自动推导:
 //   - 本地开发 / 用户页(<username>.github.io):base = '/'

@@ -1,4 +1,4 @@
-import { siteConfig } from '../site.config';
+import { siteConfig } from '../../SiteConfig';
 
 // Root feed: redirect to the default language's feed.
 export const GET = () =>

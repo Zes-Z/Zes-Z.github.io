@@ -1,8 +1,8 @@
 import { getCollection } from 'astro:content';
 import type { Language } from '../types';
-import { siteConfig } from '../site.config';
+import { siteConfig } from '../../SiteConfig';
 
-export type PostEntry = Awaited<ReturnType<typeof getCollection<'posts'>>>[number];
+type PostEntry = Awaited<ReturnType<typeof getCollection<'posts'>>>[number];
 
 /** URL slug of a post entry (id is `<lang>/<slug>`). */
 export function slugOf(post: PostEntry, lang: Language): string {

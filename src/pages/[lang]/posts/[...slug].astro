@@ -3,7 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import TableOfContents from '../../../components/TableOfContents.astro';
 import AdjacentNav from '../../../components/AdjacentNav.astro';
 import { getCollection } from 'astro:content';
-import { siteConfig } from '../../../site.config';
+import { siteConfig } from '../../../../SiteConfig';
 import type { Language } from '../../../types';
 import { getPublishedPosts, slugOf } from '../../../utils/posts';
 import { renderMarkdown } from '../../../utils/markdown';

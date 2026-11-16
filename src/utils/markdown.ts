@@ -42,12 +42,12 @@ export interface MarkdownHeading {
   html?: string;
 }
 
-export interface MarkdownResult {
+interface MarkdownResult {
   html: string;
   headings: MarkdownHeading[];
 }
 
-export interface RenderOptions {
+interface RenderOptions {
   /**
    * Resolve relative image references.
    *

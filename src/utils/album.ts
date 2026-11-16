@@ -1,7 +1,7 @@
+import type { ImageMetadata } from 'astro';
 import matter from 'gray-matter';
 import type { Language } from '../types';
 import { withBase } from './paths';
-import { getGalleryAssetUrl, getGalleryImageDimensions } from './gallery-assets';
 
 export interface AlbumExif {
   camera: string;
@@ -52,12 +52,35 @@ const metadataFiles = import.meta.glob<Record<string, any> | Record<string, any>
 const portfolioFiles = import.meta.glob<string>(
   '/src/content/gallery/**/portfolio.md', { eager: true, query: '?raw', import: 'default' },
 );
-const imageFiles = import.meta.glob<string>(
+const galleryAssets = import.meta.glob<string>(
   '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,mp4,webm,mov,m4v,JPG,JPEG,PNG,WEBP,AVIF,GIF,MP4,WEBM,MOV,M4V}',
   { eager: true, query: '?url', import: 'default' },
 );
+const galleryImageMetadata = import.meta.glob<ImageMetadata>(
+  '/src/content/gallery/**/*.{jpg,jpeg,png,webp,avif,gif,JPG,JPEG,PNG,WEBP,AVIF,GIF}',
+  { eager: true, import: 'default' },
+);
 
-export function idFor(file: string) {
+function galleryPath(assetPath: string): string {
+  if (typeof assetPath !== 'string' || !assetPath.trim()) {
+    throw new TypeError(`[Gallery] Expected an asset path string, received: ${String(assetPath)}`);
+  }
+
+  return `/src/content/gallery/${assetPath.replace(/^\/+/, '').replaceAll('\\', '/')}`;
+}
+
+function getGalleryAssetUrl(assetPath: string): string {
+  const url = galleryAssets[galleryPath(assetPath)];
+  if (!url) throw new Error(`[Gallery] Asset not found: ${assetPath}`);
+  return url;
+}
+
+function getGalleryImageDimensions(assetPath: string): { width: number; height: number } | undefined {
+  const metadata = galleryImageMetadata[galleryPath(assetPath)];
+  return metadata ? { width: metadata.width, height: metadata.height } : undefined;
+}
+
+function idFor(file: string) {
   return file.replace(/\.[^.]+$/, '').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
 }
 
@@ -247,7 +270,7 @@ export function getAlbumEntries(lang: Language): AlbumEntry[] {
     } catch { /* The gallery sync command reports malformed portfolio Markdown. */ }
   }
 
-  for (const [path, url] of Object.entries(imageFiles)) {
+  for (const [path, url] of Object.entries(galleryAssets)) {
     const file = path.slice('/src/content/gallery/'.length);
     if (entries.has(file) || hiddenFiles.has(file)) continue;
     const name = file.split('/').at(-1) ?? file;

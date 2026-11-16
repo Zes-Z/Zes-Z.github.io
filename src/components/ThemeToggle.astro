@@ -55,7 +55,7 @@ const { lang } = Astro.props;
   function apply(mode: ThemeMode) {
     root.setAttribute('data-theme', mode);
     root.setAttribute('data-code-scheme', mode === 'dark' ? 'dark' : 'light');
-    // theme-color 与背景色都取自 BaseLayout 内联的两个变量(site.config.ts 里的
+      // theme-color 与背景色都取自 BaseLayout 内联的两个变量(SiteConfig.ts 里的
     // theme.light.bg / theme.dark.bg),不再写死颜色,避免两处不同步。
     const styles = getComputedStyle(root);
     const meta = document.querySelector<HTMLMetaElement>("meta[name='theme-color']");

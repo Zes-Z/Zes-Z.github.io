@@ -48,7 +48,7 @@ const {
   position = 'center',
   interval = 6000,
 } = Astro.props;
-// site.config.ts 里常把暂时不想用的壁纸注释掉,留下空字符串条目。
+// SiteConfig.ts 里常把暂时不想用的壁纸注释掉,留下空字符串条目。
 // 直接渲染会产出 <img src=""> 这种必然 404 的请求,所以这里先过滤掉。
 const heroImages = images
   .map((item) =>

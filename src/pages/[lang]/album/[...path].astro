@@ -1,0 +1,59 @@
+---
+import AlbumLayout from '../../../layouts/AlbumLayout.astro';
+import { siteConfig } from '../../../../SiteConfig';
+import type { Language } from '../../../types';
+import { getAlbumEntries, getAlbumHomeItems, type PortfolioCard } from '../../../utils/album';
+import { withBase } from '../../../utils/paths';
+
+export async function getStaticPaths() {
+  return siteConfig.langs.flatMap((lang) => {
+    const entries = getAlbumEntries(lang);
+    const portfolios = getAlbumHomeItems(lang).filter(
+      (item): item is PortfolioCard => 'count' in item,
+    );
+    const categories = [...new Set(entries.map((entry) => entry.category.trim()).filter(Boolean))];
+
+    return [
+      ...entries.map((entry) => ({
+        params: { lang, path: entry.id },
+        props: { title: entry.title, entryId: entry.id },
+      })),
+      ...categories.map((category) => ({
+        params: { lang, path: `category/${category.toLowerCase()}` },
+        props: {
+          category: category.toLowerCase(),
+          title: { zh: `相册 · ${category}`, en: `Album · ${category}`, ja: `写真集 · ${category}` }[lang],
+        },
+      })),
+      ...portfolios.map((portfolio) => ({
+        params: { lang, path: `portfolio/${portfolio.id}` },
+        props: { portfolioId: portfolio.id, title: portfolio.title },
+      })),
+      ...portfolios.flatMap((portfolio) =>
+        entries
+          .filter((entry) => entry.file.startsWith(`${portfolio.folder}/`))
+          .map((entry) => ({
+            params: { lang, path: `portfolio-photo/${entry.id}` },
+            props: {
+              entryId: entry.id,
+              portfolioId: portfolio.id,
+              title: entry.title,
+              backHref: withBase(`/${lang}/album/portfolio/${encodeURIComponent(portfolio.id)}`),
+            },
+          })),
+      ),
+    ];
+  });
+}
+
+const { lang } = Astro.params as { lang: Language };
+const { title, entryId, portfolioId, category, backHref } = Astro.props as {
+  title: string;
+  entryId?: string;
+  portfolioId?: string;
+  category?: string;
+  backHref?: string;
+};
+---
+
+<AlbumLayout {lang} {title} {entryId} {portfolioId} {category} {backHref} />
