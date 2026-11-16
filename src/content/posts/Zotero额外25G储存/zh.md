@@ -2,7 +2,7 @@
 title: "Zotero额外25G储存"
 description: "使用网盘webdav功能，零费将zotero同步空间容量扩展到25G"
 pubDate: "2026-04-03"
-category: "Musing"
+category: "Math & Coding"
 tag: [zotero,webdav]
 # updatedDate: "2026-06-23"
 postImage: " "

@@ -1,6 +1,6 @@
 ---
 title: "Introduction to Obsidian"
-category: Musing
+category: Math & Coding
 description: ""
 pubDate: "2026-06-11"
 tag: [obsidian,introduction]
