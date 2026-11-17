@@ -8,9 +8,10 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "predev": "node cli/sync-gallery.mjs",
+    "predev": "node cli/sync-gallery.mjs && node cli/optimize-public-images.mjs",
     "build": "astro check && astro build",
-    "prebuild": "node cli/sync-gallery.mjs",
+    "prebuild": "node cli/sync-gallery.mjs && node cli/optimize-public-images.mjs",
+    "images:prepare": "node cli/optimize-public-images.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",

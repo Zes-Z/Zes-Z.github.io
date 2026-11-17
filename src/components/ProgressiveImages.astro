@@ -1,0 +1,126 @@
+<script>
+  // Upgrade only images near the viewport, after the page's initial images finish loading.
+  // Keeping one original in flight avoids a burst of large downloads on image-heavy pages.
+  let activeMain: HTMLElement | null = null;
+  let stop = () => {};
+
+  const ready = (img: HTMLImageElement) => new Promise<void>((resolve) => {
+    if (img.complete) return resolve();
+    const done = () => {
+      window.clearTimeout(timeout);
+      img.removeEventListener('load', done);
+      img.removeEventListener('error', done);
+      resolve();
+    };
+    const timeout = window.setTimeout(done, 10000);
+    img.addEventListener('load', done);
+    img.addEventListener('error', done);
+  });
+
+  const initialize = () => {
+    const main = document.querySelector<HTMLElement>('#main');
+    if (!main || main === activeMain) return;
+    stop();
+    activeMain = main;
+    let live = true;
+    const queued = new WeakSet<Element>();
+    const jobs: Array<{ element: HTMLImageElement | HTMLVideoElement; url: string }> = [];
+    let working = false;
+    const firstPreviews = Promise.all(
+      [...main.querySelectorAll<HTMLImageElement>('img[data-progressive-original]')]
+        .filter((img) => {
+          if (img.classList.contains('hero-image') && !img.classList.contains('is-active')) return false;
+          const bounds = img.getBoundingClientRect();
+          return bounds.top < window.innerHeight && bounds.bottom > 0;
+        })
+        .map(ready)
+    );
+
+    const run = async () => {
+      if (working) return;
+      working = true;
+      await firstPreviews;
+      while (live && jobs.length) {
+        const job = jobs.shift()!;
+        const { element, url } = job;
+        if (!element.isConnected) continue;
+        if (element instanceof HTMLImageElement) {
+          await ready(element);
+          if (element.dataset.fallbackActive === 'true') continue;
+        }
+        const original = new Image();
+        original.src = url;
+        try {
+          await original.decode();
+          if (!live || !element.isConnected) continue;
+          if (element instanceof HTMLVideoElement) {
+            element.poster = url;
+          } else {
+            element.removeAttribute('srcset');
+            element.removeAttribute('sizes');
+            element.src = url;
+          }
+        } catch {
+          // Keep the AVIF preview if the original fails.
+        }
+      }
+      working = false;
+    };
+
+    const enqueue = (element: HTMLImageElement | HTMLVideoElement, url: string) => {
+      if (queued.has(element) || !url) return;
+      queued.add(element);
+      jobs.push({ element, url });
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => void run(), { timeout: 2000 });
+      } else {
+        window.setTimeout(() => void run(), 100);
+      }
+    };
+
+    const queueActiveHero = () => {
+      const hero = main.querySelector<HTMLElement>('[data-hero] .hero-image.is-active');
+      if (hero instanceof HTMLImageElement && hero.dataset.progressiveOriginal) {
+        enqueue(hero, hero.dataset.progressiveOriginal);
+      } else if (hero instanceof HTMLVideoElement && hero.dataset.progressivePoster) {
+        enqueue(hero, hero.dataset.progressivePoster);
+      }
+    };
+
+    const heroRoot = main.querySelector<HTMLElement>('[data-hero]');
+    const heroObserver = heroRoot ? new MutationObserver(queueActiveHero) : null;
+    heroObserver?.observe(heroRoot!, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+    const observer = 'IntersectionObserver' in window
+      ? new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const img = entry.target;
+            if (img instanceof HTMLImageElement && img.dataset.progressiveOriginal) {
+              enqueue(img, img.dataset.progressiveOriginal);
+              observer?.unobserve(img);
+            }
+          }
+        }, { rootMargin: '250px' })
+      : null;
+
+    main.querySelectorAll<HTMLImageElement>('img[data-progressive-original]:not(.hero-image)').forEach((img) => {
+      if (observer) observer.observe(img);
+      else enqueue(img, img.dataset.progressiveOriginal!);
+    });
+
+    queueActiveHero();
+    stop = () => {
+      live = false;
+      jobs.length = 0;
+      observer?.disconnect();
+      heroObserver?.disconnect();
+    };
+  };
+
+  window.addEventListener('load', initialize);
+  document.addEventListener('astro:page-load', () => {
+    if (document.readyState === 'complete') initialize();
+  });
+  if (document.readyState === 'complete') initialize();
+</script>

@@ -32,6 +32,18 @@ export function assetHref(
   return withBase(value);
 }
 
+/** Build-time AVIF preview for images stored under public/wallpaper or public/avatar. */
+export function publicPreviewHref(
+  path: string | undefined | null,
+  width: 160 | 960 | 1600,
+): string | undefined {
+  const value = path?.trim();
+  if (!value || !/^\/(wallpaper|avatar)\/[^?#]+\.(?:jpe?g|png|webp|avif)$/i.test(value)) {
+    return undefined;
+  }
+  return withBase(`/previews${value}.${width}.avif`);
+}
+
 /**
  * 图片加载失败时使用的占位图(内联 SVG data URI)。
  *

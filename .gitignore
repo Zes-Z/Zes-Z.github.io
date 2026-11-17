@@ -1,6 +1,7 @@
 # build output
 dist/
 .astro/
+public/previews/
 
 # dependencies
 node_modules/

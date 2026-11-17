@@ -1,6 +1,6 @@
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { withBase } from './paths';
+import { assetHref, withBase } from './paths';
 
 /**
  * Post folders may contain images (cover + body illustrations) next to
@@ -56,15 +56,15 @@ export async function resolvePostImage(
   const meta = await resolvePostAsset(slug, ref);
   if (!meta) return withBase(ref); // unresolved: keep the raw reference for the author
   try {
-    const optimized = await getImage({ src: meta, width });
+    const optimized = await getImage({ src: meta, width, format: 'avif', quality: 68 });
     return optimized.src;
   } catch {
-    return withBase(ref);
+    return assetHref(meta.src);
   }
 }
 
 /**
- * Responsive cover image: a fallback `src` plus a `srcset` of several widths.
+ * Responsive AVIF cover preview and its original file URL.
  *
  * Why this exists: `resolvePostImage` renders ONE width, and an `<img>` with a
  * single source gives the browser nothing to choose from. On a 2x (Retina)
@@ -79,20 +79,35 @@ export async function postImageCandidates(
   slug: string,
   ref: string | undefined | null,
   widths: number[],
-  /**
-   * `resolvePostImage` 的默认档(widths 未包含它时会额外生成一次,
-   * 用作不支持 srcset 时的回退 src)。
-   */
+  /** Fallback preview width for browsers without srcset. */
   fallbackWidth = 800
-): Promise<{ src: string; srcset?: string } | undefined> {
-  const src = await resolvePostImage(slug, ref, fallbackWidth);
-  if (!src) return undefined;
+): Promise<{ src: string; srcset?: string; original?: string } | undefined> {
+  if (!ref?.trim()) return undefined;
 
   // 外链 / 绝对路径无法在构建期派生尺寸,只能原样使用
-  if (!ref || !ref.trim() || /^(https?:|data:|\/)/.test(ref)) return { src };
+  if (/^(https?:|data:|\/)/.test(ref)) {
+    const src = await resolvePostImage(slug, ref, fallbackWidth);
+    return src ? { src } : undefined;
+  }
 
   const meta = await resolvePostAsset(slug, ref);
-  if (!meta?.width) return { src };
+  if (!meta?.width) {
+    const src = await resolvePostImage(slug, ref, fallbackWidth);
+    return src ? { src } : undefined;
+  }
+
+  const original = assetHref(meta.src);
+  let src: string;
+  try {
+    src = (await getImage({
+      src: meta,
+      width: Math.min(meta.width, fallbackWidth),
+      format: 'avif',
+      quality: 65,
+    })).src;
+  } catch {
+    return { src: original };
+  }
 
   const unique = [...new Set(widths)].sort((a, b) => a - b);
   const entries = await Promise.all(
@@ -100,7 +115,7 @@ export async function postImageCandidates(
       // 不放大到超过原图宽度,避免生成更大的假尺寸
       if (w > meta.width) return undefined;
       try {
-        const optimized = await getImage({ src: meta, width: w });
+        const optimized = await getImage({ src: meta, width: w, format: 'avif', quality: 65 });
         return `${optimized.src} ${w}w`;
       } catch {
         return undefined;
@@ -109,7 +124,7 @@ export async function postImageCandidates(
   );
 
   const srcset = entries.filter(Boolean).join(', ');
-  return srcset ? { src, srcset } : { src };
+  return srcset ? { src, srcset, original } : { src, original };
 }
 
 /**

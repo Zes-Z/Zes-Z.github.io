@@ -47,6 +47,14 @@ interface MarkdownResult {
   headings: MarkdownHeading[];
 }
 
+interface ResolvedMarkdownImage {
+  src: string;
+  original: string;
+  openLabel: string;
+  width?: number;
+  height?: number;
+}
+
 interface RenderOptions {
   /**
    * Resolve relative image references.
@@ -57,7 +65,7 @@ interface RenderOptions {
    */
   resolveImage?: (
     url: string,
-  ) => Promise<string | undefined>;
+  ) => Promise<ResolvedMarkdownImage | undefined>;
 
   resolveLink?: (
     url: string,
@@ -77,7 +85,7 @@ interface RenderOptions {
 function remarkResolveImages(
   resolveImage?: (
     url: string,
-  ) => Promise<string | undefined>,
+  ) => Promise<ResolvedMarkdownImage | undefined>,
 ) {
   return async (tree: Root) => {
     if (!resolveImage) return;
@@ -100,7 +108,20 @@ function remarkResolveImages(
           await resolveImage(node.url);
 
         if (resolved) {
-          node.url = resolved;
+          node.url = resolved.src;
+          node.data ??= {};
+          node.data.hProperties = {
+            ...node.data.hProperties,
+            dataPostOriginal: resolved.original,
+            dataFallback: resolved.original,
+            role: 'button',
+            tabIndex: 0,
+            ariaLabel: node.alt ? `${resolved.openLabel}: ${node.alt}` : resolved.openLabel,
+            loading: 'lazy',
+            decoding: 'async',
+            width: resolved.width,
+            height: resolved.height,
+          };
         }
       }),
     );

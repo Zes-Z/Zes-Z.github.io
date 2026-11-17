@@ -1,7 +1,7 @@
 import type { ImageMetadata } from 'astro';
 import matter from 'gray-matter';
 import type { Language } from '../types';
-import { withBase } from './paths';
+import { assetHref } from './paths';
 
 export interface AlbumExif {
   camera: string;
@@ -236,7 +236,7 @@ export function getAlbumEntries(lang: Language): AlbumEntry[] {
       }
       try {
         entries.set(file, {
-          id: idFor(file), file, src: withBase(getGalleryAssetUrl(file)), kind: item.type ?? 'photo',
+          id: idFor(file), file, src: assetHref(getGalleryAssetUrl(file)), kind: item.type ?? 'photo',
           ...getGalleryImageDimensions(file),
           title: localizedPhotoTitle(item, lang, filename),
           location: typeof item.location === 'string' ? item.location.trim() : '',
@@ -277,7 +277,7 @@ export function getAlbumEntries(lang: Language): AlbumEntry[] {
     const directory = file.includes('/') ? file.split('/')[0] : '';
     const projectCategory = directory ? portfolioMetadata(directory, lang).category : '';
     entries.set(file, {
-      id: idFor(file), file, src: withBase(url), kind: /\.(mp4|webm|mov|m4v)$/i.test(file) ? 'video' : 'photo',
+      id: idFor(file), file, src: assetHref(url), kind: /\.(mp4|webm|mov|m4v)$/i.test(file) ? 'video' : 'photo',
       ...getGalleryImageDimensions(file),
       title: name.replace(/\.[^.]+$/, ''), location: '', date: '', category: projectCategory, photographer: '',
       description: '', text: '', exif: photoExif(undefined), related: [],

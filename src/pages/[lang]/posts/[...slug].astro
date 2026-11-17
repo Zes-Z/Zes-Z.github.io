@@ -7,7 +7,7 @@ import { siteConfig } from '../../../../SiteConfig';
 import type { Language } from '../../../types';
 import { getPublishedPosts, slugOf } from '../../../utils/posts';
 import { renderMarkdown } from '../../../utils/markdown';
-import { archiveCategoryHref, postHref } from '../../../utils/paths';
+import { archiveCategoryHref, assetHref, postHref } from '../../../utils/paths';
 import {
   resolvePostAsset,
   resolvePostImage,
@@ -278,15 +278,24 @@ const {
           return undefined;
         }
 
+        const original = assetHref(meta.src);
+        const openLabel = lang === 'zh' ? '点击查看原图' : lang === 'ja' ? 'クリックして元画像を表示' : 'Open original image';
         try {
-          return (
-            await getImage({
-              src: meta,
-              width: 1000,
-            })
-          ).src;
+          const preview = await getImage({
+            src: meta,
+            width: Math.min(meta.width || 1400, 1400),
+            format: 'avif',
+            quality: 68,
+          });
+          return {
+            src: preview.src,
+            original,
+            openLabel,
+            width: preview.attributes.width,
+            height: preview.attributes.height,
+          };
         } catch {
-          return undefined;
+          return { src: original, original, openLabel, width: meta.width, height: meta.height };
         }
       },
 
@@ -504,6 +513,20 @@ const hasToc =
         set:html={bodyHtml}
       />
 
+      <dialog
+        class="post-image-dialog"
+        data-post-image-dialog
+        aria-label={lang === 'zh' ? '原图' : lang === 'ja' ? '元画像' : 'Original image'}
+      >
+        <button
+          class="post-image-close"
+          type="button"
+          data-post-image-close
+          aria-label={lang === 'zh' ? '关闭原图' : lang === 'ja' ? '画像を閉じる' : 'Close image'}
+        >×</button>
+        <img data-post-image-full alt="" />
+      </dialog>
+
       <footer class="post-footer">
         <AdjacentNav
           prev={prevCard}
@@ -533,6 +556,45 @@ const hasToc =
   window.addEventListener('scroll', update, { passive: true });
   update();
   document.addEventListener('astro:page-load', update);
+
+  const bindPostImages = () => {
+    const dialog = document.querySelector<HTMLDialogElement>('[data-post-image-dialog]');
+    if (!dialog || dialog.dataset.ready) return;
+    dialog.dataset.ready = 'true';
+    const full = dialog.querySelector<HTMLImageElement>('[data-post-image-full]');
+    if (!full) return;
+    let request = 0;
+
+    const open = (thumb: HTMLImageElement) => {
+      const original = thumb.dataset.postOriginal;
+      if (!original) return;
+      const current = ++request;
+      full.src = thumb.currentSrc || thumb.src;
+      full.alt = thumb.alt;
+      dialog.showModal();
+      const image = new Image();
+      image.src = original;
+      void image.decode().then(() => {
+        if (dialog.open && request === current) full.src = original;
+      }).catch(() => {});
+    };
+
+    dialog.addEventListener('close', () => { request += 1; });
+    dialog.querySelector('[data-post-image-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    document.querySelectorAll<HTMLImageElement>('.post-body img[data-post-original]').forEach((thumb) => {
+      thumb.addEventListener('click', () => open(thumb));
+      thumb.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        open(thumb);
+      });
+    });
+  };
+  bindPostImages();
+  document.addEventListener('astro:page-load', bindPostImages);
 </script>
 
 <style>
@@ -625,6 +687,58 @@ const hasToc =
 
   .post-body {
     margin-top: 1.4rem;
+  }
+
+  .post-body :global(img[data-post-original]) {
+    cursor: zoom-in;
+  }
+
+  .post-body :global(img[data-post-original]:focus-visible) {
+    outline: 3px solid var(--sky);
+    outline-offset: 4px;
+  }
+
+  .post-image-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    padding: 1.5rem;
+    border: 0;
+    background: rgba(0, 0, 0, 0.94);
+    overflow: hidden;
+  }
+
+  .post-image-dialog[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .post-image-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.94);
+  }
+
+  .post-image-dialog img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100dvh - 3rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .post-image-close {
+    position: fixed;
+    top: 0.7rem;
+    right: 1rem;
+    z-index: 1;
+    border: 0;
+    background: transparent;
+    color: white;
+    font-size: 2.2rem;
+    cursor: pointer;
   }
 
   .post-footer {

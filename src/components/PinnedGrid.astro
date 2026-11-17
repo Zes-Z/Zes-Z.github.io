@@ -6,6 +6,7 @@ interface Props {
     description: string;
     date: string;
     image?: string;
+    original?: string;
     /** 多档宽度候选,交给浏览器按屏幕密度/尺寸挑选。 */
     srcset?: string;
     /** 配合 srcset:告知浏览器该图的显示宽度。 */
@@ -34,6 +35,9 @@ const { cards } = Astro.props;
               src={card.image}
               srcset={card.srcset}
               sizes={card.sizes}
+              data-progressive-original={card.original}
+              data-progressive-role={card.original ? 'pinned' : undefined}
+              data-fallback={card.original}
               alt={card.title}
               loading={index === 0 ? 'eager' : 'lazy'}
               fetchpriority={index === 0 ? 'high' : undefined}

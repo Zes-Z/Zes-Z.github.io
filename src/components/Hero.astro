@@ -1,5 +1,5 @@
 ---
-import { withBase } from '../utils/paths';
+import { publicPreviewHref, withBase } from '../utils/paths';
 
 /**
  * 单个轮播项:
@@ -86,13 +86,15 @@ const hasRightTitle = Boolean(rightTitle);
   {
     heroImages.map((item, index) => {
       const still = item.src ? withBase(item.src) : undefined;
+      const preview = publicPreviewHref(item.src, 960);
+      const largePreview = publicPreviewHref(item.src, 1600);
       // Live Photo:src 是静帧,live 是 iPhone 导出的 .mov(实况视频)。
       const motion = item.live
         ? withBase(item.live)
         : isVideo(item.src)
           ? withBase(item.src)
           : undefined;
-      const poster = item.live && !isVideo(item.src) ? still : undefined;
+      const poster = item.live && !isVideo(item.src) ? preview ?? still : undefined;
       // 设置 duration 时用 loop 撑满自定义停留时间;否则播完就切下一张。
       const loop = item.duration !== undefined;
 
@@ -101,6 +103,7 @@ const hasRightTitle = Boolean(rightTitle);
           class:list={['hero-image', 'hero-video', { 'is-active': index === 0 }]}
           src={motion}
           poster={poster}
+          data-progressive-poster={preview ? still : undefined}
           data-slide-duration={item.duration}
           muted
           loop={loop}
@@ -112,7 +115,12 @@ const hasRightTitle = Boolean(rightTitle);
       ) : (
         <img
           class:list={['hero-image', { 'is-active': index === 0 }]}
-          src={still}
+          src={preview ?? still}
+          srcset={preview && largePreview ? `${preview} 960w, ${largePreview} 1600w` : undefined}
+          sizes={preview ? '100vw' : undefined}
+          data-progressive-original={preview ? still : undefined}
+          data-progressive-role={preview ? 'hero' : undefined}
+          data-fallback={preview ? still : undefined}
           data-slide-duration={item.duration}
           alt=""
           loading={index === 0 ? 'eager' : 'lazy'}

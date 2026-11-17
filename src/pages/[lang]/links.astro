@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import { siteConfig } from '../../../SiteConfig';
 import { t, localize } from '../../i18n';
-import { assetHref, IMAGE_FALLBACK } from '../../utils/paths';
+import { assetHref, publicPreviewHref, IMAGE_FALLBACK } from '../../utils/paths';
 import type { Language } from '../../types';
 
 export async function getStaticPaths() {
@@ -45,12 +45,16 @@ const AVATAR_FALLBACK = IMAGE_FALLBACK;
 </div>
           <div class="links-grid">
             {
-              group.items.map((friend) => (
-                <a class="friend-card card" href={friend.link} target="_blank" rel="noopener noreferrer">
+              group.items.map((friend) => {
+                const preview = publicPreviewHref(friend.avatar, 160);
+                const original = assetHref(friend.avatar, AVATAR_FALLBACK);
+                return <a class="friend-card card" href={friend.link} target="_blank" rel="noopener noreferrer">
                   <img
                     class="friend-avatar"
-                    src={assetHref(friend.avatar, AVATAR_FALLBACK)}
-                    data-fallback={AVATAR_FALLBACK}
+                    src={preview ?? original}
+                    data-progressive-original={preview ? original : undefined}
+                    data-progressive-role={preview ? 'avatar' : undefined}
+                    data-fallback={original}
                     alt={localize(friend.name, lang)}
                     loading="lazy"
                     decoding="async"
@@ -59,8 +63,8 @@ const AVATAR_FALLBACK = IMAGE_FALLBACK;
                     <span class="friend-name">{localize(friend.name, lang)}</span>
                     <span class="friend-desc">{localize(friend.desc, lang)}</span>
                   </span>
-                </a>
-              ))
+                </a>;
+              })
             }
           </div>
         </section>

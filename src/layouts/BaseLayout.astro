@@ -6,6 +6,7 @@ import '../styles/katex.css';
 import Header from '../components/Header.astro';
 import SearchPalette from '../components/SearchPalette.astro';
 import MusicWidget from '../components/MusicWidget.astro';
+import ProgressiveImages from '../components/ProgressiveImages.astro';
 import { ClientRouter } from 'astro:transitions';
 
 import { siteConfig, siteSubtitle } from '../../SiteConfig';
@@ -195,6 +196,7 @@ const pageDescription =
 
     <!-- Restore original MusicWidget behavior -->
     <MusicWidget />
+    <ProgressiveImages />
 
     <!-- Copy feedback -->
     <div
@@ -301,6 +303,8 @@ const pageDescription =
       }
 
       img.dataset.fallbackActive = 'true';
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
       img.src = fallback;
     },
     true
