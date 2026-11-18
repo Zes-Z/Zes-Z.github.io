@@ -79,22 +79,6 @@ const { cards } = Astro.props;
     cleanupPinnedChroma = [];
 
     document.querySelectorAll<HTMLElement>('[data-pinned-chroma]').forEach((grid) => {
-      // The color layer shares the preview; mirror the original once the base image upgrades.
-      const mirrors = [...grid.querySelectorAll<HTMLImageElement>('.pin-image--mono')]
-        .map((mono) => [mono, mono.closest('[data-chroma-card]')?.querySelector<HTMLImageElement>('.pin-image--color')] as const);
-      const syncMirrors = () => {
-        mirrors.forEach(([mono, color]) => {
-          if (!color || mono.hasAttribute('srcset') || color.src === mono.src) return;
-          color.removeAttribute('srcset');
-          color.removeAttribute('sizes');
-          color.src = mono.src;
-        });
-      };
-      const mirrorObserver = new MutationObserver(syncMirrors);
-      mirrorObserver.observe(grid, { subtree: true, attributes: true, attributeFilter: ['src'] });
-      syncMirrors();
-      cleanupPinnedChroma.push(() => mirrorObserver.disconnect());
-
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches ||
           window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 

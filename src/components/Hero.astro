@@ -191,6 +191,7 @@ const hasRightTitle = Boolean(rightTitle);
 </section>
 
 <script>
+function bindHero() {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   if (hero && !hero.dataset.ready) {
     hero.dataset.ready = 'true';
@@ -206,11 +207,19 @@ const hasRightTitle = Boolean(rightTitle);
       media.findIndex((el) => el.classList.contains('is-active'))
     );
     let timer: number | undefined;
+    let metadataTimer: number | undefined;
+    let disposed = false;
 
     const clearTimer = () => {
       if (timer === undefined) return;
       window.clearTimeout(timer);
       timer = undefined;
+    };
+
+    const clearMetadataTimer = () => {
+      if (metadataTimer === undefined) return;
+      window.clearTimeout(metadataTimer);
+      metadataTimer = undefined;
     };
 
     /** data-slide-duration:自定义停留毫秒数;0 = 一直停留,undefined = 按素材类型。 */
@@ -252,6 +261,7 @@ const hasRightTitle = Boolean(rightTitle);
 
     const schedule = (delay: number) => {
       clearTimer();
+      if (disposed) return;
       // 只有一张时无需轮播;视频仍然会正常播放。
       if (media.length <= 1) return;
       if (!Number.isFinite(delay) || delay < 0) return;
@@ -259,6 +269,7 @@ const hasRightTitle = Boolean(rightTitle);
     };
 
     const scheduleFor = (el: HTMLElement) => {
+      clearMetadataTimer();
       const explicit = explicitDuration(el);
       if (explicit !== undefined) {
         // 0 表示这张不自动切走。
@@ -281,7 +292,8 @@ const hasRightTitle = Boolean(rightTitle);
         }
         // 元数据还没到:等 loadedmetadata 后再决定;长时间没有就按普通间隔兜底。
         const onMetadata = () => {
-          if (el !== media[current]) return;
+          if (disposed || el !== media[current]) return;
+          clearMetadataTimer();
           const known = el.duration;
           schedule(
             Number.isFinite(known) && known > 0
@@ -290,8 +302,9 @@ const hasRightTitle = Boolean(rightTitle);
           );
         };
         el.addEventListener('loadedmetadata', onMetadata, { once: true });
-        window.setTimeout(() => {
-          if (el !== media[current] || explicitDuration(el) !== undefined) return;
+        metadataTimer = window.setTimeout(() => {
+          metadataTimer = undefined;
+          if (disposed || el !== media[current] || explicitDuration(el) !== undefined) return;
           const known = el.duration;
           if (!Number.isFinite(known) || known <= 0) schedule(interval);
         }, interval);
@@ -311,7 +324,7 @@ const hasRightTitle = Boolean(rightTitle);
 
     const advance = () => {
       clearTimer();
-      if (media.length === 0) return;
+      if (disposed || media.length === 0) return;
 
       const leaving = media[current];
       if (leaving) {
@@ -331,7 +344,7 @@ const hasRightTitle = Boolean(rightTitle);
     // 没有自定义时长时,视频播完立即切下一张(比 duration 兜底计时器更准)。
     videos.forEach((video) => {
       video.addEventListener('ended', () => {
-        if (video !== media[current]) return;
+        if (disposed || video !== media[current]) return;
         if (explicitDuration(video) !== undefined) return;
         advance();
       });
@@ -347,11 +360,19 @@ const hasRightTitle = Boolean(rightTitle);
       });
       startCurrent();
     }
+
+    document.addEventListener('astro:before-swap', () => {
+      disposed = true;
+      clearTimer();
+      clearMetadataTimer();
+      videos.forEach((video) => video.pause());
+    }, { once: true });
   }
 
   // 向下箭头:点击滚动到下一板块(滚动越过主图高度即可露出下方内容)
   const arrow = document.querySelector<HTMLButtonElement>('[data-scroll-down]');
-  if (arrow) {
+  if (arrow && !arrow.dataset.scrollReady) {
+    arrow.dataset.scrollReady = 'true';
     arrow.addEventListener('click', () => {
       const heroEl = arrow.closest<HTMLElement>('.hero');
       const top = heroEl ? heroEl.getBoundingClientRect().top + window.scrollY + heroEl.offsetHeight : 0;
@@ -447,12 +468,21 @@ const hasRightTitle = Boolean(rightTitle);
       timer = window.setTimeout(loop, START_MS);
 
       // 切到后台时停表,回来继续,避免后台空转
-      document.addEventListener('visibilitychange', () => {
+      const onVisibilityChange = () => {
         if (document.hidden) window.clearTimeout(timer);
         else timer = window.setTimeout(loop, TYPE_MS);
-      });
+      };
+      document.addEventListener('visibilitychange', onVisibilityChange);
+      document.addEventListener('astro:before-swap', () => {
+        window.clearTimeout(timer);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }, { once: true });
     }
   }
+}
+
+bindHero();
+document.addEventListener('astro:page-load', bindHero);
 </script>
 
 <style>
