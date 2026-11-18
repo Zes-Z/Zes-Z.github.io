@@ -1,9 +1,9 @@
 ---
-title: "N1 vocabulary"
+title: "N2 vocabulary"
 description: ""
 pubDate: "2026-11-17"
 category: "Ling."
-tag: ["N1"]
+tag: [N2,vocabulary]
 postImage:
 homepined: false
 pinedOrder: 0

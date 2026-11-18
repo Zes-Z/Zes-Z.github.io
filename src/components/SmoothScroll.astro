@@ -1,0 +1,45 @@
+<script>
+  import Lenis from 'lenis';
+
+  type ScrollWindow = Window & {
+    __zesLenis?: Lenis;
+    __zesLenisEventsReady?: boolean;
+  };
+
+  const scrollWindow = window as ScrollWindow;
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const options = {
+      lerp: 0.1,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.6,
+      smoothWheel: true,
+      syncTouch: false,
+      autoRaf: true,
+      anchors: true,
+    } as const;
+    let lenis = scrollWindow.__zesLenis ?? new Lenis(options);
+    scrollWindow.__zesLenis = lenis;
+
+    if (!scrollWindow.__zesLenisEventsReady) {
+      scrollWindow.__zesLenisEventsReady = true;
+
+      // Astro replaces <html>. Recreate Lenis for the new scroll dimensions,
+      // and keep its class on the incoming document for instant history restore.
+      document.addEventListener('astro:before-swap', (event) => {
+        lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+        lenis.destroy();
+        const nextDocument = (event as Event & { newDocument?: Document }).newDocument;
+        nextDocument?.documentElement.classList.add('lenis');
+      });
+      document.addEventListener('astro:after-swap', () => {
+        lenis = new Lenis(options);
+        scrollWindow.__zesLenis = lenis;
+      });
+      document.addEventListener('astro:page-load', () => {
+        document.documentElement.classList.add('lenis');
+        lenis.resize();
+        lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+      });
+    }
+  }
+</script>

@@ -15,35 +15,33 @@ interface Props {
 
 const { lang } = Astro.props;
 
-/**
- * 置顶卡片封面:输出多档宽度供浏览器挑选。
- *
- * 布局依据(.pin-grid 为 2fr:1fr 两列 + 24px gap):
- *   ≥860px 视口:大图约 696~720 CSS px,小图约 336px
- *   <860px 视口:全部单列铺满
- * 因此大图在 2x 屏上需要约 1400px —— 只给 800px 必然发糊。
- */
-const PINNED_WIDTHS = [480, 720, 1080, 1440, 1920];
+/** 主卡与缩略卡共用响应式 AVIF 候选，按实际显示宽度选图。 */
+const PINNED_WIDTHS = [320, 480, 720, 1080, 1440];
 
 const pinned = await getPinnedPosts(lang);
 const pinnedCards = await Promise.all(
   pinned.map(async (post, index) => {
     const slug = slugOf(post, lang);
-    const cover = await postImageCandidates(slug, post.data.postImage, PINNED_WIDTHS);
+    const cover = await postImageCandidates(
+      slug,
+      post.data.postImage,
+      PINNED_WIDTHS,
+      index === 0 ? 720 : 480,
+    );
     return {
       href: postHref(lang, slug),
       title: post.data.title,
-      description: post.data.description ?? '',
+      category: post.data.category,
       date: post.data.pubDate
         ? `${post.data.pubDate.getFullYear()}/${post.data.pubDate.getMonth() + 1}/${post.data.pubDate.getDate()}`
         : '',
+      datetime: post.data.pubDate?.toISOString().slice(0, 10),
       image: cover?.src,
       original: cover?.original,
       srcset: cover?.srcset,
-      // 第一张是跨两行的大图,其余是小图
       sizes: index === 0
-        ? '(max-width: 860px) 100vw, 720px'
-        : '(max-width: 860px) 100vw, 360px',
+        ? '(max-width: 700px) 90vw, (max-width: 1200px) 62vw, 710px'
+        : '(max-width: 520px) 90vw, (max-width: 700px) 43vw, (max-width: 1200px) 29vw, 330px',
     };
   })
 );

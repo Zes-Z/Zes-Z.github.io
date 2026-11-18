@@ -125,6 +125,19 @@ html {
 
 }
 
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+html.lenis {
+  scroll-behavior: auto !important;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
 /*
  * Chromium / Edge / Safari
  */

@@ -133,6 +133,23 @@ html {
   scroll-padding-top: calc(var(--header-h) + 12px);
 }
 
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+html.lenis {
+  scroll-behavior: auto !important;
+}
+
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
 body {
   margin: 0;
   background-color: var(--bg);

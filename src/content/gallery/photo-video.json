@@ -1,34 +1,4 @@
 {
-  "IMG_0228.jpg": {
-    "draft": false,
-    "type": "photo",
-    "category": "",
-    "tag": [],
-    "location": "",
-    "date": "",
-    "photographer": "zes",
-    "title": [
-      "",
-      "",
-      ""
-    ],
-    "description": "",
-    "text": [
-      "",
-      "",
-      ""
-    ],
-    "exif": {
-      "camera": "Canon EOS R8",
-      "lens": "",
-      "focalLength": "",
-      "aperture": "",
-      "shutterSpeed": "",
-      "iso": "",
-      "exposureCompensation": ""
-    },
-    "related": []
-  },
   "IMG_1945.JPG": {
     "draft": false,
     "type": "photo",

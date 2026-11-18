@@ -8,11 +8,7 @@ import type { Language } from '../../../types';
 import { getPublishedPosts, slugOf } from '../../../utils/posts';
 import { renderMarkdown } from '../../../utils/markdown';
 import { archiveCategoryHref, assetHref, postHref } from '../../../utils/paths';
-import {
-  resolvePostAsset,
-  resolvePostImage,
-  postImageRatio,
-} from '../../../utils/images';
+import { resolvePostAsset, resolvePostImage } from '../../../utils/images';
 import { getImage } from 'astro:assets';
 
 /* =========================================================
@@ -363,24 +359,6 @@ async function adjacentCard(
     >
   >[number],
 ) {
-  const postSlug =
-    slugOf(post, lang);
-
-  const image =
-    await resolvePostImage(
-      postSlug,
-      post.data.postImage,
-      600,
-    );
-
-  const ratio =
-    await postImageRatio(
-      postSlug,
-      post.data.postImage,
-      siteConfig.masonryRatios,
-      '3 / 2',
-    );
-
   const pub =
     post.data.pubDate ??
     new Date(0);
@@ -388,26 +366,30 @@ async function adjacentCard(
   return {
     href: postHref(
       lang,
-      postSlug,
+      slugOf(post, lang),
     ),
 
     title:
       post.data.title,
 
-    image,
-
-    ratio,
+    description:
+      post.data.description?.trim() || undefined,
 
     date:
       `${pub.getFullYear()}/${
         pub.getMonth() + 1
       }/${pub.getDate()}`,
 
-    tags:
-      post.data.tag ?? [],
+    datetime: pub.toISOString().slice(0, 10),
 
     category:
       post.data.category,
+
+    image: await resolvePostImage(
+      slugOf(post, lang),
+      post.data.postImage,
+      480,
+    ),
   };
 }
 
@@ -527,12 +509,15 @@ const hasToc =
         <img data-post-image-full alt="" />
       </dialog>
 
-      <footer class="post-footer">
-        <AdjacentNav
-          prev={prevCard}
-          next={nextCard}
-        />
-      </footer>
+      {(prevCard || nextCard) && (
+        <footer class="post-footer">
+          <AdjacentNav
+            {lang}
+            prev={prevCard}
+            next={nextCard}
+          />
+        </footer>
+      )}
     </article>
   </div>
 </BaseLayout>
