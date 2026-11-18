@@ -237,7 +237,14 @@ const { cards } = Astro.props;
   }
 
   .pin-image { object-fit: cover; }
-  .pin-image--mono, .pin-fallback--mono { filter: grayscale(1) brightness(0.88); }
+  .pin-image--mono, .pin-fallback--mono {
+    filter: grayscale(1) brightness(0.88);
+    transition: filter 480ms ease;
+  }
+  .pin-card--lead:hover .pin-image--mono,
+  .pin-card--lead:hover .pin-fallback--mono {
+    filter: grayscale(0) brightness(1);
+  }
   .pin-image--color, .pin-fallback--color {
     opacity: var(--chroma-power);
     -webkit-mask-image: radial-gradient(circle 260px at calc(var(--chroma-x) - var(--chroma-offset-x, 0px)) calc(var(--chroma-y) - var(--chroma-offset-y, 0px)), #000 0%, #000 26%, transparent 100%);
@@ -335,4 +342,8 @@ const { cards } = Astro.props;
   .pin-card:focus-visible .pin-fallback--mono { filter: none; }
   .pin-card:focus-visible .pin-image--color,
   .pin-card:focus-visible .pin-fallback--color { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pin-image--mono, .pin-fallback--mono { transition: none; }
+  }
 </style>
