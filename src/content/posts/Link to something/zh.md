@@ -109,7 +109,23 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 [一个高质量的图标网站](https://icons8.com/icons/set/whale)
 
-
+---
+## 博客组件、动画资源
+https://dash.cloudflare.com/6314ce9bb4b6adccf57a9ad24d43b869/home/overview
+https://zh-hans.react.dev/learn
+https://reactbits.dev/get-started/index
+https://astro.build/themes/1/
+https://japan.2-wg.com/category/taste/minimal/?utm_source=chatgpt.com
+https://onepagelove.com/inspiration
+https://www.cult-ui.com/docs/components/dynamic-island
+https://motion-primitives.com/docs/accordion
+https://animate-ui.com/docs/primitives/animate-ui/avatar-group
+https://www.ui-layouts.com/components/tree-code-viewer
+https://tympanus.net/codrops/hub/
+https://magicui.design/docs/components
+https://ui.aceternity.com/components
+https://save.design/elements/page-transitions?utm_source=chatgpt.com
+https://www.landing.love/effect/page-transition/?utm_source=chatgpt.com
 
 ---
 ## 数理
@@ -142,6 +158,8 @@ MBTI测试官网：[16Personalities](https://www.16personalities.com/ch)
 
 ---
 ## 编程
+
+
 ### Python
 > [!TIP] 
 > [Python 教程](https://docs.python.org/3.14/tutorial/index.html)
