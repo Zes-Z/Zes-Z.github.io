@@ -8,7 +8,7 @@ import type { Language } from '../../../types';
 import { getPublishedPosts, slugOf } from '../../../utils/posts';
 import { renderMarkdown } from '../../../utils/markdown';
 import { archiveCategoryHref, assetHref, postHref } from '../../../utils/paths';
-import { resolvePostAsset, resolvePostImage } from '../../../utils/images';
+import { postImageCandidates, resolvePostAsset } from '../../../utils/images';
 import { getImage } from 'astro:assets';
 
 /* =========================================================
@@ -363,6 +363,13 @@ async function adjacentCard(
     post.data.pubDate ??
     new Date(0);
 
+  const cover = await postImageCandidates(
+    slugOf(post, lang),
+    post.data.postImage,
+    [480, 800, 1200, 1600],
+    800,
+  );
+
   return {
     href: postHref(
       lang,
@@ -371,9 +378,6 @@ async function adjacentCard(
 
     title:
       post.data.title,
-
-    description:
-      post.data.description?.trim() || undefined,
 
     date:
       `${pub.getFullYear()}/${
@@ -385,11 +389,8 @@ async function adjacentCard(
     category:
       post.data.category,
 
-    image: await resolvePostImage(
-      slugOf(post, lang),
-      post.data.postImage,
-      480,
-    ),
+    image: cover?.src,
+    imageSrcset: cover?.srcset,
   };
 }
 

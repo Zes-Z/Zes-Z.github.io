@@ -4,11 +4,11 @@ import type { Language } from '../types';
 interface AdjacentItem {
   href: string;
   title: string;
-  description?: string;
   date?: string;
   datetime?: string;
   category?: string;
   image?: string;
+  imageSrcset?: string;
 }
 
 interface Props {
@@ -41,19 +41,27 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
       <span class="adjacent-count">{String(cards.length).padStart(2, '0')}</span>
     </div>
 
-    <div class="adjacent-grid">
+    <div class:list={['adjacent-grid', { 'adjacent-grid--single': cards.length === 1 }]}>
       {cards.map(({ item, direction, label }) => (
         <a
           class:list={[
             'adjacent-card',
             direction === 'prev' ? 'adjacent-card--prev' : 'adjacent-card--next',
+            { 'adjacent-card--image': Boolean(item.image) },
           ]}
           href={item.href}
           data-adjacent-card
         >
           <span class="adjacent-art" aria-hidden="true">
             {item.image ? (
-              <img src={item.image} alt="" loading="lazy" decoding="async" />
+              <img
+                src={item.image}
+                srcset={item.imageSrcset}
+                sizes={cards.length === 1 ? '(max-width: 700px) 100vw, 780px' : '(max-width: 700px) 100vw, 390px'}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <span class="adjacent-art-fallback">
                 <span class="adjacent-art-orbit"></span>
@@ -73,9 +81,6 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
 
             <span class="adjacent-copy">
               <span class="adjacent-title">{item.title}</span>
-              {item.description && (
-                <span class="adjacent-description">{item.description}</span>
-              )}
             </span>
 
             <span class="adjacent-bottom">
@@ -161,7 +166,6 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
     box-shadow: var(--shadow);
     isolation: isolate;
     transition:
-      flex-grow 440ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
       border-color 300ms ease,
       box-shadow 300ms ease;
@@ -200,14 +204,8 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
     transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .adjacent-grid:hover .adjacent-card,
-  .adjacent-grid:focus-within .adjacent-card {
-    flex-grow: 0.88;
-  }
-
   .adjacent-grid .adjacent-card:hover,
   .adjacent-grid .adjacent-card:focus-visible {
-    flex-grow: 1.16;
     border-color: color-mix(in srgb, var(--card-tone) 55%, var(--border));
     box-shadow: var(--shadow-strong);
     transform: translateY(-4px);
@@ -216,6 +214,10 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
   .adjacent-card:hover::before,
   .adjacent-card:focus-visible::before {
     opacity: 1;
+  }
+
+  .adjacent-card--image::before {
+    display: none;
   }
 
   .adjacent-card:hover::after,
@@ -247,12 +249,50 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
   .adjacent-art img {
     display: block;
     object-fit: cover;
-    transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .adjacent-card:hover .adjacent-art img,
-  .adjacent-card:focus-visible .adjacent-art img {
-    transform: scale(1.08);
+  .adjacent-card--image .adjacent-art {
+    inset: 0;
+    width: 100%;
+    opacity: 1;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .adjacent-card--image .adjacent-art img {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .adjacent-card--image .adjacent-content {
+    gap: 0.4rem;
+  }
+
+  .adjacent-card--image .adjacent-copy {
+    width: min(80%, 22rem);
+  }
+
+  .adjacent-card--image .adjacent-overline,
+  .adjacent-card--image .adjacent-copy,
+  .adjacent-card--image .adjacent-meta {
+    background: transparent;
+    box-shadow: none;
+    text-shadow: none;
+  }
+
+  .adjacent-grid--single .adjacent-card--image .adjacent-copy {
+    width: min(45%, 22rem);
+  }
+
+  .adjacent-grid--single .adjacent-card--image .adjacent-art {
+    inset: 0 0 0 auto;
+    width: 65%;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%);
+    mask-image: linear-gradient(90deg, transparent, #000 18%);
+  }
+
+  .adjacent-grid--single .adjacent-card--image .adjacent-art img {
+    object-position: right center;
   }
 
   .adjacent-art-fallback {
@@ -305,7 +345,7 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.5rem;
     min-height: 250px;
     padding: clamp(1.1rem, 2vw, 1.45rem);
     color: var(--text);
@@ -337,18 +377,18 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
   .adjacent-copy {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
     width: min(78%, 28rem);
     min-width: 0;
+    margin-top: auto;
   }
 
   .adjacent-title {
     display: -webkit-box;
     overflow: hidden;
     color: var(--text);
-    font-size: clamp(1.17rem, 2vw, 1.47rem);
-    font-weight: 750;
-    line-height: 1.32;
+    font-size: clamp(1rem, 1.55vw, 1.2rem);
+    font-weight: 650;
+    line-height: 1.3;
     overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
@@ -360,22 +400,11 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
     color: var(--card-tone);
   }
 
-  .adjacent-description {
-    display: -webkit-box;
-    overflow: hidden;
-    color: var(--text-soft);
-    font-size: 0.83rem;
-    line-height: 1.5;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-
   .adjacent-bottom {
     display: flex;
     align-items: end;
     justify-content: space-between;
     gap: 1rem;
-    margin-top: auto;
   }
 
   .adjacent-meta {
@@ -457,13 +486,24 @@ if (next) cards.push({ item: next, direction: 'next', label: words.next });
     .adjacent-copy {
       width: min(80%, 31rem);
     }
+
+    .adjacent-grid--single .adjacent-card--image .adjacent-copy {
+      width: min(75%, 22rem);
+    }
+
+    .adjacent-grid--single .adjacent-card--image .adjacent-art {
+      inset: 0;
+      width: 100%;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
   }
 
   @media (prefers-reduced-motion: reduce) {
     .adjacent-card,
     .adjacent-card::before,
     .adjacent-card::after,
-    .adjacent-art img,
     .adjacent-art-fallback svg,
     .adjacent-title,
     .adjacent-arrow {

@@ -5,9 +5,9 @@ description: "A powerful, local-first knowledge base and note-taking app built o
 pubDate: "2026-06-11"
 tag: [obsidian,introduction]
 postImage:
-homepined: false
+homepined: true
 pinedOrder: 0
-draft: false
+draft: true
 
 ---
 

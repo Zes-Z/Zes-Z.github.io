@@ -7,7 +7,7 @@ tag: [obsidian,introduction]
 postImage:
 homepined: false
 pinedOrder: 0
-draft: false
+draft: true
 
 ---
 
