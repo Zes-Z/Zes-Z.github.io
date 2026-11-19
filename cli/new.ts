@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const postsDir = join(root, 'src', 'content', 'posts');
-const galleryDir = join(root, 'src', 'content', 'gallery');
+const albumDir = join(root, 'src', 'content', 'album');
 const customPostCategory = '__custom__';
 const customPortfolioCategory = '__create_category__';
 
@@ -326,13 +326,13 @@ async function askPortfolioCategory(categories: string[]): Promise<string> {
 
 async function newPortfolio(initialName: string): Promise<void> {
   const name = await askPortfolioName(initialName);
-  const folder = join(galleryDir, name);
+  const folder = join(albumDir, name);
   if (existsSync(folder)) {
     console.error(`Portfolio folder already exists: ${folder}`);
     process.exit(1);
   }
 
-  const category = await askPortfolioCategory(existingCategories(galleryDir));
+  const category = await askPortfolioCategory(existingCategories(albumDir));
   mkdirSync(folder, { recursive: false });
   writeFileSync(
     join(folder, 'portfolio.md'),
@@ -355,8 +355,8 @@ async function newPortfolio(initialName: string): Promise<void> {
     'utf8',
   );
 
-  console.log(`Created portfolio: src/content/gallery/${name}/`);
-  console.log(`Created: src/content/gallery/${name}/portfolio.md`);
+  console.log(`Created portfolio: src/content/album/${name}/`);
+  console.log(`Created: src/content/album/${name}/portfolio.md`);
   console.log(`Default category: ${category}`);
   console.log('Photo metadata will be synchronized into portfolio.md on dev, build, or gallery:sync.');
 }

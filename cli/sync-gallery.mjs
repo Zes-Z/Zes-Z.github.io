@@ -7,7 +7,7 @@ import exifr from 'exifr';
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../src/content/gallery',
+  '../src/content/album',
 );
 
 const mediaPattern = /\.(jpe?g|png|webp|avif|gif|mp4|webm|mov|m4v)$/i;
