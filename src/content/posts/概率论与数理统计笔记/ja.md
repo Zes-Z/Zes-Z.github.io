@@ -1,6 +1,6 @@
 ---
-title: "確率統計手帳"
-description: ""
+title: "確率・統計ノート"
+description: "確率・統計ノート"
 pubDate: "2025-11-11"
 category: "Math & Coding"
 tag: []
@@ -10,6 +10,15 @@ pinedOrder: 0
 draft: false
 ---
 
+## 1. 
+
+
+
+## 2. 
+
+
+
+## 3. 
 
 
 
