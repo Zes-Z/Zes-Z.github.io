@@ -31,7 +31,8 @@ welcome: [
     href: (lang: Language) => `/${lang}/welcome-site`,
   },
   {
-    text: 'To someone it may concern.',
+    text: 'What is to come can be pursued.', 
+    // What lies behind is beyond recall; What lies ahead is still within reach.
     href: (lang: Language) => `/${lang}/welcome-site`,
   },
 ] satisfies { text: string; href: (lang: Language) => string }[],
