@@ -561,12 +561,12 @@ document.addEventListener('astro:page-load', bindHero);
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
   }
 
-  /* 左下角小文字块(quietpages 式) */
+  /* 首页欢迎文字位于画面中央稍偏下 */
   .hero-overlay--bottom-left {
-    align-items: flex-start;
-    justify-content: flex-end;
-    text-align: left;
-    padding: 0 5vw 2.7rem 4.2vw;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12vh 5vw 0;
   }
   .hero-overlay--bottom-left .hero-title,
   .hero-overlay--bottom-left .hero-title-link,
@@ -661,15 +661,17 @@ document.addEventListener('astro:page-load', bindHero);
     color: #fff;
   }
 
-  /* 右下角"About Zes"个人展示站文字链接 */
+  /* About Zes 在欢迎文字下方，与其水平居中 */
   .hero-corner-right {
     position: absolute;
-    right: 4.2vw;
-    bottom: 2.7rem;
+    top: calc(50% + 6vh + 2.5rem);
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 4;
-    max-width: min(40vw, 26em);
+    max-width: 90vw;
     color: #fff;
-    text-align: right;
+    text-align: center;
+    white-space: nowrap;
   }
 
 
