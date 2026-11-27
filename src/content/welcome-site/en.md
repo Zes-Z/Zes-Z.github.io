@@ -2,8 +2,19 @@
 title: "Welcome to this site!"
 ---
 
-I'm the author of **Zest** — a developer who likes quiet tools, long walks and well-kept notes.
+I'm the author of **Zes4u**, a developer who enjoys reading in quiet places, wandering around with a camera, and taking long walks.
 
-- Building for the web since 2026
-- Writing in three languages: 中文 / English / 日本語
-- Based somewhere with good coffee
+---
+
+Here's what you'll find on this blog:
+:::defi[Notes on mathematics and related subjects, including:]
+Calculus, linear algebra, probability and mathematical statistics, data structures and algorithms, computer organization, information theory, and circuit theory
+:::
+
+:::tip[An assortment of language-related notes]
+They may cover English, Japanese, and French.
+:::
+
+:::vital[x]
+Some stray thoughts and grumbles that reflect the author's views on the world, values, and life...
+:::
