@@ -39,18 +39,20 @@ export interface PortfolioCard {
   category: string;
   description: string;
   src: string;
+  coverFile: string;
   width?: number;
   height?: number;
   count: number;
   photographer: string;
   related: string[];
+  body: string;
 }
 
 const metadataFiles = import.meta.glob<Record<string, any> | Record<string, any>[]>(
   '/src/content/album/**/*.json', { eager: true, import: 'default' },
 );
 const portfolioFiles = import.meta.glob<string>(
-  '/src/content/album/**/portfolio.md', { eager: true, query: '?raw', import: 'default' },
+  '/src/content/album/**/{zh,en,jp,ja}.md', { eager: true, query: '?raw', import: 'default' },
 );
 const albumAssets = import.meta.glob<string>(
   '/src/content/album/**/*.{jpg,jpeg,png,webp,avif,gif,mp4,webm,mov,m4v,JPG,JPEG,PNG,WEBP,AVIF,GIF,MP4,WEBM,MOV,M4V}',
@@ -159,55 +161,15 @@ function photoExif(value: unknown): AlbumExif {
   };
 }
 
-function photoRecordsFromBody(body: string): [string, Record<string, any>][] {
-  const records: [string, Record<string, any>][] = [];
-  const pattern = /"((?:\\.|[^"\\])+\.(?:jpe?g|png|webp|avif|gif|mp4|webm|mov|m4v))"\s*:\s*\{/giu;
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(body))) {
-    const file = JSON.parse(`"${match[1]}"`) as string;
-    const start = pattern.lastIndex - 1;
-    let depth = 0;
-    let inString = false;
-    let escaped = false;
-    let end = -1;
-
-    for (let index = start; index < body.length; index += 1) {
-      const char = body[index];
-      if (inString) {
-        if (escaped) escaped = false;
-        else if (char === '\\') escaped = true;
-        else if (char === '"') inString = false;
-        continue;
-      }
-      if (char === '"') inString = true;
-      else if (char === '{') depth += 1;
-      else if (char === '}' && --depth === 0) {
-        end = index + 1;
-        break;
-      }
-    }
-
-    if (end < 0) continue;
-    try {
-      const record = JSON.parse(body.slice(start, end));
-      if (record && typeof record === 'object' && !Array.isArray(record)) records.push([file, record]);
-    } catch {
-      // Ignore prose and examples that only resemble photo metadata.
-    }
-    pattern.lastIndex = end;
-  }
-
-  return records;
-}
-
 function portfolioMetadata(folder: string, lang: Language) {
-  const path = `${albumContentRoot}${folder}/portfolio.md`;
-  const source = portfolioFiles[path];
-  if (!source) return { title: folder, category: '', description: '', related: [] as string[], draft: false, heroImage: '' };
+  const languageFile = lang === 'ja' ? 'jp' : lang;
+  const source = portfolioFiles[`${albumContentRoot}${folder}/${languageFile}.md`]
+    ?? portfolioFiles[`${albumContentRoot}${folder}/ja.md`]
+    ?? portfolioFiles[`${albumContentRoot}${folder}/zh.md`];
+  if (!source) return { title: folder, category: '', description: '', related: [] as string[], draft: false, heroImage: '', body: '' };
 
   try {
-    const { data } = matter(source);
+    const { data, content } = matter(source);
     return {
       title: localizedField(data.title, lang, folder),
       category: typeof data.category === 'string' ? data.category.trim() : '',
@@ -217,9 +179,10 @@ function portfolioMetadata(folder: string, lang: Language) {
         : [],
       draft: data.draft === true,
       heroImage: typeof data.heroImage === 'string' ? data.heroImage.trim() : '',
+      body: content.trim(),
     };
   } catch {
-    return { title: folder, category: '', description: '', related: [] as string[], draft: false, heroImage: '' };
+    return { title: folder, category: '', description: '', related: [] as string[], draft: false, heroImage: '', body: '' };
   }
 }
 
@@ -253,23 +216,9 @@ export function getAlbumEntries(lang: Language): AlbumEntry[] {
   for (const [jsonPath, raw] of Object.entries(metadataFiles)) {
     const groups = Array.isArray(raw) ? raw : [raw];
     const directory = jsonPath.slice(albumContentRoot.length).split('/').slice(0, -1).join('/');
-    if (directory && portfolioFiles[`${albumContentRoot}${directory}/portfolio.md`]) continue;
     for (const group of groups) {
       addRecords(directory, Object.entries(group ?? {}));
     }
-  }
-
-  for (const [markdownPath, source] of Object.entries(portfolioFiles)) {
-    const directory = markdownPath.slice(albumContentRoot.length).split('/').slice(0, -1).join('/');
-    try {
-      const { data, content } = matter(source);
-      const records = new Map<string, any>();
-      if (data.photos && typeof data.photos === 'object' && !Array.isArray(data.photos)) {
-        for (const [file, record] of Object.entries(data.photos)) records.set(file, record);
-      }
-      for (const [file, record] of photoRecordsFromBody(content)) records.set(file, record);
-      addRecords(directory, [...records]);
-    } catch { /* The gallery sync command reports malformed portfolio Markdown. */ }
   }
 
   for (const [path, url] of Object.entries(albumAssets)) {
@@ -313,11 +262,13 @@ export function getAlbumHomeItems(lang: Language): Array<AlbumEntry | PortfolioC
       category: metadata.category,
       description: metadata.description,
       src: cover.src,
+      coverFile: cover.file,
       width: cover.width,
       height: cover.height,
       count: photos.length,
       photographer: cover.photographer,
       related: metadata.related,
+      body: metadata.body,
     });
   }
   return home;

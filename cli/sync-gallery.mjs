@@ -41,7 +41,7 @@ async function readJsonRecords(jsonFile, { tolerateMalformed = false } = {}) {
 
     if (tolerateMalformed && error instanceof SyntaxError) {
       console.warn(
-        `Ignoring malformed legacy metadata ${path.relative(root, jsonFile)}; portfolio.md is authoritative`,
+        `Ignoring malformed metadata ${path.relative(root, jsonFile)}`,
       );
       return [];
     }
@@ -439,141 +439,6 @@ function embeddedPhotoEntries(body) {
   return entries;
 }
 
-function formatPhotoEntry(file, record) {
-  const lines = JSON.stringify(record, null, 2).split('\n');
-
-  return `${JSON.stringify(file)}: ${lines[0]}\n${lines
-    .slice(1)
-    .map((line) => `  ${line}`)
-    .join('\n')}`;
-}
-
-function syncPhotoEntriesInBody(body, photos, files) {
-  const fileSet = new Set(files);
-  const entries = embeddedPhotoEntries(body);
-  const replacements = [];
-  const present = new Set();
-
-  for (const entry of entries) {
-    if (fileSet.has(entry.file) && photos[entry.file]) {
-      present.add(entry.file);
-
-      const lineStart =
-        body.lastIndexOf('\n', entry.start - 1) + 1;
-
-      const linePrefix = body.slice(lineStart, entry.start);
-
-      const isOwnLine = /^\s*$/.test(linePrefix);
-
-      replacements.push({
-        start: isOwnLine ? lineStart : entry.start,
-        end: entry.end,
-        value: `${isOwnLine ? '  ' : ''}${formatPhotoEntry(
-          entry.file,
-          photos[entry.file],
-        )}`,
-      });
-
-      continue;
-    }
-
-    let { start, end } = entry;
-
-    const following = body.slice(end).match(/^\s*,/);
-
-    if (following) {
-      end += following[0].length;
-    } else {
-      const preceding = body.slice(0, start).match(/,\s*$/);
-
-      if (preceding) {
-        start -= preceding[0].length;
-      }
-    }
-
-    replacements.push({
-      start,
-      end,
-      value: '',
-    });
-  }
-
-  let updated = body;
-
-  for (
-    const replacement of replacements.sort(
-      (a, b) => b.start - a.start,
-    )
-  ) {
-    updated = `${updated.slice(
-      0,
-      replacement.start,
-    )}${replacement.value}${updated.slice(
-      replacement.end,
-    )}`;
-  }
-
-  const missing = files.filter(
-    (file) => !present.has(file),
-  );
-
-  if (
-    !updated.trim().startsWith('[') ||
-    !updated.trimEnd().endsWith(']')
-  ) {
-    updated = updated.trim()
-      ? `[\n${updated.trim()}\n]`
-      : '[\n\n]';
-  }
-
-  if (missing.length === 0) return updated;
-
-  const closing = updated.lastIndexOf(']');
-
-  const beforeClosing = updated
-    .slice(0, closing)
-    .trimEnd();
-
-  const separator =
-    beforeClosing.endsWith('[') ||
-    beforeClosing.endsWith(',')
-      ? '\n\n'
-      : ',\n\n';
-
-  const additions = missing
-    .map((file) =>
-      `  ${formatPhotoEntry(file, photos[file])}`,
-    )
-    .join(',\n\n');
-
-  return `${beforeClosing}${separator}${additions}\n${updated.slice(
-    closing,
-  )}`;
-}
-
-function collapseLocalizedValue(value) {
-  if (
-    !value ||
-    typeof value !== 'object' ||
-    Array.isArray(value)
-  ) {
-    return value;
-  }
-
-  const translations = Object.values(value).filter(
-    (item) => typeof item === 'string',
-  );
-
-  const unique = new Set(translations);
-
-  if (unique.size <= 1) {
-    return translations[0] ?? '';
-  }
-
-  return value;
-}
-
-
 async function syncRootDirectory(directory) {
   const jsonFile = path.join(directory, 'photo-video.json');
   const oldByFile = new Map(await readJsonRecords(jsonFile));
@@ -596,6 +461,11 @@ async function syncRootDirectory(directory) {
     );
   }
 
+  // Keep metadata for temporarily absent root photos untouched.
+  for (const [file, saved] of oldByFile) {
+    if (!(file in records)) records[file] = saved;
+  }
+
   await writeFile(
     jsonFile,
     `${JSON.stringify(records, null, 2)}\n`,
@@ -613,223 +483,107 @@ async function syncRootDirectory(directory) {
 
 
 async function syncPortfolioDirectory(directory) {
-  const markdownFile = path.join(
-    directory,
-    'portfolio.md',
-  );
-
-  const legacyJsonFile = path.join(
-    directory,
-    'portfolio.json',
-  );
-
-  const legacyEntries = (
-    await readJsonRecords(
-      legacyJsonFile,
-      { tolerateMalformed: true },
-    )
-  ).map(([key, record]) => [
-    record?.file ?? key,
-    record,
-  ]);
-
-  let body = '';
-  let data = {};
+  const jsonFile = path.join(directory, 'portfolio.json');
+  const legacyMarkdown = path.join(directory, 'portfolio.md');
+  const languageFiles = ['zh', 'en', 'jp'].map((lang) => path.join(directory, `${lang}.md`));
+  const savedPhotos = new Map(await readJsonRecords(jsonFile));
+  let legacyData = {};
+  let legacyBody = '';
 
   try {
-    const source = await readFile(
-      markdownFile,
-      'utf8',
-    );
-
-    const parsed = matter(source);
-
-    body = parsed.content;
-    data = parsed.data;
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw new Error(
-        `Could not parse ${path.relative(root, markdownFile)}: ${error.message}`,
-      );
+    const parsed = matter(await readFile(legacyMarkdown, 'utf8'));
+    legacyData = parsed.data;
+    legacyBody = parsed.content;
+    if (legacyData.photos && typeof legacyData.photos === 'object' && !Array.isArray(legacyData.photos)) {
+      for (const [file, record] of Object.entries(legacyData.photos)) {
+        if (!savedPhotos.has(file)) savedPhotos.set(file, record);
+      }
     }
-  }
-
-  const oldPhotos = new Map(legacyEntries);
-
-  if (
-    data.photos &&
-    typeof data.photos === 'object' &&
-    !Array.isArray(data.photos)
-  ) {
-    for (const [file, record] of Object.entries(data.photos)) {
-      oldPhotos.set(file, record);
+    for (const { file, record } of embeddedPhotoEntries(legacyBody)) {
+      if (!savedPhotos.has(file)) savedPhotos.set(file, record);
     }
-  }
-
-  for (const { file, record } of embeddedPhotoEntries(body)) {
-    oldPhotos.set(file, record);
-  }
-
-  const files = await mediaFiles(directory);
-
-  const category =
-    typeof data.category === 'string'
-      ? data.category
-      : '';
-
-  const folder = path
-    .relative(root, directory)
-    .split(path.sep)
-    .join('/');
-
-  const oldPhotoIds = new Set(
-    [...oldPhotos.keys()].map((file) =>
-      objectId(path.posix.join(folder, file)),
-    ),
-  );
-
-  const currentPhotoIds = new Map(
-    files.map((file) => [
-      file,
-      objectId(path.posix.join(folder, file)),
-    ]),
-  );
-
-  // 逐张读取图片 EXIF。
-  // 视频不读取，单张图片失败不会中断整个目录同步。
-  const photos = {};
-
-  for (const file of files) {
-    const saved = oldPhotos.get(file) ?? {};
-
-    const selfId = currentPhotoIds.get(file);
-
-    const peerIds = [
-      ...currentPhotoIds.values(),
-    ].filter((id) => id !== selfId);
-
-    const customRelated = Array.isArray(saved.related)
-      ? saved.related.filter(
-          (id) =>
-            typeof id === 'string' &&
-            id !== selfId &&
-            !oldPhotoIds.has(id),
-        )
-      : [];
-
-    // 只有图片才读取 EXIF。
-    const extractedExif = photoPattern.test(file)
-      ? await readExif(
-          path.join(directory, file),
-        )
-      : {};
-
-    const record = normalizedRecord(
-      file,
-      saved,
-      category,
-      extractedExif,
-    );
-
-    record.related = [
-      ...new Set([
-        ...customRelated,
-        ...peerIds,
-      ]),
-    ];
-
-    photos[file] = record;
-  }
-
-  const folderName = path.basename(directory);
-
-  const frontmatter = {
-    title:
-      collapseLocalizedValue(data.title) ||
-      folderName,
-
-    description:
-      collapseLocalizedValue(data.description) ?? '',
-
-    pubDate:
-      data.pubDate ??
-      new Date().toISOString().slice(0, 10),
-
-    category,
-
-    tag:
-      Array.isArray(data.tag)
-        ? data.tag
-        : data.tag == null || data.tag === ''
-          ? []
-          : [String(data.tag)],
-
-    heroImage:
-      typeof data.heroImage === 'string' &&
-      photoPattern.test(data.heroImage.trim()) &&
-      files.includes(data.heroImage.trim()) &&
-      !photos[data.heroImage.trim()]?.draft
-        ? data.heroImage.trim()
-        : files.find(
-            (file) =>
-              photoPattern.test(file) &&
-              !photos[file]?.draft,
-          ) ?? ' ',
-
-    draft:
-      typeof data.draft === 'boolean'
-        ? data.draft
-        : false,
-  };
-
-  for (const [key, value] of Object.entries(data)) {
-    if (
-      ![
-        'title',
-        'description',
-        'pubDate',
-        'category',
-        'tag',
-        'heroImage',
-        'draft',
-        'photos',
-      ].includes(key)
-    ) {
-      frontmatter[key] = value;
-    }
-  }
-
-  const updatedBody = syncPhotoEntriesInBody(
-    body,
-    photos,
-    files,
-  );
-
-  await writeFile(
-    markdownFile,
-    matter.stringify(
-      updatedBody,
-      frontmatter,
-    ),
-    'utf8',
-  );
-
-  // 迁移完成后删除旧版 JSON。
-  try {
-    await unlink(legacyJsonFile);
-
-    console.log(
-      `Migrated and removed ${path.relative(root, legacyJsonFile)}`,
-    );
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
 
-  console.log(
-    `Updated ${path.relative(root, markdownFile)} (${files.length} photos)`,
-  );
-}
+  const existingMarkdown = [];
+  for (const file of languageFiles) {
+    try {
+      existingMarkdown.push(matter(await readFile(file, 'utf8')));
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+      existingMarkdown.push(null);
+    }
+  }
+  const sourceData = existingMarkdown.find(Boolean)?.data ?? legacyData;
+  const folderName = path.basename(directory);
+  const files = await mediaFiles(directory);
+  const category = typeof sourceData.category === 'string' ? sourceData.category : '';
+  const folder = path.relative(root, directory).split(path.sep).join('/');
+  const oldPhotoIds = new Set([...savedPhotos.keys()].map((file) => objectId(path.posix.join(folder, file))));
+  const currentPhotoIds = new Map(files.map((file) => [file, objectId(path.posix.join(folder, file))]));
+  const photos = {};
 
+  for (const file of files) {
+    const saved = savedPhotos.get(file) ?? {};
+    const selfId = currentPhotoIds.get(file);
+    const peerIds = [...currentPhotoIds.values()].filter((id) => id !== selfId);
+    const customRelated = Array.isArray(saved.related)
+      ? saved.related.filter((id) => typeof id === 'string' && id !== selfId && !oldPhotoIds.has(id))
+      : [];
+    const extractedExif = photoPattern.test(file) ? await readExif(path.join(directory, file)) : {};
+    const record = normalizedRecord(file, saved, category, extractedExif);
+    record.related = [...new Set([...customRelated, ...peerIds])];
+    photos[file] = record;
+  }
+
+  await writeFile(jsonFile, `${JSON.stringify(photos, null, 2)}\n`, 'utf8');
+
+  let legacyProse = legacyBody;
+  for (const entry of embeddedPhotoEntries(legacyBody).reverse()) {
+    legacyProse = `${legacyProse.slice(0, entry.start)}${legacyProse.slice(entry.end)}`;
+  }
+  legacyProse = legacyProse
+    .replace(/^\s*\[/u, '')
+    .replace(/\]\s*$/u, '')
+    .replace(/^\s*,\s*$/gmu, '')
+    .replace(/,\s*$/gmu, '')
+    .trim();
+  const fallbackCover = files.find((name) => photoPattern.test(name) && !photos[name]?.draft) ?? ' ';
+  for (const [index, file] of languageFiles.entries()) {
+    if (existingMarkdown[index]) {
+      const current = existingMarkdown[index];
+      const cover = typeof current.data.heroImage === 'string' ? current.data.heroImage.trim() : '';
+      if (!files.includes(cover) || !photoPattern.test(cover) || photos[cover]?.draft) {
+        await writeFile(file, matter.stringify(current.content, { ...current.data, heroImage: fallbackCover }), 'utf8');
+      }
+      continue;
+    }
+    const lang = ['zh', 'en', 'jp'][index];
+    const title = sourceData.title && typeof sourceData.title === 'object'
+      ? sourceData.title[lang === 'jp' ? 'ja' : lang] ?? folderName
+      : sourceData.title ?? folderName;
+    const description = sourceData.description && typeof sourceData.description === 'object'
+      ? sourceData.description[lang === 'jp' ? 'ja' : lang] ?? ''
+      : sourceData.description ?? '';
+    const frontmatter = {
+      ...sourceData,
+      title,
+      description,
+      pubDate: sourceData.pubDate ?? new Date().toISOString().slice(0, 10),
+      category,
+      tag: Array.isArray(sourceData.tag) ? sourceData.tag : [],
+      heroImage: typeof sourceData.heroImage === 'string' && photoPattern.test(sourceData.heroImage.trim()) && files.includes(sourceData.heroImage.trim())
+        ? sourceData.heroImage.trim()
+        : fallbackCover,
+      draft: sourceData.draft === true,
+    };
+    delete frontmatter.photos;
+    await writeFile(file, matter.stringify(index === 0 && legacyProse ? `\n${legacyProse}\n` : '\n', frontmatter), 'utf8');
+  }
+  if (legacyBody || Object.keys(legacyData).length) await unlink(legacyMarkdown);
+  console.log(`Updated ${path.relative(root, jsonFile)} (${files.length} photos)`);
+}
 async function walk(directory, isRoot = false) {
   if (isRoot) {
     await syncRootDirectory(directory);

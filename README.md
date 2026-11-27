@@ -24,12 +24,12 @@ pnpm dev            # 开发服务器 http://localhost:4321
 pnpm build          # astro check + astro build
 pnpm preview        # 预览生产构建
 pnpm newpost        # 交互式新建文章(自动盖章 pubDate)
-pnpm newport        # 交互式新建作品集文件夹和 portfolio.md
+pnpm newport        # 交互式新建作品集文件夹、三语 Markdown 和 portfolio.json
 ```
 
 相册照片与作品集存放在 `src/content/album/`。
 
-根目录照片元信息保存在 `photo-video.json`，以文件名为键；作品集照片元信息放在 `portfolio.md` 正文中的 JSON 片段里，frontmatter 只保存作品集字段。照片元信息使用 `draft`、`type`、`category`、`tag`、`location`、`date`、`photographer`、`title: [英文, 中文, 日文]`、`description`（主页卡片短描述）、`text: [中文, 英文, 日文]`（详情文字）、`exif` 和 `related`。`exif` 可记录 `camera`、`lens`、`focalLength`、`aperture`、`shutterSpeed`、`iso`、`exposureCompensation`；相机型号默认 `Canon EOS R8`。照片与作品集各自的 `draft` 独立控制显示。`heroImage` 保存作品集封面文件名。`pnpm dev`、`pnpm build` 或 `pnpm gallery:sync` 会根据实际媒体文件更新元信息、补齐同作品集照片的 `related`，并迁移旧 `portfolio.json`。`related` 使用对象 ID 字符串数组，例如 `related: ["portfolio1", "video1", "photo2"]`。
+根目录普通照片的元信息保存在 `photo-video.json`；每个作品集文件夹使用 `portfolio.json` 保存照片元信息，使用 `zh.md`、`en.md`、`jp.md` 保存三语作品集标题、分类、封面等 frontmatter 和正文（日语页面路由仍为 `/ja/`）。照片元信息以文件名为键，包含 `draft`、`type`、`category`、`tag`、`location`、`date`、`photographer`、`title: [英文, 中文, 日文]`、`description`、`text: [中文, 英文, 日文]`、`exif` 和 `related`。照片与作品集各自的 `draft` 独立控制显示；`heroImage` 为作品集封面文件名。`pnpm dev`、`pnpm build` 或 `pnpm gallery:sync` 会根据媒体文件更新 `portfolio.json`、读取 EXIF 并补齐同作品集照片的 `related`。在作品集 Markdown 正文中写 `<!-- photo:IMG_1198_1.JPG -->` 可把指定照片插入文字之间；未指定的照片会自动接在正文之后。旧 `portfolio.md` 会在首次同步时迁移到新文件结构。
 
 要求 Node >= 22.12、pnpm(项目使用 pnpm 11;`pnpm-workspace.yaml` 中已放行 esbuild/sharp 构建脚本)。
 

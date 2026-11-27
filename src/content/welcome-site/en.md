@@ -2,19 +2,19 @@
 title: "Welcome to this site!"
 ---
 
-I'm the author of **Zes4u**, a developer who enjoys reading in quiet places, wandering around with a camera, and taking long walks.
+I'm the author of **Zes4u**, a developer who enjoys reading quietly, taking photographs wherever I go, and going on long walks.
 
 ---
 
-Here's what you'll find on this blog:
-:::defi[Notes on mathematics and related subjects, including:]
-Calculus, linear algebra, probability and mathematical statistics, data structures and algorithms, computer organization, information theory, and circuit theory
+Here is everything you can find on this blog:
+:::defi[Study notes on mathematics and related subjects, including but not limited to:]
+Calculus, linear algebra, probability theory and mathematical statistics, data structures and algorithms, computer organization, information theory, and circuit theory
 :::
 
-:::tip[An assortment of language-related notes]
-They may cover English, Japanese, and French.
+:::tip[Odds and ends about languages]
+Possibly covering English, Japanese, and French.
 :::
 
 :::vital[x]
-Some stray thoughts and grumbles that reflect the author's views on the world, values, and life...
+Some ramblings and complaints reflecting the author's worldview, values, and outlook on life...
 :::

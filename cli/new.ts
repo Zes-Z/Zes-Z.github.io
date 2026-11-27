@@ -257,7 +257,7 @@ function existingCategories(directory: string, found = new Set<string>()): strin
       } catch {
         // The gallery sync command reports invalid metadata files.
       }
-    } else if (entry.name === 'portfolio.md') {
+    } else if (['zh.md', 'en.md', 'jp.md', 'ja.md'].includes(entry.name) && directory !== albumDir) {
       try {
         const { data, content } = matter(readFileSync(path, 'utf8'));
         if (typeof data.category === 'string' && data.category.trim()) {
@@ -334,9 +334,7 @@ async function newPortfolio(initialName: string): Promise<void> {
 
   const category = await askPortfolioCategory(existingCategories(albumDir));
   mkdirSync(folder, { recursive: false });
-  writeFileSync(
-    join(folder, 'portfolio.md'),
-    [
+  const frontmatter = [
       '---',
       `title: ${JSON.stringify(name)}`,
       'description: ""',
@@ -347,18 +345,16 @@ async function newPortfolio(initialName: string): Promise<void> {
       'draft: false',
       '---',
       '',
-      '[',
-      '',
-      ']',
-      '',
-    ].join('\n'),
-    'utf8',
-  );
+    ].join('\n');
+  for (const lang of ['zh', 'en', 'jp']) {
+    writeFileSync(join(folder, `${lang}.md`), frontmatter, 'utf8');
+  }
+  writeFileSync(join(folder, 'portfolio.json'), '{}\n', 'utf8');
 
   console.log(`Created portfolio: src/content/album/${name}/`);
-  console.log(`Created: src/content/album/${name}/portfolio.md`);
+  console.log(`Created: src/content/album/${name}/{zh,en,jp}.md and portfolio.json`);
   console.log(`Default category: ${category}`);
-  console.log('Photo metadata will be synchronized into portfolio.md on dev, build, or gallery:sync.');
+  console.log('Photo metadata will be synchronized into portfolio.json on dev, build, or gallery:sync.');
 }
 
 const [command, ...args] = process.argv.slice(2);

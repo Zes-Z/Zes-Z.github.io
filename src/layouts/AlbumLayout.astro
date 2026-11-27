@@ -4,6 +4,7 @@ import type { Language } from '../types';
 import { getAlbumEntries, getAlbumHomeItems, type AlbumEntry, type PortfolioCard } from '../utils/album';
 import { withBase } from '../utils/paths';
 import CategoryPills from '../components/CategoryPills.astro';
+import { renderMarkdown } from '../utils/markdown';
 
 interface Props {
   lang: Language;
@@ -178,6 +179,31 @@ const activeEntries: AlbumEntry[] = portfolio
     : allEntries.filter((item) => !item.file.includes('/'));
 
 const portfolioImages = activeEntries.filter((item) => item.kind !== 'video');
+
+type PortfolioSection = { kind: 'text'; html: string } | { kind: 'photo'; item: AlbumEntry; photoIndex: number };
+const portfolioSections: PortfolioSection[] = [];
+if (portfolio) {
+  const used = new Set<string>();
+  let photoIndex = 0;
+  const markers = /<!--\s*photo:\s*(.+?)\s*-->/giu;
+  let cursor = 0;
+  for (const match of portfolio.body.matchAll(markers)) {
+    const prose = portfolio.body.slice(cursor, match.index).trim();
+    if (prose) portfolioSections.push({ kind: 'text', html: (await renderMarkdown(prose)).html });
+    const file = match[1]?.trim();
+    const item = activeEntries.find((entry) => entry.file === `${portfolio.folder}/${file}`);
+    if (item && !used.has(item.id)) {
+      portfolioSections.push({ kind: 'photo', item, photoIndex: photoIndex++ });
+      used.add(item.id);
+    }
+    cursor = match.index + match[0].length;
+  }
+  const closingProse = portfolio.body.slice(cursor).trim();
+  if (closingProse) portfolioSections.push({ kind: 'text', html: (await renderMarkdown(closingProse)).html });
+  for (const item of activeEntries) {
+    if (!used.has(item.id)) portfolioSections.push({ kind: 'photo', item, photoIndex: photoIndex++ });
+  }
+}
 
 const portfolioImageIndex = new Map(
   portfolioImages.map((item, index) => [item.id, index])
@@ -449,11 +475,13 @@ const largeImage = detail
       <h1 class="portfolio-title">{portfolio.title}</h1>
 
       <div class="portfolio-sequence">
-        {activeEntries.map((item, index) => (
+        {portfolioSections.map((part) => part.kind === 'text' ? (
+          <section class="portfolio-prose portfolio-fade" data-portfolio-fade set:html={part.html} />
+        ) : ((item) => (
           <section class:list={[
-            'portfolio-row',
-            { 'image-right-wide': index % 2 === 1 },
-          ]}>
+            'portfolio-row', 'portfolio-fade',
+            { 'image-right-wide': part.photoIndex % 2 === 1 },
+          ]} data-portfolio-fade>
             <div class="portfolio-image">
               {item.kind === 'video' ? (
                 <video src={item.src} controls playsinline />
@@ -470,7 +498,7 @@ const largeImage = detail
                     alt={item.title}
                     width={item.width}
                     height={item.height}
-                    loading={index < 2 ? 'eager' : 'lazy'}
+                    loading={part.photoIndex < 2 ? 'eager' : 'lazy'}
                   />
                 </button>
               )}
@@ -592,7 +620,7 @@ const largeImage = detail
               )}
             </aside>
           </section>
-        ))}
+        ))(part.item))}
       </div>
 
       {portfolioImages.length > 0 && (
@@ -766,6 +794,22 @@ const largeImage = detail
 </BaseLayout>
 
 <script>
+function initPortfolioFade() {
+  const sections = document.querySelectorAll<HTMLElement>('[data-portfolio-fade]');
+  if (!sections.length || !('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      (entry.target as HTMLElement).classList.add('is-visible');
+      observer.unobserve(entry.target);
+    }
+  }, { threshold: 0.08, rootMargin: '0px 0px -5% 0px' });
+  sections.forEach((section) => observer.observe(section));
+  document.documentElement.classList.add('portfolio-fade-ready');
+}
+initPortfolioFade();
+document.addEventListener('astro:page-load', initPortfolioFade);
+
   const ALBUM_RETURN_KEY = 'zest-album-return-map';
   const ALBUM_PENDING_KEY = 'zest-album-return-pending';
   let previousScrollBehavior: string | null = null;
@@ -860,7 +904,7 @@ const largeImage = detail
 
         const span = Math.max(
           1,
-          Math.ceil((cardWidth * ratio + rowGap) / (rowHeight + rowGap))
+          Math.ceil((cardWidth * ratio + columnGap) / (rowHeight + rowGap))
         );
 
         card.style.gridRowEnd = `span ${span}`;
@@ -1268,6 +1312,7 @@ const largeImage = detail
         const style = getComputedStyle(masonry);
         const rowHeight = Number.parseFloat(style.gridAutoRows) || 8;
         const rowGap = Number.parseFloat(style.rowGap) || 0;
+        const columnGap = Number.parseFloat(style.columnGap) || 0;
 
         masonry.querySelectorAll<HTMLElement>(
           ':scope > .photo-card'
@@ -1296,7 +1341,7 @@ const largeImage = detail
 
           const span = Math.max(
             1,
-            Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap))
+            Math.ceil((contentHeight + columnGap) / (rowHeight + rowGap))
           );
 
           card.style.gridRowEnd = `span ${span}`;
@@ -1536,12 +1581,17 @@ const largeImage = detail
   }
 
   .masonry {
+    --masonry-gap: 1.5rem;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 6px;
-    column-gap: 1.5rem;
-    row-gap: 6px;
+    grid-auto-rows: 2px;
+    column-gap: var(--masonry-gap);
+    row-gap: 0;
     align-items: start;
+  }
+
+  .masonry > .photo-card {
+    margin-bottom: var(--masonry-gap);
   }
 
   .photo-card {
@@ -1889,6 +1939,7 @@ const largeImage = detail
   .portfolio-sequence {
     display: grid;
     gap: clamp(3rem, 8vw, 7rem);
+    padding-bottom: 4rem;
   }
 
   .portfolio-row {
@@ -1910,6 +1961,21 @@ const largeImage = detail
   .portfolio-row.image-right-wide .portfolio-info {
     grid-column: 1;
     grid-row: 1;
+  }
+
+  :global(html.portfolio-fade-ready) .portfolio-fade {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(16px);
+    transition: opacity 600ms ease, filter 600ms ease, transform 600ms ease;
+  }
+  :global(html.portfolio-fade-ready) .portfolio-fade.is-visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.portfolio-fade-ready) .portfolio-fade { opacity: 1; filter: none; transform: none; transition: none; }
   }
 
   .portfolio-image {
@@ -1941,6 +2007,15 @@ const largeImage = detail
   .portfolio-info {
     min-width: 0;
   }
+
+  .portfolio-prose {
+    width: min(100%, 52rem);
+    margin-inline: auto;
+    font-size: clamp(1rem, 1.2vw, 1.15rem);
+    line-height: 1.9;
+  }
+  .portfolio-prose :global(p) { margin: 0 0 1.3em; }
+  .portfolio-prose :global(img) { display: block; max-width: 100%; height: auto; margin-inline: auto; }
 
   .portfolio-info h2 {
     margin: 0 0 .5rem;
